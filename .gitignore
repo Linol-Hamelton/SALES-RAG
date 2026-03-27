@@ -1,0 +1,40 @@
+# Environment & secrets
+configs/.env
+configs/.env.local
+configs/.env.vps
+
+# Model weights (too large for git)
+models/
+
+# Qdrant data
+qdrant_data/
+
+# Generated indexes
+indexes/
+
+# Generated data
+data/
+
+# Logs & DB
+logs/
+*.db
+server.log
+
+# Local-only scripts & tools (not needed on VPS)
+scripts/
+eval/
+reports/
+benchmark_run.py
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db

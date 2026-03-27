@@ -1,0 +1,36 @@
+embedding:
+  batch_size: 64
+  max_seq_len: 512
+  query_prefix: "Represent this sentence for searching relevant passages: "
+  normalize: true
+
+retrieval:
+  top_k: 20
+  rrf_k: 60
+  rrf_alpha: 0.7
+  direction_boost: 0.1
+  direction_confidence_threshold: 0.7
+
+reranker:
+  top_n: 8
+  batch_size: 20
+  max_length: 512
+  # Heuristic boost multipliers
+  boosts:
+    auto_high_confidence: 1.3
+    guided: 1.1
+    order_rows_high: 1.15       # applied when order_rows >= 100
+    doc_type_match: 1.2         # doc_type matches query intent
+    direction_match: 1.25
+    financial_modifier: 0.3     # penalize Безнал and discount products
+
+generator:
+  max_tokens_human: 1000
+  max_tokens_structured: 1024
+  temperature: 0.1
+  top_p: 0.9
+
+pricing:
+  bundle_price_band_factor: 0.2   # ±20% for bundle price band
+  analog_confidence_discount: 0.8  # discount when using analog pricing
+  min_order_rows_for_guided: 10   # threshold for guided pricing
