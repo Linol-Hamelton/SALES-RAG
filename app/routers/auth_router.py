@@ -87,6 +87,25 @@ def me(user: dict = Depends(get_current_user)):
     return UserResponse(**user)
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str = Field(..., min_length=4, max_length=128)
+
+
+@router.post("/change-password")
+def change_password(req: ChangePasswordRequest, user: dict = Depends(get_current_user)):
+    """Change current user's password."""
+    conn = get_connection()
+    row = conn.execute("SELECT hashed_pw FROM users WHERE id = ?", (user["id"],)).fetchone()
+    if not row or not verify_password(req.current_password, row["hashed_pw"]):
+        conn.close()
+        raise HTTPException(400, "Неверный текущий пароль")
+    conn.execute("UPDATE users SET hashed_pw = ? WHERE id = ?", (hash_password(req.new_password), user["id"]))
+    conn.commit()
+    conn.close()
+    return {"status": "ok", "message": "Пароль успешно изменён"}
+
+
 # --- Admin: user management ---
 
 @router.get("/users/pending", response_model=list[PendingUserResponse])

@@ -518,37 +518,67 @@
     .ap-empty { text-align: center; padding: 60px 20px; color: var(--text-muted); font-size: 15px; }
     .ap-loading { text-align: center; padding: 40px; color: var(--text-muted); }
 
-    .ap-card {
+    /* Chat card in admin panel */
+    .ap-chat-card {
       background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-      margin-bottom: 12px; overflow: hidden; max-width: 960px; margin-left: auto; margin-right: auto;
+      margin-bottom: 10px; overflow: hidden; max-width: 960px; margin-left: auto; margin-right: auto;
     }
-    .ap-card-head {
-      padding: 10px 16px; background: var(--surface2); border-bottom: 1px solid var(--border);
+    .ap-chat-header {
+      padding: 12px 16px; background: var(--surface2); cursor: pointer;
       display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      transition: background .15s;
     }
-    .ap-user { font-size: 12px; font-weight: 600; color: var(--accent); }
-    .ap-chat-title { font-size: 12px; color: var(--text-muted); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .ap-date { font-size: 11px; color: var(--text-muted); }
+    .ap-chat-header:hover { background: var(--border); }
+    .ap-chat-expand { font-size: 11px; color: var(--text-muted); transition: transform .2s; }
+    .ap-chat-card.open .ap-chat-expand { transform: rotate(90deg); }
+    .ap-chat-user { font-size: 13px; font-weight: 600; color: var(--accent); }
+    .ap-chat-title { font-size: 13px; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ap-chat-meta { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .ap-chat-badge {
+      padding: 2px 7px; border-radius: 8px; font-size: 11px; font-weight: 600;
+      background: var(--surface); border: 1px solid var(--border); color: var(--text-muted);
+    }
+    .ap-chat-badge.has-fb { border-color: var(--auto); color: var(--auto); }
+    .ap-chat-badge.has-comments { border-color: var(--guided); color: var(--guided); }
+    .ap-chat-date { font-size: 11px; color: var(--text-muted); }
+    .ap-chat-delete {
+      background: none; border: none; color: var(--text-muted); cursor: pointer;
+      font-size: 14px; padding: 2px 6px; border-radius: 4px; transition: all .15s;
+    }
+    .ap-chat-delete:hover { color: var(--manual); background: rgba(239,68,68,.1); }
+
+    /* Messages inside expanded chat */
+    .ap-chat-messages { display: none; border-top: 1px solid var(--border); }
+    .ap-chat-card.open .ap-chat-messages { display: block; }
+    .ap-msg-loading { padding: 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+    .ap-msg {
+      padding: 10px 16px; border-bottom: 1px solid var(--border);
+      display: flex; gap: 10px;
+    }
+    .ap-msg:last-child { border-bottom: none; }
+    .ap-msg-role {
+      width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+    }
+    .ap-msg-role.user { background: var(--user-bg); color: var(--accent); }
+    .ap-msg-role.bot { background: var(--accent); color: white; }
+    .ap-msg-body { flex: 1; min-width: 0; }
+    .ap-msg-text { font-size: 13px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+    .ap-msg-info { font-size: 11px; color: var(--text-muted); margin-top: 4px; display: flex; gap: 8px; align-items: center; }
+
+    .ap-msg-feedback {
+      margin-top: 6px; padding: 8px 12px; background: var(--surface2); border-radius: 8px;
+      border-left: 3px solid var(--guided); font-size: 12px;
+    }
+    .ap-msg-feedback .ap-fb-label { font-size: 10px; text-transform: uppercase; letter-spacing: .5px; color: var(--guided); margin-bottom: 3px; }
+    .ap-msg-feedback-actions { margin-top: 6px; display: flex; gap: 6px; }
+
     .ap-rating-badge {
-      padding: 2px 8px; border-radius: 10px; font-size: 12px; font-weight: 600; flex-shrink: 0;
+      padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; flex-shrink: 0;
     }
     .ap-rating-badge.up   { background: #14532d33; color: var(--auto); border: 1px solid var(--auto); }
     .ap-rating-badge.down { background: #450a0a33; color: var(--manual); border: 1px solid var(--manual); }
-    .ap-rating-badge.none { background: var(--surface2); color: var(--text-muted); border: 1px solid var(--border); }
-
-    .ap-card-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
-    .ap-question {
-      font-size: 13px; color: var(--text-muted);
-      border-left: 3px solid var(--border); padding-left: 10px;
-    }
-    .ap-question strong { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 4px; }
-    .ap-answer { font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
-    .ap-comment {
-      padding: 10px 14px; background: var(--surface2); border-radius: 8px;
-      border-left: 3px solid var(--guided);
-    }
-    .ap-comment-label { font-size: 10px; text-transform: uppercase; letter-spacing: .6px; color: var(--guided); margin-bottom: 4px; }
-    .ap-comment-text { font-size: 13px; }
 
     .ap-load-more {
       display: block; margin: 16px auto 0; padding: 8px 24px;
@@ -556,6 +586,15 @@
       color: var(--text-muted); font-size: 13px; cursor: pointer; transition: all .2s;
     }
     .ap-load-more:hover { border-color: var(--accent); color: var(--text); }
+
+    /* Filters select */
+    .ap-filters select {
+      padding: 6px 12px; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; color: var(--text); font-size: 13px; outline: none;
+      cursor: pointer; transition: border-color .2s;
+    }
+    .ap-filters select:focus { border-color: var(--accent); }
+    .ap-filters select option { background: var(--surface); color: var(--text); }
 
     #admin-btn {
       margin: 0 16px 8px;
@@ -685,28 +724,32 @@
   </div>
   <button id="new-chat-btn" onclick="createNewChat()">+ Новый чат</button>
   <div id="chat-list"></div>
-  <button id="admin-btn" onclick="openAdminPanel()">&#128101; Все чаты (админ)</button>
+  <button id="admin-btn" onclick="openAdminPanel()">&#128101; Чаты (админ)</button>
   <button id="users-btn" onclick="openUsersPanel()">&#128100; Пользователи</button>
+  <div style="flex:1"></div>
+  <button id="changepw-btn" onclick="openChangePassword()" style="margin:0 16px 6px;padding:6px 14px;background:transparent;border:1px solid var(--border);border-radius:10px;color:var(--text-muted);font-size:12px;cursor:pointer;">&#128274; Сменить пароль</button>
   <button id="logout-btn" onclick="logout()">Выйти</button>
 </div>
 
 <!-- ADMIN PANEL -->
 <div id="admin-panel">
   <div class="ap-header">
-    <h2>&#128101; Все ответы</h2>
+    <h2>&#128101; Чаты и сообщения</h2>
     <button class="ap-close" onclick="closeAdminPanel()">&#10005; Закрыть</button>
   </div>
   <div class="ap-filters">
-    <input type="text" id="ap-username" placeholder="Фильтр по имени..." oninput="apDebouncedLoad()" />
+    <select id="ap-user-select" onchange="apLoadChats(true)">
+      <option value="">Все пользователи</option>
+    </select>
     <label>
-      <input type="checkbox" id="ap-feedback-only" onchange="apLoadMessages(true)" />
-      Только с комментариями
+      <input type="checkbox" id="ap-feedback-only" onchange="apLoadChats(true)" />
+      Только с фидбеком
     </label>
-    <button class="ap-btn" onclick="apLoadMessages(true)">Обновить</button>
+    <button class="ap-btn" onclick="apLoadChats(true)">Обновить</button>
     <div class="ap-stats" id="ap-stats"></div>
   </div>
   <div class="ap-body" id="ap-body">
-    <div class="ap-empty">Нажмите «Обновить» для загрузки</div>
+    <div class="ap-empty">Загрузка чатов...</div>
   </div>
 </div>
 
@@ -766,6 +809,21 @@
       <button id="send-btn" onclick="sendQuery()" title="Отправить">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- PASSWORD CHANGE MODAL -->
+<div id="pw-modal" style="display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.6);align-items:center;justify-content:center;">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;width:340px;max-width:90vw;">
+    <h3 style="margin-bottom:16px;font-size:15px;">&#128274; Смена пароля</h3>
+    <div id="pw-error" style="color:var(--manual);font-size:12px;margin-bottom:8px;display:none;"></div>
+    <input id="pw-current" type="password" placeholder="Текущий пароль" style="width:100%;margin-bottom:8px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;" />
+    <input id="pw-new" type="password" placeholder="Новый пароль (мин. 4 символа)" style="width:100%;margin-bottom:8px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;" />
+    <input id="pw-confirm" type="password" placeholder="Повторите новый пароль" style="width:100%;margin-bottom:14px;padding:8px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;" />
+    <div style="display:flex;gap:8px;justify-content:flex-end;">
+      <button onclick="closeChangePassword()" class="ap-action-btn">Отмена</button>
+      <button onclick="submitChangePassword()" class="ap-btn">Сменить</button>
     </div>
   </div>
 </div>
@@ -1297,67 +1355,72 @@ function escapeHtml(s) {
 
 // ── Admin Panel ───────────────────────────────────────────────────────────
 let apOffset = 0;
-const AP_LIMIT = 30;
-let apDebounceTimer = null;
+const AP_CHAT_LIMIT = 30;
 
-function openAdminPanel() {
+async function openAdminPanel() {
   document.getElementById('admin-panel').classList.add('open');
-  apLoadMessages(true);
+  await apLoadUserSelect();
+  apLoadChats(true);
 }
 
 function closeAdminPanel() {
   document.getElementById('admin-panel').classList.remove('open');
 }
 
-function apDebouncedLoad() {
-  clearTimeout(apDebounceTimer);
-  apDebounceTimer = setTimeout(() => apLoadMessages(true), 400);
+async function apLoadUserSelect() {
+  const sel = document.getElementById('ap-user-select');
+  if (sel.options.length > 1) return; // already loaded
+  try {
+    const r = await fetch('/auth/users', { headers: authHeaders() });
+    if (!r.ok) return;
+    const users = await r.json();
+    users.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.id;
+      opt.textContent = u.username + (u.full_name ? ` (${u.full_name})` : '');
+      sel.appendChild(opt);
+    });
+  } catch {}
 }
 
-async function apLoadMessages(reset) {
+async function apLoadChats(reset) {
   if (reset) apOffset = 0;
-  const username = document.getElementById('ap-username').value.trim();
+  const userId = document.getElementById('ap-user-select').value;
   const feedbackOnly = document.getElementById('ap-feedback-only').checked;
 
-  let url = `/admin/messages?limit=${AP_LIMIT}&offset=${apOffset}`;
-  if (username) url += '&username=' + encodeURIComponent(username);
+  let url = `/admin/chats_list?limit=${AP_CHAT_LIMIT}&offset=${apOffset}`;
+  if (userId) url += '&user_id=' + userId;
   if (feedbackOnly) url += '&with_feedback_only=true';
 
   const body = document.getElementById('ap-body');
-  if (reset) body.innerHTML = '<div class="ap-loading">Загрузка...</div>';
+  if (reset) body.innerHTML = '<div class="ap-loading">Загрузка чатов...</div>';
 
   try {
     const r = await fetch(url, { headers: authHeaders() });
     if (!r.ok) {
-      body.innerHTML = `<div class="ap-empty">Ошибка ${r.status}: нет доступа</div>`;
+      body.innerHTML = `<div class="ap-empty">Ошибка ${r.status}</div>`;
       return;
     }
     const data = await r.json();
-
     if (reset) body.innerHTML = '';
 
     if (data.items.length === 0 && reset) {
-      body.innerHTML = '<div class="ap-empty">Нет сообщений по заданным фильтрам</div>';
+      body.innerHTML = '<div class="ap-empty">Нет чатов</div>';
       document.getElementById('ap-stats').textContent = '';
       return;
     }
 
-    document.getElementById('ap-stats').textContent =
-      `Всего: ${data.total.toLocaleString('ru-RU')} сообщений`;
+    document.getElementById('ap-stats').textContent = `Чатов: ${data.total}`;
+    data.items.forEach(c => body.appendChild(apRenderChatCard(c)));
 
-    // Render only assistant messages (role=assistant) — they're the interesting ones
-    const assistantMsgs = data.items.filter(m => m.role === 'assistant');
-    assistantMsgs.forEach(m => body.appendChild(apRenderCard(m)));
-
-    // Load more button
     const existing = body.querySelector('.ap-load-more');
     if (existing) existing.remove();
-    apOffset += AP_LIMIT;
+    apOffset += AP_CHAT_LIMIT;
     if (apOffset < data.total) {
       const btn = document.createElement('button');
       btn.className = 'ap-load-more';
-      btn.textContent = `Загрузить ещё (показано ${apOffset} из ${data.total})`;
-      btn.onclick = () => apLoadMessages(false);
+      btn.textContent = `Ещё (${Math.min(apOffset, data.total)} из ${data.total})`;
+      btn.onclick = () => apLoadChats(false);
       body.appendChild(btn);
     }
   } catch (e) {
@@ -1365,114 +1428,172 @@ async function apLoadMessages(reset) {
   }
 }
 
-function apRenderCard(m) {
+function apRenderChatCard(c) {
   const card = document.createElement('div');
-  card.className = 'ap-card';
-  card.dataset.chatId = m.chat_id;
+  card.className = 'ap-chat-card';
+  card.dataset.chatId = c.chat_id;
 
-  // Header
-  const head = document.createElement('div');
-  head.className = 'ap-card-head';
+  // Header (clickable to expand)
+  const header = document.createElement('div');
+  header.className = 'ap-chat-header';
+  header.onclick = () => apToggleChat(card, c.chat_id);
+
+  const arrow = document.createElement('span');
+  arrow.className = 'ap-chat-expand';
+  arrow.textContent = '▶';
 
   const user = document.createElement('span');
-  user.className = 'ap-user';
-  user.textContent = m.username || '?';
+  user.className = 'ap-chat-user';
+  user.textContent = c.username;
 
-  const chatTitle = document.createElement('span');
-  chatTitle.className = 'ap-chat-title';
-  chatTitle.textContent = m.chat_title || '';
+  const title = document.createElement('span');
+  title.className = 'ap-chat-title';
+  title.textContent = c.title || 'Без названия';
+
+  const meta = document.createElement('span');
+  meta.className = 'ap-chat-meta';
+
+  const msgBadge = document.createElement('span');
+  msgBadge.className = 'ap-chat-badge';
+  msgBadge.textContent = `${c.message_count} сообщ.`;
+  meta.appendChild(msgBadge);
+
+  if (c.feedback_count > 0) {
+    const fbBadge = document.createElement('span');
+    fbBadge.className = 'ap-chat-badge has-fb';
+    fbBadge.textContent = `${c.feedback_count} оценок`;
+    meta.appendChild(fbBadge);
+  }
+  if (c.comment_count > 0) {
+    const cmBadge = document.createElement('span');
+    cmBadge.className = 'ap-chat-badge has-comments';
+    cmBadge.textContent = `${c.comment_count} коммент.`;
+    meta.appendChild(cmBadge);
+  }
 
   const date = document.createElement('span');
-  date.className = 'ap-date';
-  date.textContent = m.created_at ? new Date(m.created_at + 'Z').toLocaleString('ru-RU') : '';
+  date.className = 'ap-chat-date';
+  date.textContent = c.updated_at ? new Date(c.updated_at + 'Z').toLocaleString('ru-RU') : '';
 
-  const ratingBadge = document.createElement('span');
-  if (m.feedback_rating === 1) {
-    ratingBadge.className = 'ap-rating-badge up';
-    ratingBadge.textContent = '👍 Полезно';
-  } else if (m.feedback_rating === -1) {
-    ratingBadge.className = 'ap-rating-badge down';
-    ratingBadge.textContent = '👎 Неточно';
-  } else {
-    ratingBadge.className = 'ap-rating-badge none';
-    ratingBadge.textContent = 'Без оценки';
-  }
+  const delBtn = document.createElement('button');
+  delBtn.className = 'ap-chat-delete';
+  delBtn.title = 'Удалить чат';
+  delBtn.textContent = '✕';
+  delBtn.onclick = (e) => { e.stopPropagation(); adminDeleteChat(c.chat_id, card); };
 
-  head.appendChild(user);
-  head.appendChild(chatTitle);
-  head.appendChild(date);
-  head.appendChild(ratingBadge);
+  header.appendChild(arrow);
+  header.appendChild(user);
+  header.appendChild(title);
+  header.appendChild(meta);
+  header.appendChild(date);
+  header.appendChild(delBtn);
 
-  // Body
-  const body = document.createElement('div');
-  body.className = 'ap-card-body';
+  // Messages container (lazy loaded)
+  const msgContainer = document.createElement('div');
+  msgContainer.className = 'ap-chat-messages';
 
-  if (m.user_query) {
-    const q = document.createElement('div');
-    q.className = 'ap-question';
-    q.innerHTML = `<strong>Вопрос</strong>${escapeHtml(m.user_query)}`;
-    body.appendChild(q);
-  }
-
-  const ans = document.createElement('div');
-  ans.className = 'ap-answer';
-  ans.textContent = m.content || '';
-  body.appendChild(ans);
-
-  if (m.feedback_comment) {
-    const cmt = document.createElement('div');
-    cmt.className = 'ap-comment';
-    cmt.id = `ap-comment-${m.feedback_id}`;
-    cmt.innerHTML = `<div class="ap-comment-label">Комментарий менеджера</div>
-      <div class="ap-comment-text">${escapeHtml(m.feedback_comment)}</div>`;
-    body.appendChild(cmt);
-  }
-
-  card.appendChild(head);
-  card.appendChild(body);
-
-  // Admin action bar
-  const actions = document.createElement('div');
-  actions.className = 'ap-card-actions';
-
-  const delChatBtn = document.createElement('button');
-  delChatBtn.className = 'ap-action-btn danger';
-  delChatBtn.textContent = '🗑 Удалить чат';
-  delChatBtn.onclick = () => adminDeleteChat(m.chat_id, card);
-  actions.appendChild(delChatBtn);
-
-  if (m.feedback_id) {
-    if (m.feedback_comment) {
-      const editBtn = document.createElement('button');
-      editBtn.className = 'ap-action-btn';
-      editBtn.textContent = '✏ Редактировать комментарий';
-      editBtn.onclick = () => adminEditComment(m.feedback_id, m.feedback_comment, card);
-      actions.appendChild(editBtn);
-
-      const delComBtn = document.createElement('button');
-      delComBtn.className = 'ap-action-btn danger';
-      delComBtn.textContent = '🗑 Удалить комментарий';
-      delComBtn.onclick = () => adminDeleteComment(m.feedback_id, card);
-      actions.appendChild(delComBtn);
-    }
-  }
-
-  card.appendChild(actions);
+  card.appendChild(header);
+  card.appendChild(msgContainer);
   return card;
+}
+
+async function apToggleChat(card, chatId) {
+  const isOpen = card.classList.toggle('open');
+  if (!isOpen) return;
+
+  const container = card.querySelector('.ap-chat-messages');
+  if (container.dataset.loaded) return;
+
+  container.innerHTML = '<div class="ap-msg-loading">Загрузка сообщений...</div>';
+  try {
+    const r = await fetch(`/admin/chats_list/${chatId}/messages`, { headers: authHeaders() });
+    if (!r.ok) { container.innerHTML = '<div class="ap-msg-loading">Ошибка загрузки</div>'; return; }
+    const messages = await r.json();
+    container.innerHTML = '';
+    container.dataset.loaded = '1';
+
+    messages.forEach(m => {
+      const row = document.createElement('div');
+      row.className = 'ap-msg';
+
+      const roleIcon = document.createElement('span');
+      roleIcon.className = 'ap-msg-role ' + (m.role === 'user' ? 'user' : 'bot');
+      roleIcon.textContent = m.role === 'user' ? 'В' : 'A';
+
+      const body = document.createElement('div');
+      body.className = 'ap-msg-body';
+
+      const text = document.createElement('div');
+      text.className = 'ap-msg-text';
+      text.textContent = m.content || '';
+      body.appendChild(text);
+
+      // Info line
+      const info = document.createElement('div');
+      info.className = 'ap-msg-info';
+      if (m.created_at) {
+        const dt = document.createElement('span');
+        dt.textContent = new Date(m.created_at + 'Z').toLocaleString('ru-RU');
+        info.appendChild(dt);
+      }
+      if (m.mode) {
+        const mode = document.createElement('span');
+        mode.textContent = m.mode;
+        info.appendChild(mode);
+      }
+      if (m.latency_ms) {
+        const lat = document.createElement('span');
+        lat.textContent = m.latency_ms + ' мс';
+        info.appendChild(lat);
+      }
+      if (m.feedback_rating) {
+        const rb = document.createElement('span');
+        rb.className = 'ap-rating-badge ' + (m.feedback_rating === 1 ? 'up' : 'down');
+        rb.textContent = m.feedback_rating === 1 ? '👍' : '👎';
+        info.appendChild(rb);
+      }
+      body.appendChild(info);
+
+      // Feedback comment
+      if (m.feedback_comment) {
+        const fb = document.createElement('div');
+        fb.className = 'ap-msg-feedback';
+        fb.id = `ap-comment-${m.feedback_id}`;
+        fb.innerHTML = `<div class="ap-fb-label">Комментарий</div>
+          <div class="ap-comment-text">${escapeHtml(m.feedback_comment)}</div>`;
+
+        const fbActions = document.createElement('div');
+        fbActions.className = 'ap-msg-feedback-actions';
+        const editBtn = document.createElement('button');
+        editBtn.className = 'ap-action-btn';
+        editBtn.textContent = '✏ Ред.';
+        editBtn.onclick = () => adminEditComment(m.feedback_id, m.feedback_comment, row);
+        const delBtn = document.createElement('button');
+        delBtn.className = 'ap-action-btn danger';
+        delBtn.textContent = '✕ Удал.';
+        delBtn.onclick = () => adminDeleteComment(m.feedback_id, row);
+        fbActions.appendChild(editBtn);
+        fbActions.appendChild(delBtn);
+        fb.appendChild(fbActions);
+        body.appendChild(fb);
+      }
+
+      row.appendChild(roleIcon);
+      row.appendChild(body);
+      container.appendChild(row);
+    });
+  } catch (e) {
+    container.innerHTML = `<div class="ap-msg-loading">Ошибка: ${escapeHtml(String(e))}</div>`;
+  }
 }
 
 // ── Admin actions: delete chat, edit/delete comments ─────────────────────
 async function adminDeleteChat(chatId, cardEl) {
-  if (!confirm('Удалить этот чат и все его сообщения? Это необратимо!')) return;
+  if (!confirm('Удалить этот чат и все его сообщения?')) return;
   try {
     const r = await fetch(`/admin/chats/${chatId}`, { method: 'DELETE', headers: authHeaders() });
     if (r.ok) {
-      // Remove all cards belonging to this chat
-      document.querySelectorAll('.ap-card').forEach(c => {
-        if (c.dataset.chatId === String(chatId)) c.remove();
-      });
       cardEl.remove();
-      // Also refresh sidebar
       loadChats();
     } else {
       alert('Ошибка: ' + (await r.json()).detail);
@@ -1480,11 +1601,9 @@ async function adminDeleteChat(chatId, cardEl) {
   } catch (e) { alert('Ошибка: ' + e); }
 }
 
-async function adminEditComment(feedbackId, currentText, cardEl) {
-  const cmtEl = cardEl.querySelector(`#ap-comment-${feedbackId}`);
-  if (!cmtEl) return;
-  // Already editing?
-  if (cmtEl.querySelector('.ap-comment-editor')) return;
+async function adminEditComment(feedbackId, currentText, parentEl) {
+  const cmtEl = parentEl.querySelector(`#ap-comment-${feedbackId}`);
+  if (!cmtEl || cmtEl.querySelector('.ap-comment-editor')) return;
 
   const textEl = cmtEl.querySelector('.ap-comment-text');
   if (textEl) textEl.style.display = 'none';
@@ -1496,20 +1615,12 @@ async function adminEditComment(feedbackId, currentText, cardEl) {
   const btnRow = document.createElement('div');
   btnRow.className = 'ap-comment-editor-actions';
   const saveBtn = document.createElement('button');
-  saveBtn.className = 'ap-btn';
-  saveBtn.textContent = 'Сохранить';
-  saveBtn.style.fontSize = '12px';
-  saveBtn.style.padding = '4px 12px';
+  saveBtn.className = 'ap-btn'; saveBtn.textContent = 'Сохранить';
+  saveBtn.style.cssText = 'font-size:12px;padding:4px 12px;';
   const cancelBtn = document.createElement('button');
-  cancelBtn.className = 'ap-action-btn';
-  cancelBtn.textContent = 'Отмена';
+  cancelBtn.className = 'ap-action-btn'; cancelBtn.textContent = 'Отмена';
 
-  cancelBtn.onclick = () => {
-    editor.remove();
-    btnRow.remove();
-    if (textEl) textEl.style.display = '';
-  };
-
+  cancelBtn.onclick = () => { editor.remove(); btnRow.remove(); if (textEl) textEl.style.display = ''; };
   saveBtn.onclick = async () => {
     const newText = editor.value.trim();
     if (!newText) return;
@@ -1521,36 +1632,65 @@ async function adminEditComment(feedbackId, currentText, cardEl) {
       });
       if (r.ok) {
         if (textEl) { textEl.textContent = newText; textEl.style.display = ''; }
-        editor.remove();
-        btnRow.remove();
-      } else {
-        alert('Ошибка: ' + (await r.json()).detail);
-      }
+        editor.remove(); btnRow.remove();
+      } else { alert('Ошибка: ' + (await r.json()).detail); }
     } catch (e) { alert('Ошибка: ' + e); }
   };
 
-  btnRow.appendChild(saveBtn);
-  btnRow.appendChild(cancelBtn);
-  cmtEl.appendChild(editor);
-  cmtEl.appendChild(btnRow);
+  btnRow.appendChild(saveBtn); btnRow.appendChild(cancelBtn);
+  cmtEl.appendChild(editor); cmtEl.appendChild(btnRow);
   editor.focus();
 }
 
-async function adminDeleteComment(feedbackId, cardEl) {
-  if (!confirm('Удалить этот комментарий и связанный фидбек? Это необратимо!')) return;
+async function adminDeleteComment(feedbackId, parentEl) {
+  if (!confirm('Удалить этот комментарий?')) return;
   try {
     const r = await fetch(`/admin/feedback/comments/${feedbackId}`, { method: 'DELETE', headers: authHeaders() });
     if (r.ok) {
-      const cmtEl = cardEl.querySelector(`#ap-comment-${feedbackId}`);
+      const cmtEl = parentEl.querySelector(`#ap-comment-${feedbackId}`);
       if (cmtEl) cmtEl.remove();
-      // Remove edit/delete buttons
-      cardEl.querySelectorAll('.ap-action-btn').forEach(btn => {
-        if (btn.textContent.includes('комментарий')) btn.remove();
-      });
     } else {
       alert('Ошибка: ' + (await r.json()).detail);
     }
   } catch (e) { alert('Ошибка: ' + e); }
+}
+
+// ── Password change ──────────────────────────────────────────────────────
+function openChangePassword() {
+  document.getElementById('pw-modal').style.display = 'flex';
+  document.getElementById('pw-current').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+  document.getElementById('pw-error').style.display = 'none';
+}
+function closeChangePassword() {
+  document.getElementById('pw-modal').style.display = 'none';
+}
+async function submitChangePassword() {
+  const cur = document.getElementById('pw-current').value;
+  const nw = document.getElementById('pw-new').value;
+  const conf = document.getElementById('pw-confirm').value;
+  const errEl = document.getElementById('pw-error');
+
+  if (!cur || !nw) { errEl.textContent = 'Заполните все поля'; errEl.style.display = 'block'; return; }
+  if (nw.length < 4) { errEl.textContent = 'Минимум 4 символа'; errEl.style.display = 'block'; return; }
+  if (nw !== conf) { errEl.textContent = 'Пароли не совпадают'; errEl.style.display = 'block'; return; }
+
+  try {
+    const r = await fetch('/auth/change-password', {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ current_password: cur, new_password: nw }),
+    });
+    if (r.ok) {
+      closeChangePassword();
+      alert('Пароль успешно изменён');
+    } else {
+      const data = await r.json();
+      errEl.textContent = data.detail || 'Ошибка';
+      errEl.style.display = 'block';
+    }
+  } catch (e) { errEl.textContent = 'Ошибка: ' + e; errEl.style.display = 'block'; }
 }
 
 // Show admin buttons only for admins

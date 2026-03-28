@@ -139,6 +139,91 @@ def reload_feedback_store(request: Request, user: dict = Depends(get_current_use
     return {"status": "ok", "lessons_loaded": len(feedback_store._lessons)}
 
 
+@router.get("/chats_list", tags=["Admin"])
+def list_admin_chats(
+    limit: int = 50,
+    offset: int = 0,
+    user_id: int | None = None,
+    with_feedback_only: bool = False,
+    user: dict = Depends(get_current_user),
+):
+    """List all chats with summary stats, grouped by user. Supports filtering."""
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+
+    filters = []
+    params: list = []
+    if user_id:
+        filters.append("c.user_id = ?")
+        params.append(user_id)
+    if with_feedback_only:
+        filters.append("""c.id IN (
+            SELECT DISTINCT m2.chat_id FROM messages m2
+            JOIN message_feedback mf2 ON mf2.message_id = m2.id)""")
+
+    where = ("WHERE " + " AND ".join(filters)) if filters else ""
+
+    conn = get_connection()
+    rows = conn.execute(f"""
+        SELECT
+            c.id            as chat_id,
+            c.title,
+            u.username,
+            u.id            as user_id,
+            c.created_at,
+            c.updated_at,
+            (SELECT COUNT(*) FROM messages m WHERE m.chat_id = c.id) as message_count,
+            (SELECT COUNT(*) FROM messages m
+             JOIN message_feedback mf ON mf.message_id = m.id
+             WHERE m.chat_id = c.id) as feedback_count,
+            (SELECT COUNT(*) FROM messages m
+             JOIN message_feedback mf ON mf.message_id = m.id
+             WHERE m.chat_id = c.id AND mf.comment != '') as comment_count
+        FROM chats c
+        JOIN users u ON u.id = c.user_id
+        {where}
+        ORDER BY c.updated_at DESC
+        LIMIT ? OFFSET ?
+    """, (*params, limit, offset)).fetchall()
+
+    total = conn.execute(f"""
+        SELECT COUNT(*) FROM chats c
+        JOIN users u ON u.id = c.user_id
+        {where}
+    """, params).fetchone()[0]
+
+    conn.close()
+    return {"total": total, "limit": limit, "offset": offset, "items": [dict(r) for r in rows]}
+
+
+@router.get("/chats_list/{chat_id}/messages", tags=["Admin"])
+def get_admin_chat_messages(chat_id: int, user: dict = Depends(get_current_user)):
+    """Get all messages in a specific chat with feedback (admin only)."""
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    conn = get_connection()
+    rows = conn.execute("""
+        SELECT
+            m.id            as message_id,
+            m.chat_id,
+            m.role,
+            m.content,
+            m.mode,
+            m.latency_ms,
+            m.created_at,
+            mf.id           as feedback_id,
+            mf.rating       as feedback_rating,
+            mf.comment      as feedback_comment,
+            mf.created_at   as feedback_at
+        FROM messages m
+        LEFT JOIN message_feedback mf ON mf.message_id = m.id
+        WHERE m.chat_id = ?
+        ORDER BY m.id ASC
+    """, (chat_id,)).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
 @router.get("/messages", tags=["Admin"])
 def list_all_messages(
     limit: int = 100,
