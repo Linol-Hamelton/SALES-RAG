@@ -177,6 +177,7 @@ def list_all_messages(
             m.mode,
             m.latency_ms,
             m.created_at,
+            mf.id           as feedback_id,
             mf.rating       as feedback_rating,
             mf.comment      as feedback_comment,
             mf.created_at   as feedback_at,

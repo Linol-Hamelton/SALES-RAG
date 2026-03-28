@@ -617,6 +617,40 @@
     .user-badge.active { background: rgba(34,197,94,.15); color: var(--auto); }
     .user-badge.pending { background: rgba(245,158,11,.15); color: var(--guided); }
     .user-badge.admin-role { background: rgba(91,106,240,.15); color: var(--accent); }
+
+    /* Admin action buttons */
+    .btn-deactivate {
+      padding: 5px 12px; border-radius: 8px; border: 1px solid var(--guided);
+      background: transparent; color: var(--guided); font-size: 12px; cursor: pointer;
+    }
+    .btn-deactivate:hover { background: var(--guided); color: #000; }
+    .btn-delete {
+      padding: 5px 12px; border-radius: 8px; border: 1px solid var(--manual);
+      background: transparent; color: var(--manual); font-size: 12px; cursor: pointer;
+    }
+    .btn-delete:hover { background: var(--manual); color: #fff; }
+
+    /* Admin card action bar */
+    .ap-card-actions {
+      padding: 8px 16px; border-top: 1px solid var(--border);
+      display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    }
+    .ap-action-btn {
+      padding: 4px 10px; border-radius: 6px; font-size: 11px; cursor: pointer;
+      border: 1px solid var(--border); background: transparent; color: var(--text-muted);
+      transition: all .2s;
+    }
+    .ap-action-btn:hover { border-color: var(--accent); color: var(--text); }
+    .ap-action-btn.danger { border-color: var(--manual); color: var(--manual); }
+    .ap-action-btn.danger:hover { background: var(--manual); color: #fff; }
+
+    /* Inline comment editor in admin panel */
+    .ap-comment-editor {
+      width: 100%; margin-top: 6px; padding: 8px 10px; background: var(--surface);
+      border: 1px solid var(--accent); border-radius: 8px; color: var(--text);
+      font-size: 13px; font-family: inherit; resize: vertical; min-height: 60px;
+    }
+    .ap-comment-editor-actions { margin-top: 6px; display: flex; gap: 6px; }
   </style>
 </head>
 <body>
@@ -1334,6 +1368,7 @@ async function apLoadMessages(reset) {
 function apRenderCard(m) {
   const card = document.createElement('div');
   card.className = 'ap-card';
+  card.dataset.chatId = m.chat_id;
 
   // Header
   const head = document.createElement('div');
@@ -1387,6 +1422,7 @@ function apRenderCard(m) {
   if (m.feedback_comment) {
     const cmt = document.createElement('div');
     cmt.className = 'ap-comment';
+    cmt.id = `ap-comment-${m.feedback_id}`;
     cmt.innerHTML = `<div class="ap-comment-label">Комментарий менеджера</div>
       <div class="ap-comment-text">${escapeHtml(m.feedback_comment)}</div>`;
     body.appendChild(cmt);
@@ -1394,7 +1430,127 @@ function apRenderCard(m) {
 
   card.appendChild(head);
   card.appendChild(body);
+
+  // Admin action bar
+  const actions = document.createElement('div');
+  actions.className = 'ap-card-actions';
+
+  const delChatBtn = document.createElement('button');
+  delChatBtn.className = 'ap-action-btn danger';
+  delChatBtn.textContent = '🗑 Удалить чат';
+  delChatBtn.onclick = () => adminDeleteChat(m.chat_id, card);
+  actions.appendChild(delChatBtn);
+
+  if (m.feedback_id) {
+    if (m.feedback_comment) {
+      const editBtn = document.createElement('button');
+      editBtn.className = 'ap-action-btn';
+      editBtn.textContent = '✏ Редактировать комментарий';
+      editBtn.onclick = () => adminEditComment(m.feedback_id, m.feedback_comment, card);
+      actions.appendChild(editBtn);
+
+      const delComBtn = document.createElement('button');
+      delComBtn.className = 'ap-action-btn danger';
+      delComBtn.textContent = '🗑 Удалить комментарий';
+      delComBtn.onclick = () => adminDeleteComment(m.feedback_id, card);
+      actions.appendChild(delComBtn);
+    }
+  }
+
+  card.appendChild(actions);
   return card;
+}
+
+// ── Admin actions: delete chat, edit/delete comments ─────────────────────
+async function adminDeleteChat(chatId, cardEl) {
+  if (!confirm('Удалить этот чат и все его сообщения? Это необратимо!')) return;
+  try {
+    const r = await fetch(`/admin/chats/${chatId}`, { method: 'DELETE', headers: authHeaders() });
+    if (r.ok) {
+      // Remove all cards belonging to this chat
+      document.querySelectorAll('.ap-card').forEach(c => {
+        if (c.dataset.chatId === String(chatId)) c.remove();
+      });
+      cardEl.remove();
+      // Also refresh sidebar
+      loadChats();
+    } else {
+      alert('Ошибка: ' + (await r.json()).detail);
+    }
+  } catch (e) { alert('Ошибка: ' + e); }
+}
+
+async function adminEditComment(feedbackId, currentText, cardEl) {
+  const cmtEl = cardEl.querySelector(`#ap-comment-${feedbackId}`);
+  if (!cmtEl) return;
+  // Already editing?
+  if (cmtEl.querySelector('.ap-comment-editor')) return;
+
+  const textEl = cmtEl.querySelector('.ap-comment-text');
+  if (textEl) textEl.style.display = 'none';
+
+  const editor = document.createElement('textarea');
+  editor.className = 'ap-comment-editor';
+  editor.value = currentText;
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'ap-comment-editor-actions';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'ap-btn';
+  saveBtn.textContent = 'Сохранить';
+  saveBtn.style.fontSize = '12px';
+  saveBtn.style.padding = '4px 12px';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'ap-action-btn';
+  cancelBtn.textContent = 'Отмена';
+
+  cancelBtn.onclick = () => {
+    editor.remove();
+    btnRow.remove();
+    if (textEl) textEl.style.display = '';
+  };
+
+  saveBtn.onclick = async () => {
+    const newText = editor.value.trim();
+    if (!newText) return;
+    try {
+      const r = await fetch(`/admin/feedback/comments/${feedbackId}`, {
+        method: 'PATCH',
+        headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment: newText }),
+      });
+      if (r.ok) {
+        if (textEl) { textEl.textContent = newText; textEl.style.display = ''; }
+        editor.remove();
+        btnRow.remove();
+      } else {
+        alert('Ошибка: ' + (await r.json()).detail);
+      }
+    } catch (e) { alert('Ошибка: ' + e); }
+  };
+
+  btnRow.appendChild(saveBtn);
+  btnRow.appendChild(cancelBtn);
+  cmtEl.appendChild(editor);
+  cmtEl.appendChild(btnRow);
+  editor.focus();
+}
+
+async function adminDeleteComment(feedbackId, cardEl) {
+  if (!confirm('Удалить этот комментарий и связанный фидбек? Это необратимо!')) return;
+  try {
+    const r = await fetch(`/admin/feedback/comments/${feedbackId}`, { method: 'DELETE', headers: authHeaders() });
+    if (r.ok) {
+      const cmtEl = cardEl.querySelector(`#ap-comment-${feedbackId}`);
+      if (cmtEl) cmtEl.remove();
+      // Remove edit/delete buttons
+      cardEl.querySelectorAll('.ap-action-btn').forEach(btn => {
+        if (btn.textContent.includes('комментарий')) btn.remove();
+      });
+    } else {
+      alert('Ошибка: ' + (await r.json()).detail);
+    }
+  } catch (e) { alert('Ошибка: ' + e); }
 }
 
 // Show admin buttons only for admins
@@ -1448,11 +1604,15 @@ async function loadUsers() {
         <div class="user-meta">${u.email || 'нет email'} &middot; ${u.created_at ? new Date(u.created_at + 'Z').toLocaleString('ru-RU') : ''}</div>`;
 
       const badge = document.createElement('span');
-      if (u.is_active && allUsers.find(x => x.id === u.id && x.is_active)) {
+      const isSelf = currentUser && u.id === currentUser.id;
+      const isTargetAdmin = u.role === 'admin';
+      if (isTargetAdmin) {
+        badge.className = 'user-badge admin-role';
+        badge.textContent = 'Админ';
+      } else if (u.is_active) {
         badge.className = 'user-badge active';
         badge.textContent = 'Активен';
-      }
-      if (!u.is_active) {
+      } else {
         badge.className = 'user-badge pending';
         badge.textContent = 'Ожидает';
       }
@@ -1470,6 +1630,17 @@ async function loadUsers() {
         rejectBtn.onclick = () => rejectUser(u.id);
         actions.appendChild(approveBtn);
         actions.appendChild(rejectBtn);
+      } else if (u.is_active && !isSelf && !isTargetAdmin) {
+        const deactBtn = document.createElement('button');
+        deactBtn.className = 'btn-deactivate';
+        deactBtn.textContent = 'Деактивировать';
+        deactBtn.onclick = () => deactivateUser(u.id, u.username);
+        actions.appendChild(deactBtn);
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-delete';
+        delBtn.textContent = 'Удалить';
+        delBtn.onclick = () => deleteUser(u.id, u.username);
+        actions.appendChild(delBtn);
       }
 
       card.appendChild(info);
@@ -1494,6 +1665,24 @@ async function rejectUser(userId) {
   if (!confirm('Удалить этого пользователя?')) return;
   try {
     const r = await fetch(`/auth/users/${userId}/reject`, { method: 'POST', headers: authHeaders() });
+    if (r.ok) loadUsers();
+    else alert('Ошибка: ' + (await r.json()).detail);
+  } catch (e) { alert('Ошибка: ' + e); }
+}
+
+async function deactivateUser(userId, username) {
+  if (!confirm(`Деактивировать пользователя "${username}"? Он не сможет войти.`)) return;
+  try {
+    const r = await fetch(`/admin/users/${userId}/deactivate`, { method: 'POST', headers: authHeaders() });
+    if (r.ok) loadUsers();
+    else alert('Ошибка: ' + (await r.json()).detail);
+  } catch (e) { alert('Ошибка: ' + e); }
+}
+
+async function deleteUser(userId, username) {
+  if (!confirm(`УДАЛИТЬ пользователя "${username}" и ВСЕ его данные (чаты, сообщения, фидбек)? Это необратимо!`)) return;
+  try {
+    const r = await fetch(`/admin/users/${userId}`, { method: 'DELETE', headers: authHeaders() });
     if (r.ok) loadUsers();
     else alert('Ошибка: ' + (await r.json()).detail);
   } catch (e) { alert('Ошибка: ' + e); }

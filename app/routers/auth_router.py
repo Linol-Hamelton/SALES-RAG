@@ -40,6 +40,7 @@ class PendingUserResponse(BaseModel):
     username: str
     email: str
     full_name: str
+    role: str = "user"
     is_active: int
     created_at: str
 
@@ -95,7 +96,7 @@ def list_pending_users(user: dict = Depends(get_current_user)):
         raise HTTPException(403, "Admin access required")
     conn = get_connection()
     rows = conn.execute(
-        "SELECT id, username, email, full_name, is_active, created_at FROM users WHERE is_active = 0 ORDER BY created_at DESC"
+        "SELECT id, username, email, full_name, role, is_active, created_at FROM users WHERE is_active = 0 ORDER BY created_at DESC"
     ).fetchall()
     conn.close()
     return [dict(r) for r in rows]
@@ -143,7 +144,7 @@ def list_all_users(user: dict = Depends(get_current_user)):
         raise HTTPException(403, "Admin access required")
     conn = get_connection()
     rows = conn.execute(
-        "SELECT id, username, email, full_name, is_active, created_at FROM users ORDER BY created_at DESC"
+        "SELECT id, username, email, full_name, role, is_active, created_at FROM users ORDER BY created_at DESC"
     ).fetchall()
     conn.close()
     return [dict(r) for r in rows]
