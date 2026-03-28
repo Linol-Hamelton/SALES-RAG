@@ -40,7 +40,7 @@ sync-indexes:
 # Download chat history + feedback for local RLHF retraining.
 .PHONY: fetch-feedback
 fetch-feedback:
-	scp $(VPS_HOST):$(VPS_DIR)/app.db ./feedback_from_vps.db
+	scp $(VPS_HOST):$(VPS_DIR)/data/labus_rag.db ./feedback_from_vps.db
 	@echo "Feedback DB saved to ./feedback_from_vps.db"
 
 # === WORKFLOW 4: Full Retrain Cycle ===

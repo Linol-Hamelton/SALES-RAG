@@ -111,10 +111,14 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
 
-    # CORS — restrict in production
+    # CORS
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=[
+            "https://ai.labus.pro",
+            "http://localhost:8000",    # local dev
+            "http://127.0.0.1:8000",
+        ],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

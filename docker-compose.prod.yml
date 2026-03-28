@@ -34,10 +34,9 @@ services:
       - QDRANT_URL=http://qdrant:6333
     volumes:
       - ./models:/app/models:ro
-      - ./data:/app/data:ro
+      - ./data:/app/data          # rw: SQLite DB (labus_rag.db) lives here
       - ./indexes:/app/indexes:ro
       - ./logs:/app/logs
-      - ./app.db:/app/app.db
     depends_on:
       qdrant:
         condition: service_healthy
