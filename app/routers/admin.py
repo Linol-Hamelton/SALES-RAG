@@ -1,8 +1,9 @@
-"""Admin endpoints: index rebuild, feedback debug."""
+"""Admin endpoints: index rebuild, feedback management, user/chat management."""
 import subprocess
 import sys
 from pathlib import Path
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Depends
+from pydantic import BaseModel
 from app.schemas.query import RebuildIndexRequest, RebuildIndexResponse
 from app.database import get_connection
 from app.auth import get_current_user
@@ -208,3 +209,209 @@ def list_all_messages(
         "offset": offset,
         "items": [dict(r) for r in rows],
     }
+
+
+# ── Feedback lesson management ────────────────────────────────────────────
+
+
+class EditLessonRequest(BaseModel):
+    lesson_text: str | None = None
+    is_active: bool | None = None
+
+
+@router.patch("/feedback/lessons/{lesson_id}", tags=["Admin"])
+def edit_feedback_lesson(
+    lesson_id: int,
+    req: EditLessonRequest,
+    request: Request,
+    user: dict = Depends(get_current_user),
+):
+    """Edit or deactivate a feedback lesson (admin only)."""
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    conn = get_connection()
+    existing = conn.execute("SELECT id FROM feedback_lessons WHERE id = ?", (lesson_id,)).fetchone()
+    if not existing:
+        conn.close()
+        raise HTTPException(404, "Lesson not found")
+    updates = []
+    params = []
+    if req.lesson_text is not None:
+        updates.append("lesson_text = ?")
+        params.append(req.lesson_text)
+    if req.is_active is not None:
+        updates.append("is_active = ?")
+        params.append(1 if req.is_active else 0)
+    if not updates:
+        conn.close()
+        return {"status": "no changes"}
+    params.append(lesson_id)
+    conn.execute(f"UPDATE feedback_lessons SET {', '.join(updates)} WHERE id = ?", params)
+    conn.commit()
+    conn.close()
+    # Reload in-memory cache
+    feedback_store = getattr(request.app.state, "feedback_store", None)
+    if feedback_store:
+        feedback_store.load()
+    return {"status": "updated", "lesson_id": lesson_id}
+
+
+@router.delete("/feedback/lessons/{lesson_id}", tags=["Admin"])
+def delete_feedback_lesson(
+    lesson_id: int,
+    request: Request,
+    user: dict = Depends(get_current_user),
+):
+    """Delete a feedback lesson permanently (admin only)."""
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    conn = get_connection()
+    existing = conn.execute("SELECT id FROM feedback_lessons WHERE id = ?", (lesson_id,)).fetchone()
+    if not existing:
+        conn.close()
+        raise HTTPException(404, "Lesson not found")
+    conn.execute("DELETE FROM feedback_lessons WHERE id = ?", (lesson_id,))
+    conn.commit()
+    conn.close()
+    feedback_store = getattr(request.app.state, "feedback_store", None)
+    if feedback_store:
+        feedback_store.load()
+    return {"status": "deleted", "lesson_id": lesson_id}
+
+
+# ── Feedback comment management ───────────────────────────────────────────
+
+
+class EditCommentRequest(BaseModel):
+    comment: str
+
+
+@router.patch("/feedback/comments/{feedback_id}", tags=["Admin"])
+def edit_feedback_comment(
+    feedback_id: int,
+    req: EditCommentRequest,
+    user: dict = Depends(get_current_user),
+):
+    """Edit a feedback comment (admin only)."""
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    conn = get_connection()
+    existing = conn.execute("SELECT id FROM message_feedback WHERE id = ?", (feedback_id,)).fetchone()
+    if not existing:
+        conn.close()
+        raise HTTPException(404, "Feedback not found")
+    conn.execute("UPDATE message_feedback SET comment = ? WHERE id = ?", (req.comment, feedback_id))
+    conn.commit()
+    conn.close()
+    return {"status": "updated", "feedback_id": feedback_id}
+
+
+@router.delete("/feedback/comments/{feedback_id}", tags=["Admin"])
+def delete_feedback_comment(
+    feedback_id: int,
+    request: Request,
+    user: dict = Depends(get_current_user),
+):
+    """Delete a feedback entry and its lesson (admin only)."""
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    conn = get_connection()
+    existing = conn.execute("SELECT id FROM message_feedback WHERE id = ?", (feedback_id,)).fetchone()
+    if not existing:
+        conn.close()
+        raise HTTPException(404, "Feedback not found")
+    # Delete associated lesson first (FK constraint)
+    conn.execute("DELETE FROM feedback_lessons WHERE feedback_id = ?", (feedback_id,))
+    conn.execute("DELETE FROM message_feedback WHERE id = ?", (feedback_id,))
+    conn.commit()
+    conn.close()
+    feedback_store = getattr(request.app.state, "feedback_store", None)
+    if feedback_store:
+        feedback_store.load()
+    return {"status": "deleted", "feedback_id": feedback_id}
+
+
+# ── Chat management ───────────────────────────────────────────────────────
+
+
+@router.delete("/chats/{chat_id}", tags=["Admin"])
+def delete_chat(chat_id: int, user: dict = Depends(get_current_user)):
+    """Delete any chat and all its messages/feedback (admin only). Cascade deletes."""
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    conn = get_connection()
+    chat = conn.execute("SELECT id, user_id FROM chats WHERE id = ?", (chat_id,)).fetchone()
+    if not chat:
+        conn.close()
+        raise HTTPException(404, "Chat not found")
+    # Delete feedback lessons linked to this chat's messages
+    conn.execute("""
+        DELETE FROM feedback_lessons WHERE feedback_id IN (
+            SELECT mf.id FROM message_feedback mf
+            JOIN messages m ON m.id = mf.message_id
+            WHERE m.chat_id = ?
+        )
+    """, (chat_id,))
+    # Cascade: messages + message_feedback deleted by FK
+    conn.execute("DELETE FROM chats WHERE id = ?", (chat_id,))
+    conn.commit()
+    conn.close()
+    return {"status": "deleted", "chat_id": chat_id}
+
+
+# ── User management (deactivate/delete active users) ─────────────────────
+
+
+@router.post("/users/{user_id}/deactivate", tags=["Admin"])
+def deactivate_user(user_id: int, user: dict = Depends(get_current_user)):
+    """Deactivate a user account (admin only). User can no longer log in."""
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    if user_id == user["id"]:
+        raise HTTPException(400, "Cannot deactivate yourself")
+    conn = get_connection()
+    target = conn.execute("SELECT id, username, role FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not target:
+        conn.close()
+        raise HTTPException(404, "User not found")
+    if target["role"] == "admin":
+        conn.close()
+        raise HTTPException(400, "Cannot deactivate another admin")
+    conn.execute("UPDATE users SET is_active = 0 WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+    return {"status": "deactivated", "user_id": user_id, "username": target["username"]}
+
+
+@router.delete("/users/{user_id}", tags=["Admin"])
+def delete_user(user_id: int, request: Request, user: dict = Depends(get_current_user)):
+    """Permanently delete a user and all their data (admin only). Cascade deletes chats, messages, feedback."""
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    if user_id == user["id"]:
+        raise HTTPException(400, "Cannot delete yourself")
+    conn = get_connection()
+    target = conn.execute("SELECT id, username, role FROM users WHERE id = ?", (user_id,)).fetchone()
+    if not target:
+        conn.close()
+        raise HTTPException(404, "User not found")
+    if target["role"] == "admin":
+        conn.close()
+        raise HTTPException(400, "Cannot delete another admin")
+    # Delete feedback lessons linked to user's messages
+    conn.execute("""
+        DELETE FROM feedback_lessons WHERE feedback_id IN (
+            SELECT mf.id FROM message_feedback mf
+            JOIN messages m ON m.id = mf.message_id
+            JOIN chats c ON c.id = m.chat_id
+            WHERE c.user_id = ?
+        )
+    """, (user_id,))
+    # CASCADE handles chats → messages → message_feedback
+    conn.execute("DELETE FROM users WHERE id = ?", (user_id,))
+    conn.commit()
+    conn.close()
+    feedback_store = getattr(request.app.state, "feedback_store", None)
+    if feedback_store:
+        feedback_store.load()
+    return {"status": "deleted", "user_id": user_id, "username": target["username"]}
