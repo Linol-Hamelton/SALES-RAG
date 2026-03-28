@@ -19,6 +19,7 @@ data/
 logs/
 *.db
 server.log
+error.log
 
 # Local-only scripts & tools (not needed on VPS)
 scripts/

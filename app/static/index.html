@@ -571,6 +571,52 @@
       display: none;
     }
     #admin-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    #users-btn {
+      margin: 0 16px 8px;
+      padding: 8px 14px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all .2s;
+      text-align: left;
+      display: none;
+    }
+    #users-btn:hover { border-color: var(--accent); color: var(--text); }
+
+    #users-panel {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: var(--bg); flex-direction: column; overflow: hidden;
+    }
+    #users-panel.open { display: flex; }
+
+    .user-card {
+      background: var(--surface); border-radius: 10px; padding: 12px 16px;
+      margin-bottom: 8px; display: flex; align-items: center; gap: 14px;
+    }
+    .user-card .user-info { flex: 1; }
+    .user-card .user-name { font-weight: 600; font-size: 14px; }
+    .user-card .user-meta { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+    .user-card .user-actions { display: flex; gap: 6px; }
+    .user-card .btn-approve {
+      padding: 5px 12px; border-radius: 8px; border: 1px solid var(--auto);
+      background: transparent; color: var(--auto); font-size: 12px; cursor: pointer;
+    }
+    .user-card .btn-approve:hover { background: var(--auto); color: #000; }
+    .user-card .btn-reject {
+      padding: 5px 12px; border-radius: 8px; border: 1px solid var(--manual);
+      background: transparent; color: var(--manual); font-size: 12px; cursor: pointer;
+    }
+    .user-card .btn-reject:hover { background: var(--manual); color: #fff; }
+    .user-badge {
+      padding: 2px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;
+    }
+    .user-badge.active { background: rgba(34,197,94,.15); color: var(--auto); }
+    .user-badge.pending { background: rgba(245,158,11,.15); color: var(--guided); }
+    .user-badge.admin-role { background: rgba(91,106,240,.15); color: var(--accent); }
   </style>
 </head>
 <body>
@@ -606,6 +652,7 @@
   <button id="new-chat-btn" onclick="createNewChat()">+ Новый чат</button>
   <div id="chat-list"></div>
   <button id="admin-btn" onclick="openAdminPanel()">&#128101; Все чаты (админ)</button>
+  <button id="users-btn" onclick="openUsersPanel()">&#128100; Пользователи</button>
   <button id="logout-btn" onclick="logout()">Выйти</button>
 </div>
 
@@ -626,6 +673,21 @@
   </div>
   <div class="ap-body" id="ap-body">
     <div class="ap-empty">Нажмите «Обновить» для загрузки</div>
+  </div>
+</div>
+
+<!-- USERS PANEL -->
+<div id="users-panel">
+  <div class="ap-header">
+    <h2>&#128100; Управление пользователями</h2>
+    <button class="ap-close" onclick="closeUsersPanel()">&#10005; Закрыть</button>
+  </div>
+  <div class="ap-filters">
+    <button class="ap-btn" onclick="loadUsers()" style="margin-right:8px;">Обновить</button>
+    <span id="users-stats" style="color:var(--text-muted);font-size:13px;"></span>
+  </div>
+  <div class="ap-body" id="users-body">
+    <div class="ap-empty">Загрузка...</div>
   </div>
 </div>
 
@@ -715,6 +777,11 @@ async function submitAuth() {
     const r = await fetch(API + url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     if (!r.ok) { const e = await r.json(); errEl.textContent = e.detail || 'Ошибка'; return; }
     const data = await r.json();
+    if (data.status === 'pending') {
+      errEl.style.color = 'var(--guided)';
+      errEl.textContent = data.message;
+      return;
+    }
     token = data.access_token;
     localStorage.setItem('token', token);
     currentUser = { id: data.user_id, username: data.username };
@@ -1330,14 +1397,106 @@ function apRenderCard(m) {
   return card;
 }
 
-// Show admin button only for admins
+// Show admin buttons only for admins
 function apCheckAndShowButton() {
-  const btn = document.getElementById('admin-btn');
-  if (currentUser && currentUser.role === 'admin') {
-    btn.style.display = 'block';
-  } else {
-    btn.style.display = 'none';
+  const isAdmin = currentUser && currentUser.role === 'admin';
+  document.getElementById('admin-btn').style.display = isAdmin ? 'block' : 'none';
+  document.getElementById('users-btn').style.display = isAdmin ? 'block' : 'none';
+}
+
+// ── Users Panel ──────────────────────────────────────────────────────────
+function openUsersPanel() {
+  document.getElementById('users-panel').classList.add('open');
+  loadUsers();
+}
+
+function closeUsersPanel() {
+  document.getElementById('users-panel').classList.remove('open');
+}
+
+async function loadUsers() {
+  const body = document.getElementById('users-body');
+  body.innerHTML = '<div class="ap-loading">Загрузка...</div>';
+  try {
+    const [allRes, pendingRes] = await Promise.all([
+      fetch('/auth/users', { headers: authHeaders() }),
+      fetch('/auth/users/pending', { headers: authHeaders() }),
+    ]);
+    if (!allRes.ok) { body.innerHTML = '<div class="ap-empty">Нет доступа</div>'; return; }
+    const allUsers = await allRes.json();
+    const pending = await pendingRes.json();
+    const pendingIds = new Set(pending.map(u => u.id));
+
+    body.innerHTML = '';
+    const stats = document.getElementById('users-stats');
+    stats.textContent = `Всего: ${allUsers.length}, ожидают: ${pending.length}`;
+
+    // Pending first, then active
+    const sorted = [...allUsers].sort((a, b) => {
+      if (a.is_active !== b.is_active) return a.is_active - b.is_active;
+      return b.id - a.id;
+    });
+
+    sorted.forEach(u => {
+      const card = document.createElement('div');
+      card.className = 'user-card';
+      card.id = 'user-card-' + u.id;
+
+      const info = document.createElement('div');
+      info.className = 'user-info';
+      info.innerHTML = `<div class="user-name">${escapeHtml(u.username)}${u.full_name ? ' — ' + escapeHtml(u.full_name) : ''}</div>
+        <div class="user-meta">${u.email || 'нет email'} &middot; ${u.created_at ? new Date(u.created_at + 'Z').toLocaleString('ru-RU') : ''}</div>`;
+
+      const badge = document.createElement('span');
+      if (u.is_active && allUsers.find(x => x.id === u.id && x.is_active)) {
+        badge.className = 'user-badge active';
+        badge.textContent = 'Активен';
+      }
+      if (!u.is_active) {
+        badge.className = 'user-badge pending';
+        badge.textContent = 'Ожидает';
+      }
+
+      const actions = document.createElement('div');
+      actions.className = 'user-actions';
+      if (pendingIds.has(u.id)) {
+        const approveBtn = document.createElement('button');
+        approveBtn.className = 'btn-approve';
+        approveBtn.textContent = 'Одобрить';
+        approveBtn.onclick = () => approveUser(u.id);
+        const rejectBtn = document.createElement('button');
+        rejectBtn.className = 'btn-reject';
+        rejectBtn.textContent = 'Отклонить';
+        rejectBtn.onclick = () => rejectUser(u.id);
+        actions.appendChild(approveBtn);
+        actions.appendChild(rejectBtn);
+      }
+
+      card.appendChild(info);
+      card.appendChild(badge);
+      card.appendChild(actions);
+      body.appendChild(card);
+    });
+  } catch (e) {
+    body.innerHTML = `<div class="ap-empty">Ошибка: ${escapeHtml(String(e))}</div>`;
   }
+}
+
+async function approveUser(userId) {
+  try {
+    const r = await fetch(`/auth/users/${userId}/approve`, { method: 'POST', headers: authHeaders() });
+    if (r.ok) loadUsers();
+    else alert('Ошибка: ' + (await r.json()).detail);
+  } catch (e) { alert('Ошибка: ' + e); }
+}
+
+async function rejectUser(userId) {
+  if (!confirm('Удалить этого пользователя?')) return;
+  try {
+    const r = await fetch(`/auth/users/${userId}/reject`, { method: 'POST', headers: authHeaders() });
+    if (r.ok) loadUsers();
+    else alert('Ошибка: ' + (await r.json()).detail);
+  } catch (e) { alert('Ошибка: ' + e); }
 }
 
 // ── Deal Items rendering ───────────────────────────────────────────────────

@@ -15,11 +15,6 @@ services:
       resources:
         limits:
           memory: 4G
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
   api:
     build:
@@ -34,22 +29,16 @@ services:
       - QDRANT_URL=http://qdrant:6333
     volumes:
       - ./models:/app/models:ro
-      - ./data:/app/data          # rw: SQLite DB (labus_rag.db) lives here
+      - ./data:/app/data
       - ./indexes:/app/indexes:ro
       - ./logs:/app/logs
     depends_on:
-      qdrant:
-        condition: service_healthy
+      - qdrant
     restart: unless-stopped
     deploy:
       resources:
         limits:
           memory: 10G
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
 
 volumes:
   qdrant_data:

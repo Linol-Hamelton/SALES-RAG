@@ -203,6 +203,8 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             materials = payload.get("materials", "")
             description = payload.get("description", "")
             comments = payload.get("comments", "")
+            image_urls = payload.get("image_urls", [])
+            vision_analysis = payload.get("vision_analysis", "")
 
             deal_class = _classify_deal_profile(payload)
             lines = [f"[Кейс ({deal_class}) — НЕ для расчёта цены] {title}" + (f" ({direction})" if direction else "")]
@@ -221,6 +223,10 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                 lines.append(f"  Материалы: {materials}")
             if comments:
                 lines.append(f"  Комментарий: {comments[:200]}")
+            if vision_analysis:
+                lines.append(f"  Анализ по фото (Gemini): {vision_analysis}")
+            if image_urls:
+                lines.append(f"  Прямые ссылки на фото проекта: {', '.join(image_urls)}")
             blocks.append("\n".join(lines))
 
         elif doc_type == "timeline_fact":
