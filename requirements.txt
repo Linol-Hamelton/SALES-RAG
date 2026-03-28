@@ -20,8 +20,8 @@ accelerate==1.1.1
 # Vector store
 qdrant-client==1.12.1
 
-# Lexical retrieval
-rank-bm25==0.2.2
+# Lexical retrieval (sparse vectors hashing)
+mmh3==4.1.0
 
 # LLM via Deepseek (OpenAI-compatible)
 openai==1.54.4
