@@ -1,0 +1,58 @@
+# ─── Python ──────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# ─── Env / Secrets ────────────────────────────────────────────────────────────
+.env
+configs/.env
+*.env
+
+# ─── Heavy Data Files (не коммитим в репо) ───────────────────────────────────
+RAG_DATA/deals.json
+RAG_DATA/product_facts.csv
+RAG_DATA/pricing_recommendations.csv
+RAG_DATA/bundle_facts.csv
+RAG_DATA/template_match_facts.csv
+RAG_DATA/deal_profiles.csv
+RAG_DATA/*.snapshot
+labus_docs_snapshot.snapshot
+
+# ─── Generated / Indexed Data ────────────────────────────────────────────────
+RAG_RUNTIME/data/*.jsonl
+RAG_RUNTIME/data/*.json
+RAG_RUNTIME/vectorstore/
+RAG_RUNTIME/index/
+
+# ─── Images (скачанные обложки, не входят в кодовую базу) ───────────────────
+RAG_DATA/OFFERS_IMAGE/
+
+# ─── Node / JS ───────────────────────────────────────────────────────────────
+node_modules/
+package-lock.json
+
+# ─── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE ─────────────────────────────────────────────────────────────────────
+.vscode/settings.json
+.idea/
+*.suo
+*.user
+
+# ─── Logs ────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ─── Misc ────────────────────────────────────────────────────────────────────
+search_test.html

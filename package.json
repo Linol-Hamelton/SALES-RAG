@@ -1,0 +1,16 @@
+﻿{
+  "name": "sales-rag-bundle",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "verify": "node verifySalesRag.mjs",
+    "refresh": "node refreshSalesRagData.mjs",
+    "refresh-raw": "node RAG_DATA/generateRagData.mjs",
+    "repair-orders-direction": "node RAG_DATA/repairOrdersDirection.mjs",
+    "qa": "node RAG_ANALYTICS/buildQaAndNormalizedData.mjs",
+    "facts": "node RAG_ANALYTICS/buildFacts.mjs",
+    "pricing": "node RAG_ANALYTICS/buildPricing.mjs",
+    "kpis": "node RAG_ANALYTICS/buildKpis.mjs",
+    "all": "node RAG_ANALYTICS/runAll.mjs"
+  }
+}

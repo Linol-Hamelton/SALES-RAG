@@ -1,0 +1,51 @@
+﻿{
+  "bundleName": "SALES_RAG",
+  "rawDatasets": {
+    "goods": {
+      "path": "RAG_DATA/goods.csv",
+      "rows": 9095
+    },
+    "offers": {
+      "path": "RAG_DATA/offers.csv",
+      "rows": 11674
+    },
+    "orders": {
+      "path": "RAG_DATA/orders.csv",
+      "rows": 50404,
+      "directionFilledRows": 44742
+    }
+  },
+  "analyticsSummary": {
+    "productFacts": 12626,
+    "orderDeals": 12641,
+    "offerDeals": 5520,
+    "sharedOfferOrderProducts": 1024,
+    "qaWarnings": 2
+  },
+  "bitrix24RefreshChain": {
+    "entrypoint": "refreshSalesRagData.mjs",
+    "rawRefresh": "RAG_DATA/generateRagData.mjs",
+    "repairOrdersDirection": "RAG_DATA/repairOrdersDirection.mjs",
+    "analyticsRefresh": "RAG_ANALYTICS/runAll.mjs",
+    "dependencies": [
+      "Bitrix24Webhook.mjs",
+      "CurMonDat.mjs",
+      "batchUtils.mjs",
+      "RAG_DATA/bitrixClient.mjs",
+      "RAG_DATA/getDealsByStage.mjs",
+      "RAG_DATA/getDealProductRows.mjs",
+      "RAG_DATA/getFullCatalog.mjs",
+      "RAG_DATA/csvUtils.mjs"
+    ]
+  },
+  "entrypoints": {
+    "verify": "node verifySalesRag.mjs",
+    "refresh": "node refreshSalesRagData.mjs",
+    "refreshRaw": "node RAG_DATA/generateRagData.mjs",
+    "qa": "node RAG_ANALYTICS/buildQaAndNormalizedData.mjs",
+    "facts": "node RAG_ANALYTICS/buildFacts.mjs",
+    "pricing": "node RAG_ANALYTICS/buildPricing.mjs",
+    "kpis": "node RAG_ANALYTICS/buildKpis.mjs",
+    "all": "node RAG_ANALYTICS/runAll.mjs"
+  }
+}

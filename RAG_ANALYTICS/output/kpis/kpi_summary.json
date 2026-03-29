@@ -1,0 +1,13 @@
+{
+  "generatedAt": "2026-03-24T00:08:07.693Z",
+  "orderDeals": 12649,
+  "offerDeals": 5520,
+  "knownOrderClients": 3171,
+  "repeatOrderClients": 1465,
+  "repeatOrderClientShare": 0.462,
+  "autoProducts": 23,
+  "guidedProducts": 472,
+  "manualProducts": 12137,
+  "exactTemplateMatches": 290,
+  "containedTemplateMatches": 856
+}
