@@ -270,6 +270,11 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             lines = [header, f"  {content[:2000]}"]
             blocks.append("\n".join(lines))
 
+        elif doc_type == "photo_analysis":
+            # searchable_text is already well-structured with header, composition, analysis
+            content = payload.get("searchable_text", "")
+            blocks.append(content[:2500])
+
     return "\n---\n".join(blocks)
 
 
