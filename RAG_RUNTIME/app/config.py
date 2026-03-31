@@ -18,8 +18,8 @@ class Settings(BaseSettings):
 
     # Vision API (for image analysis — OpenAI-compatible)
     vision_api_key: str = Field(default="", alias="VISION_API_KEY")
-    vision_base_url: str = Field(default="https://api.openai.com/v1", alias="VISION_BASE_URL")
-    vision_model: str = Field(default="gpt-4o-mini", alias="VISION_MODEL")
+    vision_base_url: str = Field(default="https://api.artemox.com/v1", alias="VISION_BASE_URL")
+    vision_model: str = Field(default="gemini-2.0-flash", alias="VISION_MODEL")
 
     # Qdrant
     qdrant_url: str = Field(default="http://localhost:6333", alias="QDRANT_URL")
