@@ -21,8 +21,7 @@ logs/
 server.log
 error.log
 
-# Local-only scripts & tools (not needed on VPS)
-scripts/
+# Eval results & reports (regenerated)
 eval/
 reports/
 benchmark_run.py

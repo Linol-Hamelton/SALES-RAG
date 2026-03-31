@@ -7,6 +7,7 @@ from app.schemas.pricing import (
     ParametricBreakdown, ParametricLineItem, DealItem,
 )
 from app.core.query_decomposer import decompose, QueryDecomposition
+from app.core.query_parser import parse_query
 from app.core import parametric_calculator as param_calc
 from app.core.feedback_store import build_feedback_context
 from app.core.deal_lookup import DealLookup
@@ -290,6 +291,11 @@ async def query_human(req: QueryRequest, request: Request,
 
         extra_ctx = f"АНАЛИЗ ИЗОБРАЖЕНИЯ:\n{vision_context}\n\n" if vision_context else ""
 
+        # --- Parse query for clarification needs ---
+        parsed = parse_query(req.query)
+        if parsed.needs_clarification:
+            extra_ctx += "ВАЖНО: Запрос слишком общий — не указан тип изделия, размеры или направление. Задай 1-2 уточняющих вопроса клиенту ВМЕСТО угадывания цены. Дай примерные диапазоны по типам.\n\n"
+
         # --- Decompose query for size-aware pricing ---
         decomp = decompose(req.query)
 
@@ -406,6 +412,12 @@ async def query_structured(req: QueryRequest, request: Request,
             if vision_context:
                 logger.info("Vision analysis prepended to structured query context")
 
+        # --- Parse query for clarification needs ---
+        parsed = parse_query(req.query)
+        clarification_prefix = ""
+        if parsed.needs_clarification:
+            clarification_prefix = "ВАЖНО: Запрос слишком общий — не указан тип изделия, размеры или направление. Задай 1-2 уточняющих вопроса клиенту ВМЕСТО угадывания цены. Дай примерные диапазоны по типам.\n\n"
+
         # --- Decompose query: detect complex multi-component requests ---
         decomp = decompose(req.query)
         parametric_breakdown_schema: ParametricBreakdown | None = None
@@ -445,6 +457,8 @@ async def query_structured(req: QueryRequest, request: Request,
 
             # Generate with parametric context (+ optional vision analysis + feedback)
             full_extra = parametric_context
+            if clarification_prefix:
+                full_extra = clarification_prefix + full_extra
             if feedback_prefix:
                 full_extra = feedback_prefix + "\n\n" + full_extra
             if vision_context:
@@ -463,6 +477,14 @@ async def query_structured(req: QueryRequest, request: Request,
                 "is_financial_modifier": False,
             })()
             if is_estimate:
+                # Inject real product names for deal_items
+                real_names = sorted({
+                    doc["payload"].get("product_name")
+                    for doc in reranked if doc["payload"].get("product_name")
+                })
+                if real_names:
+                    full_extra += "\nНАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
+                    full_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
                 raw_json = await generator.generate_deal_estimate(
                     req.query, reranked, pr_obj,
                     extra_context=full_extra, history=req.history,
@@ -489,6 +511,8 @@ async def query_structured(req: QueryRequest, request: Request,
             # Filter noise: only pass relevant docs to generator for pricing context
             reranked_relevant = _filter_relevant_docs(reranked)
             vision_extra = ""
+            if clarification_prefix:
+                vision_extra += clarification_prefix
             if feedback_prefix:
                 vision_extra += feedback_prefix + "\n\n"
             if vision_context:
@@ -502,6 +526,14 @@ async def query_structured(req: QueryRequest, request: Request,
             if breakdown_ctx:
                 vision_extra += breakdown_ctx + "\n\n"
             if is_estimate:
+                # Inject real product names so LLM uses catalog names in deal_items
+                real_names = sorted({
+                    doc["payload"].get("product_name")
+                    for doc in reranked if doc["payload"].get("product_name")
+                })
+                if real_names:
+                    vision_extra += "НАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
+                    vision_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
                 raw_json = await generator.generate_deal_estimate(
                     req.query, reranked_relevant, pr,
                     extra_context=vision_extra, history=req.history,

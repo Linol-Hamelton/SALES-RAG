@@ -1,0 +1,43 @@
+version: "3.9"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.12.1
+    container_name: labus_qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - ./qdrant_data:/qdrant/storage:z
+    environment:
+      QDRANT__LOG_LEVEL: INFO
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6333/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: labus_api
+    ports:
+      - "8000:8000"
+    env_file:
+      - configs/.env.vps
+    volumes:
+      - ./models:/app/models:ro
+      - ./indexes:/app/indexes:ro
+      - ./data:/app/data:ro
+      - ./logs:/app/logs
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

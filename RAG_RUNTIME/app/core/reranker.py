@@ -128,13 +128,13 @@ class CrossEncoderReranker:
             elif not has_mounting and not has_frame:
                 multiplier *= 0.85  # production-only bundles demoted
 
-        # Boost FAQ and knowledge docs — they carry expert consulting context
+        # Boost FAQ, knowledge, and roadmap docs — they carry expert consulting context
         # Higher boost for consulting queries so knowledge surfaces above irrelevant products
-        if doc_type in ("faq", "knowledge"):
+        if doc_type in ("faq", "knowledge", "roadmap"):
             if parsed_query is not None and parsed_query.intent == "consulting":
                 multiplier *= 2.0  # consulting docs are primary source
             else:
-                multiplier *= 1.15
+                multiplier *= 1.3
 
         # Demote deal_profile for pricing queries — line_total != per-unit price
         if doc_type == "deal_profile":
@@ -258,7 +258,7 @@ class CrossEncoderReranker:
             i for i, c in enumerate(result)
             if c["payload"].get("doc_type") == "deal_profile"
         ]
-        if len(dp_indices) > 3:
+        if len(dp_indices) > 2:
             overflow_non_dp = [
                 c for c in candidates[top_n:]
                 if c["payload"].get("doc_type") != "deal_profile"
@@ -304,6 +304,20 @@ class CrossEncoderReranker:
                     for ri in range(len(result) - 1, -1, -1):
                         dt = result[ri]["payload"].get("doc_type", "")
                         if dt not in ("product", "knowledge", "faq"):
+                            replace_idx = ri
+                            break
+                    result[replace_idx] = cand
+                    break
+
+        # Ensure at least 1 roadmap doc for consulting queries
+        result_types = {c["payload"].get("doc_type") for c in result}
+        if "roadmap" not in result_types and parsed_query and parsed_query.intent == "consulting":
+            for cand in candidates[top_n:]:
+                if cand["payload"].get("doc_type") == "roadmap":
+                    replace_idx = len(result) - 1
+                    for ri in range(len(result) - 1, -1, -1):
+                        dt = result[ri]["payload"].get("doc_type", "")
+                        if dt not in ("product", "knowledge", "faq", "bundle"):
                             replace_idx = ri
                             break
                     result[replace_idx] = cand

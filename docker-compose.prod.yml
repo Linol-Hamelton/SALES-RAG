@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:v1.12.1
+    container_name: labus_qdrant
+    ports:
+      - "127.0.0.1:6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__LOG_LEVEL: INFO
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: labus_api
+    ports:
+      - "127.0.0.1:8000:8000"
+    env_file:
+      - configs/.env
+    environment:
+      - QDRANT_URL=http://qdrant:6333
+    volumes:
+      - ./models:/app/models:ro
+      - ./data:/app/data
+      - ./indexes:/app/indexes:ro
+      - ./logs:/app/logs
+    depends_on:
+      - qdrant
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 10G
+
+volumes:
+  qdrant_data:
