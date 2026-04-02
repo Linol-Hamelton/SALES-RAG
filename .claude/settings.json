@@ -185,7 +185,13 @@
       "Bash(git commit:*)",
       "Bash(git push:*)",
       "Bash(ssh.exe root@62.217.178.117 \"cd /opt/rag && docker compose -f docker-compose.prod.yml logs --tail=50 api 2>&1\")",
-      "Bash(python scripts/build_index.py --recreate --device cuda)"
+      "Bash(python scripts/build_index.py --recreate --device cuda)",
+      "Bash(sort -k4 -rn)",
+      "Bash(ls -lh *.md)",
+      "Bash(ls -lah /d/SALES_RAG/RAG_DATA/*.csv)",
+      "Bash(ls -1 /d/SALES_RAG/RAG_DATA/ROADMAPS/*.md)",
+      "Bash(find . -type f -exec ls -lh {})",
+      "Bash(find /d/SALES_RAG -type f \\\\\\(-name *prompt* -o -name *system* -o -name *instruction* \\\\\\))"
     ],
     "additionalDirectories": [
       "\\tmp"
