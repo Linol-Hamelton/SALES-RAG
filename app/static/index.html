@@ -1213,7 +1213,10 @@ function renderStructured(data) {
     r.textContent = data.reasoning;
     frag.appendChild(r);
   }
-  if (data.references?.length) {
+  const segs = data.segmented_references;
+  if (segs && (segs.similar_orders?.length || segs.similar_offers?.length || segs.product_links?.length)) {
+    frag.appendChild(renderSegmentedRefs(segs));
+  } else if (data.references?.length) {
     const refs = document.createElement('div'); refs.className = 'refs';
     refs.innerHTML = `<div class="refs-title">Источники (${data.references.length})</div>`;
     data.references.forEach(ref => {
@@ -1236,6 +1239,80 @@ function renderStructured(data) {
     frag.appendChild(lat);
   }
   return frag;
+}
+
+function renderSegmentedRefs(segs) {
+  const wrap = document.createElement('div');
+  wrap.className = 'seg-refs';
+  wrap.style.cssText = 'margin-top:14px;display:flex;flex-direction:column;gap:12px;';
+  const sections = [
+    { key: 'similar_orders', title: 'Похожие сделки из завершённых заказов', items: segs.similar_orders || [] },
+    { key: 'similar_offers', title: 'Похожие предложения', items: segs.similar_offers || [] },
+    { key: 'product_links', title: 'Ссылки на товары на сайте', items: segs.product_links || [] },
+  ];
+  sections.forEach(sec => {
+    if (!sec.items.length) return;
+    const box = document.createElement('details');
+    box.open = true;
+    box.style.cssText = 'border:1px solid var(--border);border-radius:8px;padding:8px 12px;background:var(--bg-card,transparent);';
+    const sum = document.createElement('summary');
+    sum.style.cssText = 'cursor:pointer;font-weight:600;font-size:13px;color:var(--text);padding:4px 0;';
+    sum.textContent = `${sec.title} (${sec.items.length})`;
+    box.appendChild(sum);
+    const list = document.createElement('div');
+    list.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:8px;';
+    sec.items.forEach(it => list.appendChild(renderSegCard(it)));
+    box.appendChild(list);
+    wrap.appendChild(box);
+  });
+  return wrap;
+}
+
+function renderSegCard(it) {
+  const card = document.createElement('div');
+  card.style.cssText = 'border:1px solid var(--border);border-radius:6px;padding:8px;display:flex;gap:8px;font-size:12px;background:var(--bg,transparent);';
+  if (it.image_urls && it.image_urls.length) {
+    const a = document.createElement('a');
+    a.href = it.image_urls[0]; a.target = '_blank'; a.rel = 'noopener';
+    const img = document.createElement('img');
+    img.src = it.image_urls[0];
+    img.loading = 'lazy';
+    img.style.cssText = 'width:72px;height:72px;object-fit:cover;border-radius:4px;flex-shrink:0;background:#1115;';
+    img.onerror = () => { a.style.display = 'none'; };
+    a.appendChild(img);
+    card.appendChild(a);
+  }
+  const body = document.createElement('div');
+  body.style.cssText = 'flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;';
+  const title = document.createElement('div');
+  title.style.cssText = 'font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+  title.textContent = it.title || (it.deal_id ? 'Сделка #' + it.deal_id : '—');
+  body.appendChild(title);
+  if (it.subtitle) {
+    const sub = document.createElement('div');
+    sub.style.cssText = 'color:var(--text-muted);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;';
+    sub.textContent = it.subtitle;
+    body.appendChild(sub);
+  }
+  const meta = [];
+  if (it.direction) meta.push(it.direction);
+  if (it.total != null) meta.push(formatPrice(it.total));
+  if (it.duration_days != null) meta.push(it.duration_days + ' дн');
+  if (it.roi_hint) meta.push(it.roi_hint);
+  if (meta.length) {
+    const m = document.createElement('div');
+    m.style.cssText = 'color:var(--text-muted);font-size:11px;';
+    m.textContent = meta.join(' · ');
+    body.appendChild(m);
+  }
+  if (it.application) {
+    const ap = document.createElement('div');
+    ap.style.cssText = 'color:var(--text-muted);font-size:11px;font-style:italic;';
+    ap.textContent = it.application;
+    body.appendChild(ap);
+  }
+  card.appendChild(body);
+  return card;
 }
 
 async function sendQuery() {
@@ -1554,27 +1631,12 @@ async function apToggleChat(card, chatId) {
       }
       body.appendChild(info);
 
-      // Feedback comment
-      if (m.feedback_comment) {
+      // Feedback block: admin can always add/change rating + comment on assistant messages
+      if (m.role === 'assistant') {
         const fb = document.createElement('div');
         fb.className = 'ap-msg-feedback';
-        fb.id = `ap-comment-${m.feedback_id}`;
-        fb.innerHTML = `<div class="ap-fb-label">Комментарий</div>
-          <div class="ap-comment-text">${escapeHtml(m.feedback_comment)}</div>`;
-
-        const fbActions = document.createElement('div');
-        fbActions.className = 'ap-msg-feedback-actions';
-        const editBtn = document.createElement('button');
-        editBtn.className = 'ap-action-btn';
-        editBtn.textContent = '✏ Ред.';
-        editBtn.onclick = () => adminEditComment(m.feedback_id, m.feedback_comment, row);
-        const delBtn = document.createElement('button');
-        delBtn.className = 'ap-action-btn danger';
-        delBtn.textContent = '✕ Удал.';
-        delBtn.onclick = () => adminDeleteComment(m.feedback_id, row);
-        fbActions.appendChild(editBtn);
-        fbActions.appendChild(delBtn);
-        fb.appendChild(fbActions);
+        fb.id = `ap-fb-${m.message_id}`;
+        renderAdminFeedbackBlock(fb, m, row);
         body.appendChild(fb);
       }
 
@@ -1587,7 +1649,134 @@ async function apToggleChat(card, chatId) {
   }
 }
 
-// ── Admin actions: delete chat, edit/delete comments ─────────────────────
+// ── Admin actions: delete chat, edit/delete/create comments ─────────────
+function renderAdminFeedbackBlock(fb, m, row) {
+  // m fields: message_id, feedback_id, feedback_rating, feedback_comment
+  fb.innerHTML = '';
+  const hasFb = !!m.feedback_id;
+  const hasComment = hasFb && !!m.feedback_comment;
+
+  const label = document.createElement('div');
+  label.className = 'ap-fb-label';
+  label.textContent = hasFb ? (hasComment ? 'Комментарий' : 'Оценка (без комментария)') : 'Оценка от админа';
+  fb.appendChild(label);
+
+  if (hasComment) {
+    const textWrap = document.createElement('div');
+    textWrap.id = `ap-comment-${m.feedback_id}`;
+    textWrap.innerHTML = `<div class="ap-comment-text">${escapeHtml(m.feedback_comment)}</div>`;
+    fb.appendChild(textWrap);
+  }
+
+  const actions = document.createElement('div');
+  actions.className = 'ap-msg-feedback-actions';
+
+  // Rating buttons — admin can set/change rating with one click
+  const upBtn = document.createElement('button');
+  upBtn.className = 'ap-action-btn';
+  upBtn.textContent = (m.feedback_rating === 1 ? '✓ 👍' : '👍');
+  upBtn.onclick = () => adminCreateFeedback(m, 1, m.feedback_comment || '', fb, row);
+
+  const downBtn = document.createElement('button');
+  downBtn.className = 'ap-action-btn';
+  downBtn.textContent = (m.feedback_rating === -1 ? '✓ 👎' : '👎');
+  downBtn.onclick = () => adminCreateFeedback(m, -1, m.feedback_comment || '', fb, row);
+
+  actions.appendChild(upBtn);
+  actions.appendChild(downBtn);
+
+  if (hasComment) {
+    const editBtn = document.createElement('button');
+    editBtn.className = 'ap-action-btn';
+    editBtn.textContent = '✏ Ред.';
+    editBtn.onclick = () => adminEditComment(m.feedback_id, m.feedback_comment, row);
+    const delBtn = document.createElement('button');
+    delBtn.className = 'ap-action-btn danger';
+    delBtn.textContent = '✕ Удал.';
+    delBtn.onclick = () => adminDeleteComment(m.feedback_id, row);
+    actions.appendChild(editBtn);
+    actions.appendChild(delBtn);
+  } else {
+    const addBtn = document.createElement('button');
+    addBtn.className = 'ap-action-btn';
+    addBtn.textContent = hasFb ? '＋ Комментарий' : '＋ Оценка + коммент.';
+    addBtn.onclick = () => adminAddCommentInline(m, fb, row);
+    actions.appendChild(addBtn);
+  }
+
+  fb.appendChild(actions);
+}
+
+async function adminCreateFeedback(m, rating, comment, fbEl, row) {
+  try {
+    const r = await fetch('/admin/feedback/create', {
+      method: 'POST',
+      headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message_id: m.message_id, rating, comment: comment || '' }),
+    });
+    if (!r.ok) { alert('Ошибка: ' + (await r.json()).detail); return; }
+    const data = await r.json();
+    m.feedback_id = data.feedback_id;
+    m.feedback_rating = rating;
+    m.feedback_comment = comment || '';
+    // Update inline rating badge in info line
+    const info = row.querySelector('.ap-msg-info');
+    if (info) {
+      const old = info.querySelector('.ap-rating-badge');
+      if (old) old.remove();
+      const rb = document.createElement('span');
+      rb.className = 'ap-rating-badge ' + (rating === 1 ? 'up' : 'down');
+      rb.textContent = rating === 1 ? '👍' : '👎';
+      info.appendChild(rb);
+    }
+    renderAdminFeedbackBlock(fbEl, m, row);
+  } catch (e) { alert('Ошибка: ' + e); }
+}
+
+function adminAddCommentInline(m, fbEl, row) {
+  if (fbEl.querySelector('.ap-comment-editor')) return;
+  const editor = document.createElement('textarea');
+  editor.className = 'ap-comment-editor';
+  editor.placeholder = 'Комментарий админа...';
+
+  const btnRow = document.createElement('div');
+  btnRow.className = 'ap-comment-editor-actions';
+
+  const saveUp = document.createElement('button');
+  saveUp.className = 'ap-btn';
+  saveUp.textContent = '👍 Сохранить';
+  saveUp.style.cssText = 'font-size:12px;padding:4px 12px;';
+  const saveDown = document.createElement('button');
+  saveDown.className = 'ap-btn';
+  saveDown.textContent = '👎 Сохранить';
+  saveDown.style.cssText = 'font-size:12px;padding:4px 12px;';
+  const cancelBtn = document.createElement('button');
+  cancelBtn.className = 'ap-action-btn';
+  cancelBtn.textContent = 'Отмена';
+
+  // If rating already exists, only one save button (preserve rating)
+  if (m.feedback_rating) {
+    saveUp.textContent = 'Сохранить';
+    saveDown.style.display = 'none';
+  }
+
+  const doSave = (rating) => {
+    const text = editor.value.trim();
+    if (!text) { alert('Комментарий пуст'); return; }
+    adminCreateFeedback(m, rating, text, fbEl, row);
+  };
+  saveUp.onclick = () => doSave(m.feedback_rating || 1);
+  saveDown.onclick = () => doSave(-1);
+  cancelBtn.onclick = () => { editor.remove(); btnRow.remove(); };
+
+  btnRow.appendChild(saveUp);
+  btnRow.appendChild(saveDown);
+  btnRow.appendChild(cancelBtn);
+  fbEl.appendChild(editor);
+  fbEl.appendChild(btnRow);
+  editor.focus();
+}
+
 async function adminDeleteChat(chatId, cardEl) {
   if (!confirm('Удалить этот чат и все его сообщения?')) return;
   try {

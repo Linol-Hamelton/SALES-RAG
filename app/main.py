@@ -29,6 +29,7 @@ from app.core.pricing_resolver import PricingResolver
 from app.core.vision import VisionAnalyzer
 from app.core.feedback_store import FeedbackStore
 from app.core.deal_lookup import DealLookup
+from app.core.photo_index import PhotoIndex
 from app.database import init_db
 from app.routers import health, query, admin, eval as eval_router
 from app.routers import auth_router, chats
@@ -92,6 +93,15 @@ async def lifespan(app: FastAPI):
     app.state.vision = vision
     app.state.feedback_store = feedback_store
     app.state.deal_lookup = deal_lookup
+
+    # Initialize photo index (visual enrichment for segmented references)
+    try:
+        photo_index = PhotoIndex(Path(settings.data_path) / "photo_analysis_raw.jsonl").load()
+        logger.info("Photo index loaded", deals=len(photo_index))
+    except Exception as e:
+        logger.error("Photo index load failed", error=str(e))
+        photo_index = None
+    app.state.photo_index = photo_index
 
     logger.info("Application ready")
     yield

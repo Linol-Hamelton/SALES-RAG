@@ -372,6 +372,95 @@ class EditCommentRequest(BaseModel):
     comment: str
 
 
+class CreateFeedbackRequest(BaseModel):
+    message_id: int
+    rating: int  # -1 or 1
+    comment: str = ""
+
+
+@router.post("/feedback/create", tags=["Admin"])
+def admin_create_feedback(
+    req: CreateFeedbackRequest,
+    request: Request,
+    user: dict = Depends(get_current_user),
+):
+    """Create feedback on any assistant message (admin only).
+    If feedback already exists for (message, admin) it is updated instead.
+    Also creates a feedback lesson if the message is assistant and comment is non-empty.
+    """
+    if user.get("role") != "admin":
+        raise HTTPException(403, "Admin access required")
+    if req.rating not in (-1, 1):
+        raise HTTPException(400, "rating must be -1 or 1")
+    conn = get_connection()
+    msg = conn.execute(
+        "SELECT id, chat_id, role, structured_data FROM messages WHERE id = ?",
+        (req.message_id,),
+    ).fetchone()
+    if not msg:
+        conn.close()
+        raise HTTPException(404, "Message not found")
+    conn.execute("""
+        INSERT INTO message_feedback (message_id, user_id, rating, comment)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT(message_id, user_id) DO UPDATE SET
+            rating=excluded.rating, comment=excluded.comment
+    """, (req.message_id, user["id"], req.rating, req.comment))
+    conn.commit()
+    fb_row = conn.execute(
+        "SELECT id FROM message_feedback WHERE message_id = ? AND user_id = ?",
+        (req.message_id, user["id"]),
+    ).fetchone()
+    feedback_id = fb_row["id"] if fb_row else None
+
+    # Create lesson (best-effort), mirroring chats.submit_feedback logic
+    if req.comment and req.comment.strip() and feedback_id and msg["role"] == "assistant":
+        try:
+            import json as _json
+            feedback_store = getattr(request.app.state, "feedback_store", None)
+            retriever = getattr(request.app.state, "retriever", None)
+            if feedback_store and retriever and retriever.is_ready:
+                user_query_row = conn.execute("""
+                    SELECT content FROM messages
+                    WHERE chat_id = ? AND id < ? AND role = 'user'
+                    ORDER BY id DESC LIMIT 1
+                """, (msg["chat_id"], req.message_id)).fetchone()
+                direction = ""
+                if msg["structured_data"]:
+                    try:
+                        sd = _json.loads(msg["structured_data"])
+                        bundle = sd.get("suggested_bundle") or []
+                        if bundle and bundle[0].get("direction"):
+                            direction = bundle[0]["direction"]
+                        if not direction:
+                            src = sd.get("source_distinction") or {}
+                            direction = src.get("dataset_type", "") or ""
+                    except (ValueError, TypeError, AttributeError):
+                        pass
+                if user_query_row:
+                    uq = user_query_row["content"]
+                    qe = retriever.embed_query(uq)
+                    feedback_store.add_lesson(
+                        feedback_id=feedback_id,
+                        user_query=uq,
+                        query_embedding=qe,
+                        direction=direction,
+                        comment=req.comment,
+                        rating=req.rating,
+                    )
+        except Exception:
+            pass
+
+    conn.close()
+    return {
+        "status": "ok",
+        "feedback_id": feedback_id,
+        "message_id": req.message_id,
+        "rating": req.rating,
+        "comment": req.comment,
+    }
+
+
 @router.patch("/feedback/comments/{feedback_id}", tags=["Admin"])
 def edit_feedback_comment(
     feedback_id: int,

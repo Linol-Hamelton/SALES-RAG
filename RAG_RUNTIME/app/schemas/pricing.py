@@ -53,6 +53,30 @@ class Reference(BaseModel):
     snippet: str = ""   # first 120 chars of searchable_text
 
 
+class SourceSegment(BaseModel):
+    """A single enriched source card shown in segmented references UI."""
+    kind: Literal["order", "offer", "product_visual"] = "order"
+    deal_id: str | None = None
+    title: str = ""
+    subtitle: str | None = None           # product_type + dimensions
+    direction: str | None = None
+    total: float | None = None
+    duration_days: int | None = None
+    snippet: str = ""
+    score: float = 0.0
+    image_urls: list[str] = Field(default_factory=list)
+    product_type: str | None = None
+    application: str | None = None
+    roi_hint: str | None = None
+
+
+class SegmentedReferences(BaseModel):
+    """Three thematic lists rendered under every assistant response."""
+    similar_orders: list[SourceSegment] = Field(default_factory=list)
+    similar_offers: list[SourceSegment] = Field(default_factory=list)
+    product_links: list[SourceSegment] = Field(default_factory=list)
+
+
 class SourceDistinction(BaseModel):
     has_order_data: bool = False
     has_offer_data: bool = False

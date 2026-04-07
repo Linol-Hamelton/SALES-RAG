@@ -1,7 +1,10 @@
 """Query request and response Pydantic schemas."""
 from typing import Any, Literal
 from pydantic import BaseModel, Field
-from app.schemas.pricing import PriceBand, EstimatedPrice, BundleItem, Reference, SourceDistinction, ParametricBreakdown, DealItem
+from app.schemas.pricing import (
+    PriceBand, EstimatedPrice, BundleItem, Reference, SourceDistinction,
+    ParametricBreakdown, DealItem, SegmentedReferences,
+)
 
 
 class ChatMessage(BaseModel):
@@ -35,6 +38,7 @@ class StructuredResponse(BaseModel):
     flags: list[str] = []
     risks: list[str] = []
     references: list[Reference] = []
+    segmented_references: SegmentedReferences = Field(default_factory=SegmentedReferences)
     source_distinction: SourceDistinction = Field(default_factory=SourceDistinction)
     parametric_breakdown: ParametricBreakdown | None = None
     deal_items: list[DealItem] = []   # populated when query is a deal-estimate request

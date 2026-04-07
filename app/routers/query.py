@@ -5,8 +5,10 @@ from app.schemas.query import QueryRequest, HumanQueryResponse, StructuredRespon
 from app.schemas.pricing import (
     PriceBand, EstimatedPrice, BundleItem, Reference, SourceDistinction,
     ParametricBreakdown, ParametricLineItem, DealItem,
+    SourceSegment, SegmentedReferences,
 )
 from app.core.query_decomposer import decompose, QueryDecomposition
+from app.core.query_parser import parse_query
 from app.core import parametric_calculator as param_calc
 from app.core.feedback_store import build_feedback_context
 from app.core.deal_lookup import DealLookup
@@ -123,6 +125,165 @@ def _build_references(docs: list[dict]) -> list[Reference]:
             snippet=searchable_text[:120],
         ))
     return refs
+
+
+def _dominant_direction(docs: list[dict], top: int = 10) -> str | None:
+    """Return direction appearing in >=60% of top docs, else None."""
+    from collections import Counter
+    dirs = [d.get("payload", {}).get("direction") for d in docs[:top] if d.get("payload", {}).get("direction")]
+    if not dirs:
+        return None
+    counter = Counter(dirs)
+    top_dir, freq = counter.most_common(1)[0]
+    return top_dir if freq / len(dirs) >= 0.6 else None
+
+
+def _seg_from_doc(doc: dict, kind: str, photo_enrich: dict | None = None) -> SourceSegment:
+    p = doc.get("payload", {})
+    score = round(doc.get("final_score", doc.get("rrf_score", 0.0)), 4)
+    text = p.get("searchable_text", "")
+    deal_id = str(p.get("deal_id") or "") or None
+
+    title = (p.get("title") or p.get("sample_title") or p.get("deal_title")
+             or p.get("sample_order_title") or "").strip() or (text[:60] if text else "")
+    direction = p.get("direction") or None
+    total = p.get("line_total") or p.get("median_deal_value") or p.get("deal_total")
+    duration = p.get("deal_duration_days") or p.get("median_duration_days")
+    image_urls = list(p.get("image_urls") or [])
+
+    product_type = p.get("product_type") or None
+    application = p.get("application") or None
+    roi_hint = None
+    dimensions = p.get("dimensions") or None
+
+    # Enrich from photo_index for deal/offer segments when doc payload lacks visuals
+    if photo_enrich:
+        if not image_urls and photo_enrich.get("image_urls"):
+            image_urls = list(photo_enrich["image_urls"])
+        product_type = product_type or photo_enrich.get("product_type") or None
+        application = application or photo_enrich.get("application") or None
+        dimensions = dimensions or photo_enrich.get("dimensions") or None
+        roi = photo_enrich.get("roi_romi_avg")
+        if roi:
+            roi_hint = f"ROMI ~{int(roi)}%"
+
+    subtitle_parts = [x for x in [product_type, dimensions] if x]
+    subtitle = " · ".join(subtitle_parts) if subtitle_parts else None
+
+    return SourceSegment(
+        kind=kind,
+        deal_id=deal_id,
+        title=title[:140],
+        subtitle=subtitle,
+        direction=direction,
+        total=float(total) if isinstance(total, (int, float)) else None,
+        duration_days=int(duration) if isinstance(duration, (int, float)) else None,
+        snippet=text[:180],
+        score=score,
+        image_urls=image_urls[:4],
+        product_type=product_type,
+        application=application,
+        roi_hint=roi_hint,
+    )
+
+
+def _build_segmented_references(docs: list[dict], photo_index=None) -> SegmentedReferences:
+    """Partition retrieved docs into three thematic segments.
+
+    - similar_orders: doc_type == deal_profile (top 7), enriched via photo_index.
+    - similar_offers: doc_type == offer_profile, fallback to bundle[dataset=offers] (top 5).
+    - product_links: doc_type == photo_analysis with image_urls (top 6), deduped by deal_id.
+    """
+    def _dir_hard_filter(doc, dom):
+        if not dom:
+            return True
+        d = doc.get("payload", {}).get("direction")
+        return (not d) or d == dom
+
+    dom_dir = _dominant_direction(docs)
+    relevant = [d for d in docs
+                if d.get("final_score", d.get("rrf_score", 0.0)) >= MIN_RELEVANT_SCORE]
+
+    seen_deals: set[str] = set()
+    similar_orders: list[SourceSegment] = []
+    similar_offers: list[SourceSegment] = []
+    product_links: list[SourceSegment] = []
+    seen_pt_dir: set[tuple] = set()
+
+    # 1) similar_orders — deal_profile
+    for doc in relevant:
+        if len(similar_orders) >= 7:
+            break
+        p = doc.get("payload", {})
+        if p.get("doc_type") != "deal_profile":
+            continue
+        if not _dir_hard_filter(doc, dom_dir):
+            continue
+        deal_id = str(p.get("deal_id") or "")
+        if deal_id and deal_id in seen_deals:
+            continue
+        enrich = photo_index.get(deal_id) if photo_index and deal_id else None
+        similar_orders.append(_seg_from_doc(doc, "order", enrich))
+        if deal_id:
+            seen_deals.add(deal_id)
+
+    # 2) similar_offers — prefer offer_profile, fallback to bundle[offers]
+    offer_profiles = [d for d in relevant
+                      if d.get("payload", {}).get("doc_type") == "offer_profile"]
+    if offer_profiles:
+        for doc in offer_profiles:
+            if len(similar_offers) >= 5:
+                break
+            if not _dir_hard_filter(doc, dom_dir):
+                continue
+            deal_id = str(doc.get("payload", {}).get("deal_id") or "")
+            if deal_id and deal_id in seen_deals:
+                continue
+            enrich = photo_index.get(deal_id) if photo_index and deal_id else None
+            similar_offers.append(_seg_from_doc(doc, "offer", enrich))
+            if deal_id:
+                seen_deals.add(deal_id)
+    else:
+        for doc in relevant:
+            if len(similar_offers) >= 5:
+                break
+            p = doc.get("payload", {})
+            if p.get("doc_type") != "bundle":
+                continue
+            if p.get("dataset_type") != "offers":
+                continue
+            if not _dir_hard_filter(doc, dom_dir):
+                continue
+            similar_offers.append(_seg_from_doc(doc, "offer"))
+
+    # 3) product_links — photo_analysis with image_urls, dedup by (deal_id) and (product_type, direction)
+    for doc in relevant:
+        if len(product_links) >= 6:
+            break
+        p = doc.get("payload", {})
+        if p.get("doc_type") != "photo_analysis":
+            continue
+        urls = p.get("image_urls") or []
+        if not urls:
+            continue
+        if not _dir_hard_filter(doc, dom_dir):
+            continue
+        deal_id = str(p.get("deal_id") or "")
+        if deal_id and deal_id in seen_deals:
+            continue
+        pt_key = (p.get("product_type") or "", p.get("direction") or "")
+        if pt_key in seen_pt_dir and pt_key != ("", ""):
+            continue
+        product_links.append(_seg_from_doc(doc, "product_visual"))
+        if deal_id:
+            seen_deals.add(deal_id)
+        seen_pt_dir.add(pt_key)
+
+    return SegmentedReferences(
+        similar_orders=similar_orders,
+        similar_offers=similar_offers,
+        product_links=product_links,
+    )
 
 
 def _filter_relevant_docs(docs: list[dict]) -> list[dict]:
@@ -290,6 +451,11 @@ async def query_human(req: QueryRequest, request: Request,
 
         extra_ctx = f"АНАЛИЗ ИЗОБРАЖЕНИЯ:\n{vision_context}\n\n" if vision_context else ""
 
+        # --- Parse query for clarification needs ---
+        parsed = parse_query(req.query)
+        if parsed.needs_clarification:
+            extra_ctx += "ВАЖНО: Запрос слишком общий — не указан тип изделия, размеры или направление. Задай 1-2 уточняющих вопроса клиенту ВМЕСТО угадывания цены. Дай примерные диапазоны по типам.\n\n"
+
         # --- Decompose query for size-aware pricing ---
         decomp = decompose(req.query)
 
@@ -406,6 +572,12 @@ async def query_structured(req: QueryRequest, request: Request,
             if vision_context:
                 logger.info("Vision analysis prepended to structured query context")
 
+        # --- Parse query for clarification needs ---
+        parsed = parse_query(req.query)
+        clarification_prefix = ""
+        if parsed.needs_clarification:
+            clarification_prefix = "ВАЖНО: Запрос слишком общий — не указан тип изделия, размеры или направление. Задай 1-2 уточняющих вопроса клиенту ВМЕСТО угадывания цены. Дай примерные диапазоны по типам.\n\n"
+
         # --- Decompose query: detect complex multi-component requests ---
         decomp = decompose(req.query)
         parametric_breakdown_schema: ParametricBreakdown | None = None
@@ -445,6 +617,8 @@ async def query_structured(req: QueryRequest, request: Request,
 
             # Generate with parametric context (+ optional vision analysis + feedback)
             full_extra = parametric_context
+            if clarification_prefix:
+                full_extra = clarification_prefix + full_extra
             if feedback_prefix:
                 full_extra = feedback_prefix + "\n\n" + full_extra
             if vision_context:
@@ -463,6 +637,14 @@ async def query_structured(req: QueryRequest, request: Request,
                 "is_financial_modifier": False,
             })()
             if is_estimate:
+                # Inject real product names for deal_items
+                real_names = sorted({
+                    doc["payload"].get("product_name")
+                    for doc in reranked if doc["payload"].get("product_name")
+                })
+                if real_names:
+                    full_extra += "\nНАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
+                    full_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
                 raw_json = await generator.generate_deal_estimate(
                     req.query, reranked, pr_obj,
                     extra_context=full_extra, history=req.history,
@@ -489,6 +671,8 @@ async def query_structured(req: QueryRequest, request: Request,
             # Filter noise: only pass relevant docs to generator for pricing context
             reranked_relevant = _filter_relevant_docs(reranked)
             vision_extra = ""
+            if clarification_prefix:
+                vision_extra += clarification_prefix
             if feedback_prefix:
                 vision_extra += feedback_prefix + "\n\n"
             if vision_context:
@@ -502,6 +686,14 @@ async def query_structured(req: QueryRequest, request: Request,
             if breakdown_ctx:
                 vision_extra += breakdown_ctx + "\n\n"
             if is_estimate:
+                # Inject real product names so LLM uses catalog names in deal_items
+                real_names = sorted({
+                    doc["payload"].get("product_name")
+                    for doc in reranked if doc["payload"].get("product_name")
+                })
+                if real_names:
+                    vision_extra += "НАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
+                    vision_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
                 raw_json = await generator.generate_deal_estimate(
                     req.query, reranked_relevant, pr,
                     extra_context=vision_extra, history=req.history,
@@ -669,6 +861,10 @@ async def query_structured(req: QueryRequest, request: Request,
             flags=all_flags,
             risks=all_risks,
             references=_build_references(reranked),
+            segmented_references=_build_segmented_references(
+                reranked,
+                photo_index=getattr(request.app.state, "photo_index", None),
+            ),
             source_distinction=_detect_source_distinction(reranked),
             parametric_breakdown=parametric_breakdown_schema,
             deal_items=deal_items,

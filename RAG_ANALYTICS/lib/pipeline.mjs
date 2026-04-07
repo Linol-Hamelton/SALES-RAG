@@ -61,19 +61,41 @@ function firstNonEmpty(...values) {
   return "";
 }
 
-function extractHeightFromProducts(rows) {
-  // Extract letter height (cm) from product names in a deal
+function extractHeightFromText(text) {
+  // Extract letter height (cm) from free text. Handles см/cm, мм/mm, м/m.
+  if (!text) return [];
+  const out = [];
+  const clean = String(text).toLowerCase();
+  const reCm = /(\d{2,3})\s*(?:см|cm)\b/g;
+  const reMm = /(\d{2,4})\s*(?:мм|mm)\b/g;
+  const reM = /(\d(?:[.,]\d)?)\s*(?:м|m)\b(?!м)/g;
+  let m;
+  while ((m = reCm.exec(clean))) {
+    const h = parseInt(m[1], 10);
+    if (h >= 10 && h <= 200) out.push(h);
+  }
+  while ((m = reMm.exec(clean))) {
+    const h = Math.round(parseInt(m[1], 10) / 10);
+    if (h >= 10 && h <= 200) out.push(h);
+  }
+  while ((m = reM.exec(clean))) {
+    const h = Math.round(parseFloat(m[1].replace(",", ".")) * 100);
+    if (h >= 10 && h <= 200) out.push(h);
+  }
+  return out;
+}
+
+function extractHeightFromProducts(rows, fallbackText = "") {
+  // Extract letter height (cm) from product names; fallback to deal title/description.
   const heights = [];
   for (const row of rows) {
     const name = cleanText(row.PRODUCT_NAME || row.NAME || row.PRODUCT_NAME_NORMALIZED || "");
-    const m = name.match(/(\d{2,3})\s*(?:см|cm)/i);
-    if (m) {
-      const h = parseInt(m[1], 10);
-      if (h >= 10 && h <= 200) heights.push(h);
-    }
+    heights.push(...extractHeightFromText(name));
+  }
+  if (!heights.length && fallbackText) {
+    heights.push(...extractHeightFromText(fallbackText));
   }
   if (!heights.length) return null;
-  // Return most common height (mode)
   const freq = new Map();
   for (const h of heights) freq.set(h, (freq.get(h) ?? 0) + 1);
   return [...freq.entries()].sort((a, b) => b[1] - a[1])[0][0];
@@ -621,7 +643,11 @@ export function buildDealFacts(normalizedDatasets) {
       PRIMARY_DIRECTION: getPrimaryDirection(rows),
       BUNDLE_KEY: makeBundleKey(productKeys),
       PRODUCT_KEYS: productKeys.join("|"),
-      LETTER_HEIGHT_CM: extractHeightFromProducts(rows),
+      PARENT_SECTIONS: unique(rows.map((row) => cleanText(row.PARENT_SECTION)).filter(Boolean)).sort().join("|"),
+      LETTER_HEIGHT_CM: extractHeightFromProducts(
+        rows,
+        `${cleanText(firstRow.TITLE) || ""} ${cleanText(firstRow.DESCRIPTION) || ""}`
+      ),
       SAMPLE_PRODUCTS: unique(rows.map((row) => row.PRODUCT_NAME_NORMALIZED)).slice(0, 5).join(" | "),
     });
   }
@@ -659,9 +685,27 @@ export function buildBundleFacts(dealFacts) {
     const descriptions = deals.map((d) => d.DESCRIPTION || "").filter(Boolean);
     const bestDescription = descriptions.sort((a, b) => b.length - a.length)[0] || "";
 
+    // Canonical bundle key by parent_section set (semantic grouping across variants)
+    const parentSections = new Set();
+    for (const d of deals) {
+      for (const sec of (d.PARENT_SECTIONS || "").split("|").filter(Boolean)) {
+        parentSections.add(sec);
+      }
+    }
+    const canonicalKey = [...parentSections].sort().join("|") || bundleKey;
+
+    // Sample deal IDs (up to 5, prefer highest-value)
+    const sampleDeals = deals
+      .slice()
+      .sort((a, b) => (parseNumber(b.LINE_TOTAL) ?? 0) - (parseNumber(a.LINE_TOTAL) ?? 0))
+      .slice(0, 5)
+      .map((d) => d.DEAL_ID)
+      .filter(Boolean);
+
     bundleFacts.push({
       DATASET: dataset,
       BUNDLE_KEY: bundleKey,
+      CANONICAL_BUNDLE_KEY: canonicalKey,
       PRODUCT_COUNT: bundleKey ? bundleKey.split("|").length : 0,
       DEAL_COUNT: deals.length,
       MEDIAN_DEAL_VALUE: roundNumber(median(values), 2),
@@ -672,6 +716,7 @@ export function buildBundleFacts(dealFacts) {
       DESCRIPTION: bestDescription.substring(0, 500),
       SAMPLE_TITLE: deals[0].TITLE,
       SAMPLE_PRODUCTS: deals[0].SAMPLE_PRODUCTS,
+      SAMPLE_DEAL_IDS: sampleDeals.join("|"),
     });
   }
 
@@ -846,19 +891,21 @@ export function buildTimelineFacts(dealFacts) {
   return timelineFacts;
 }
 
-export function buildDealProfiles(normalizedDatasets, dealFacts) {
-  // Only orders with ≥2 products and >500 rub
-  const orderDeals = dealFacts.filter(
-    (d) => d.DATASET === "orders" && d.UNIQUE_PRODUCT_COUNT >= 2 && (parseNumber(d.LINE_TOTAL) ?? 0) > 500
+export function buildDealProfiles(normalizedDatasets, dealFacts, { dataset = "orders" } = {}) {
+  // Deals with ≥2 products and >500 rub in the requested dataset (orders or offers).
+  const selectedDeals = dealFacts.filter(
+    (d) => d.DATASET === dataset && d.UNIQUE_PRODUCT_COUNT >= 2 && (parseNumber(d.LINE_TOTAL) ?? 0) > 500
+      && d.PAYMENT_TYPE !== "Бартер"
   );
 
-  // Build lookup: dealId → normalized rows
-  const orderRows = groupBy(normalizedDatasets.orders, (row) => cleanText(row.ID));
+  // Build lookup: dealId → normalized rows (for requested dataset)
+  const sourceRows = normalizedDatasets[dataset] || [];
+  const rowsByDeal = groupBy(sourceRows, (row) => cleanText(row.ID));
 
   const profiles = [];
 
-  for (const deal of orderDeals) {
-    const rows = orderRows.get(deal.DEAL_ID) ?? [];
+  for (const deal of selectedDeals) {
+    const rows = rowsByDeal.get(deal.DEAL_ID) ?? [];
     if (!rows.length) continue;
 
     // Build component summary: "Product x5 = 1234 руб; ..."
@@ -899,6 +946,7 @@ export function buildDealProfiles(normalizedDatasets, dealFacts) {
 
     profiles.push({
       DEAL_ID: deal.DEAL_ID,
+      DATASET: dataset,
       TITLE: deal.TITLE,
       DIRECTION: deal.PRIMARY_DIRECTION,
       LINE_TOTAL: deal.LINE_TOTAL,
@@ -996,7 +1044,7 @@ export function buildServiceCompositionFacts(normalizedDatasets, dealFacts) {
   const compositionFacts = [];
 
   for (const [direction, stats] of dirStats.entries()) {
-    if (stats.dealCount < 5) continue; // skip rare directions
+    if (stats.dealCount < 3) continue; // skip ultra-rare directions (was 5)
 
     // Top products by frequency (appear in most deals)
     const topProducts = [...stats.productFreq.entries()]
@@ -1333,7 +1381,8 @@ export async function runAnalyticsPipeline({ scope = "all", repairRawOrders = tr
   const templateMatchFacts = buildTemplateMatchFacts(dealFacts);
 
   const timelineFacts = buildTimelineFacts(dealFacts);
-  const dealProfiles = buildDealProfiles(normalizedDatasets, dealFacts);
+  const dealProfiles = buildDealProfiles(normalizedDatasets, dealFacts, { dataset: "orders" });
+  const offerProfiles = buildDealProfiles(normalizedDatasets, dealFacts, { dataset: "offers" });
   const serviceCompositionFacts = buildServiceCompositionFacts(normalizedDatasets, dealFacts);
 
   if (["all", "facts", "pricing", "kpis"].includes(scope)) {
@@ -1343,6 +1392,9 @@ export async function runAnalyticsPipeline({ scope = "all", repairRawOrders = tr
     }
     if (dealProfiles.length) {
       await writeCsv(resolve(FACTS_DIR, "deal_profiles.csv"), dealProfiles, Object.keys(dealProfiles[0]));
+    }
+    if (offerProfiles.length) {
+      await writeCsv(resolve(FACTS_DIR, "offer_profiles.csv"), offerProfiles, Object.keys(offerProfiles[0]));
     }
     if (serviceCompositionFacts.length) {
       await writeCsv(resolve(FACTS_DIR, "service_composition.csv"), serviceCompositionFacts, Object.keys(serviceCompositionFacts[0]));
@@ -1402,6 +1454,7 @@ export async function runAnalyticsPipeline({ scope = "all", repairRawOrders = tr
     templateMatchFacts,
     timelineFacts,
     dealProfiles,
+    offerProfiles,
     serviceCompositionFacts,
     pricingFacts,
     pricingSummary,

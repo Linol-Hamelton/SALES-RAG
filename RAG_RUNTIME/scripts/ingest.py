@@ -18,6 +18,9 @@ from typing import Any
 # Add project root to path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
+sys.path.insert(0, str(Path(__file__).parent))
+
+from photo_index import get_photo_index  # noqa: E402
 
 # Analytics source paths (read-only)
 ANALYTICS_ROOT = PROJECT_ROOT.parent / "RAG_ANALYTICS" / "output"
@@ -208,10 +211,15 @@ def build_bundle_docs() -> list[dict]:
                 "sample_order_title": sanitize(row.get("SAMPLE_ORDER_TITLE")) or "",
             }
 
+    photo_idx = get_photo_index(OUTPUT_DIR)
+
     docs = []
     for _, row in bf.iterrows():
         dataset = sanitize(row.get("DATASET")) or ""
         bundle_key = str(row.get("BUNDLE_KEY", "")).strip()
+        canonical_key = sanitize(row.get("CANONICAL_BUNDLE_KEY")) or bundle_key
+        sample_deal_ids_raw = sanitize(row.get("SAMPLE_DEAL_IDS")) or ""
+        sample_deal_ids = [s for s in sample_deal_ids_raw.split("|") if s]
         product_count = safe_int(row.get("PRODUCT_COUNT")) or 0
         deal_count = safe_int(row.get("DEAL_COUNT")) or 0
         median_value = safe_float(row.get("MEDIAN_DEAL_VALUE"))
@@ -225,6 +233,19 @@ def build_bundle_docs() -> list[dict]:
 
         # Get template match signals
         tmatch = template_lookup.get(bundle_key, {})
+
+        # Representative visual attributes from photo_analysis (first sample deal with photos)
+        rep_product_type = ""
+        rep_application = ""
+        rep_image_url = ""
+        for sdid in sample_deal_ids:
+            pr = photo_idx.get(sdid)
+            if pr and (pr.get("image_urls") or pr.get("product_type")):
+                rep_product_type = pr.get("product_type") or rep_product_type
+                rep_application = pr.get("application") or rep_application
+                if pr.get("image_urls"):
+                    rep_image_url = pr["image_urls"][0]
+                    break
 
         # Build searchable text
         parts = []
@@ -246,6 +267,10 @@ def build_bundle_docs() -> list[dict]:
             parts.append(f"состав: {sample_products}")
         if tmatch.get("sample_order_title"):
             parts.append(f"пример заказа: {tmatch['sample_order_title']}")
+        if rep_product_type:
+            parts.append(f"тип изделия: {rep_product_type}")
+        if rep_application:
+            parts.append(f"применение: {rep_application}")
         if description:
             parts.append(description[:300])
         if letter_height_cm:
@@ -258,6 +283,11 @@ def build_bundle_docs() -> list[dict]:
             "searchable_text": searchable_text,
             "metadata": {
                 "bundle_key": bundle_key,
+                "canonical_bundle_key": canonical_key,
+                "sample_deal_ids": sample_deal_ids,
+                "representative_product_type": rep_product_type,
+                "representative_application": rep_application,
+                "representative_image_url": rep_image_url,
                 "dataset_type": dataset,
                 "product_count": product_count,
                 "deal_count": deal_count,
@@ -570,23 +600,25 @@ def build_retrieval_support_docs() -> list[dict]:
 
 # ─── Document Type E: deal_profile_docs ──────────────────────────────────────
 
-def build_deal_profile_docs() -> list[dict]:
-    """Build deal profile documents from deal_profiles.csv — real deal cases."""
-    profiles_path = ANALYTICS_ROOT / "facts" / "deal_profiles.csv"
+def _build_profile_docs_from_csv(csv_filename: str, doc_type: str, dataset_label: str) -> list[dict]:
+    """Shared builder for deal_profile / offer_profile docs. Enriched via photo_index."""
+    profiles_path = ANALYTICS_ROOT / "facts" / csv_filename
     if not profiles_path.exists():
-        click.echo("  deal_profiles.csv not found, skipping")
+        click.echo(f"  {csv_filename} not found, skipping")
         return []
 
-    click.echo("Loading deal_profiles.csv...")
+    click.echo(f"Loading {csv_filename}...")
     df = load_csv(profiles_path)
 
-    image_lookup = {}
+    image_lookup: dict[str, list[str]] = {}
     deals_json_path = PROJECT_ROOT.parent / "RAG_DATA" / "deals.json"
     if deals_json_path.exists():
         with open(deals_json_path, "r", encoding="utf-8") as f:
             for d in json.load(f):
                 if d.get("ID"):
                     image_lookup[str(d["ID"])] = d.get("IMAGE_URLS", [])
+
+    photo_idx = get_photo_index(OUTPUT_DIR)
 
     docs = []
     for _, row in df.iterrows():
@@ -604,14 +636,38 @@ def build_deal_profile_docs() -> list[dict]:
         materials = sanitize(row.get("MATERIALS")) or ""
         sample_products = sanitize(row.get("SAMPLE_PRODUCTS")) or ""
 
-        # Build searchable text
-        image_urls = image_lookup.get(deal_id, [])
+        # Union image URLs: deals.json + photo_analysis (dedup, photo URLs first)
+        photo_rec = photo_idx.get(deal_id) or {}
+        photo_urls = list(photo_rec.get("image_urls") or [])
+        deal_json_urls = image_lookup.get(deal_id, []) or []
+        seen = set()
+        image_urls = []
+        for u in photo_urls + deal_json_urls:
+            if u and u not in seen:
+                image_urls.append(u)
+                seen.add(u)
+
+        # Visual enrichment from photo_analysis
+        product_type = photo_rec.get("product_type") or ""
+        application = photo_rec.get("application") or ""
+        dimensions = photo_rec.get("dimensions") or ""
+        visible_text = photo_rec.get("visible_text") or ""
+        practical_value = photo_rec.get("practical_value") or ""
+        roi_romi = photo_rec.get("roi_romi_avg")
 
         parts = [title]
         if image_urls:
             parts.append("включает фотографии проекта")
         if direction:
             parts.append(f"направление {direction}")
+        if product_type:
+            parts.append(f"тип изделия: {product_type}")
+        if dimensions:
+            parts.append(f"размеры: {dimensions}")
+        if application:
+            parts.append(f"применение: {application}")
+        if visible_text:
+            parts.append(f"надпись: {visible_text}")
         if line_total is not None:
             parts.append(f"стоимость {line_total:.0f} руб")
         if duration is not None:
@@ -622,6 +678,10 @@ def build_deal_profile_docs() -> list[dict]:
             parts.append(f"материалы: {materials}")
         if component_summary:
             parts.append(f"состав: {component_summary[:500]}")
+        if practical_value:
+            parts.append(f"ценность: {practical_value[:200]}")
+        if roi_romi:
+            parts.append(f"ROMI ~{int(roi_romi)}%")
         if description:
             parts.append(f"описание: {description[:300]}")
         if comments:
@@ -629,11 +689,12 @@ def build_deal_profile_docs() -> list[dict]:
         searchable_text = ", ".join(parts)
 
         doc = {
-            "doc_id": f"deal_profile_{deal_id}",
-            "doc_type": "deal_profile",
+            "doc_id": f"{doc_type}_{deal_id}",
+            "doc_type": doc_type,
             "searchable_text": searchable_text,
             "metadata": {
                 "deal_id": deal_id,
+                "dataset_type": dataset_label,
                 "title": title,
                 "direction": direction,
                 "line_total": line_total,
@@ -647,16 +708,30 @@ def build_deal_profile_docs() -> list[dict]:
                 "materials": materials,
                 "sample_products": sample_products,
                 "image_urls": image_urls,
+                "product_type": product_type,
+                "application": application,
+                "dimensions": dimensions,
+                "visible_text": visible_text,
+                "practical_value": practical_value,
+                "roi_romi_avg": roi_romi,
             },
             "provenance": {
-                "sources": ["deal_profiles.csv", "deals.json"],
+                "sources": [csv_filename, "deals.json", "photo_analysis_raw.jsonl"],
                 "generated_at": now_iso(),
             }
         }
         docs.append(doc)
 
-    click.echo(f"  Built {len(docs)} deal profile docs")
+    click.echo(f"  Built {len(docs)} {doc_type} docs")
     return docs
+
+
+def build_deal_profile_docs() -> list[dict]:
+    return _build_profile_docs_from_csv("deal_profiles.csv", "deal_profile", "orders")
+
+
+def build_offer_profile_docs() -> list[dict]:
+    return _build_profile_docs_from_csv("offer_profiles.csv", "offer_profile", "offers")
 
 
 # ─── Document Type F: service_composition_docs ──────────────────────────────
@@ -883,9 +958,48 @@ def _chunk_photo_doc(doc: dict) -> list[dict]:
         chunk_doc["metadata"]["chunk_index"] = i
         chunk_doc["metadata"]["chunk_label"] = label
         chunk_doc["metadata"]["chunk_total"] = len(merged)
+        # source_dataset marker for segmented refs filtering
+        src_text = doc.get("searchable_text", "")
+        if "из orders.csv" in src_text:
+            chunk_doc["metadata"]["source_dataset"] = "orders"
+        elif "из offers.csv" in src_text:
+            chunk_doc["metadata"]["source_dataset"] = "offers"
         chunks.append(chunk_doc)
 
     return chunks
+
+
+def build_roi_anchor_docs() -> list[dict]:
+    """Build ROI anchor docs from photo_index aggregated per direction.
+
+    Canonical ROMI facts extracted once during vision analysis — injected as
+    knowledge-style anchors so generator can cite ROI without scanning photos.
+    """
+    photo_idx = get_photo_index(OUTPUT_DIR)
+    roi_map = photo_idx.roi_by_direction() if hasattr(photo_idx, "roi_by_direction") else {}
+    docs = []
+    for direction, romi in roi_map.items():
+        docs.append({
+            "doc_id": f"roi_anchor_{direction}",
+            "doc_type": "knowledge",
+            "searchable_text": (
+                f"ROI/ROMI по направлению {direction}: средний ROMI ~{int(romi)}%. "
+                f"Эта цифра — агрегат по реальным проектам из фото-анализа сделок направления {direction}. "
+                f"Используй как ориентир при обосновании ценности клиенту."
+            ),
+            "metadata": {
+                "direction": direction,
+                "roi_romi_avg": romi,
+                "anchor": "roi_by_direction",
+                "category": "roi",
+            },
+            "provenance": {
+                "sources": ["photo_analysis_raw.jsonl"],
+                "generated_at": now_iso(),
+            },
+        })
+    click.echo(f"  Built {len(docs)} ROI anchor docs")
+    return docs
 
 
 def build_photo_analysis_docs() -> list[dict]:
@@ -935,9 +1049,11 @@ DOC_BUILDERS = {
     "policy": ("pricing_policy_docs.jsonl", build_pricing_policy_docs),
     "support": ("retrieval_support_docs.jsonl", build_retrieval_support_docs),
     "deal_profile": ("deal_profile_docs.jsonl", build_deal_profile_docs),
+    "offer_profile": ("offer_profile_docs.jsonl", build_offer_profile_docs),
     "service_comp": ("service_composition_docs.jsonl", build_service_composition_docs),
     "timeline": ("timeline_docs.jsonl", build_timeline_docs),
     "photo_analysis": ("photo_analysis_docs.jsonl", build_photo_analysis_docs),
+    "roi_anchors": ("roi_anchor_docs.jsonl", build_roi_anchor_docs),
 }
 
 ALL_DOC_TYPES = list(DOC_BUILDERS.keys())
