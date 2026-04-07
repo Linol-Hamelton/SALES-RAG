@@ -259,6 +259,17 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             lines = [header, f"  {content[:2000]}"]
             blocks.append("\n".join(lines))
 
+        elif doc_type == "roadmap":
+            roadmap_title = payload.get("roadmap_title", "")
+            section = payload.get("section", "")
+            content = payload.get("searchable_text", "")
+            if section:
+                header = f"[Дорожная карта: {roadmap_title} → {section}]"
+            else:
+                header = f"[Дорожная карта: {roadmap_title}]"
+            lines = [header, f"  {content[:2000]}"]
+            blocks.append("\n".join(lines))
+
     return "\n---\n".join(blocks)
 
 

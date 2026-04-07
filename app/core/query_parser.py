@@ -16,6 +16,7 @@ class ParsedQuery:
     direction_confidence: float = 0.0
     intent: str = "general"   # "product" | "bundle" | "policy" | "timeline" | "consulting" | "general"
     budget: float | None = None
+    needs_clarification: bool = False
 
     @property
     def has_direction(self) -> bool:
@@ -70,6 +71,10 @@ def parse_query(raw_query: str) -> ParsedQuery:
         # ROI / effectiveness
         "romi", "roi", "конверси", "эффективност", "окупаемост", "возврат инвестиций",
         "сколько приносит", "выгодно ли",
+        # Roadmap / process
+        "дорожная карта", "этап", "этапы", "процесс", "шаг за шагом",
+        "как организовать", "как запустить", "порядок работ",
+        "чек-лист", "checklist", "план работ",
     ])
 
     # Timeline intent — production timelines
@@ -94,6 +99,20 @@ def parse_query(raw_query: str) -> ParsedQuery:
     else:
         intent = "general"
 
+    # Determine if query needs clarification (too vague for pricing)
+    _has_sign_type = any(kw in _q for kw in [
+        "объёмн", "объемн", "световой короб", "неон", "баннер", "штендер",
+        "табличк", "буквы", "букв", "короб", "лайтбокс", "крышн",
+        "консол", "пилон", "панель-кронштейн", "логотип",
+    ])
+    needs_clarification = False
+    if intent in ("general", "product") and direction is None and not is_bundle:
+        needs_clarification = True
+    elif any(kw in _q for kw in ["вывеск", "реклам"]) and not _has_sign_type and budget is None:
+        needs_clarification = True
+    elif direction is not None and confidence < 0.5:
+        needs_clarification = True
+
     return ParsedQuery(
         raw=raw_query,
         tokens=tokens,
@@ -101,4 +120,5 @@ def parse_query(raw_query: str) -> ParsedQuery:
         direction_confidence=confidence,
         intent=intent,
         budget=budget,
+        needs_clarification=needs_clarification,
     )

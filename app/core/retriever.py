@@ -92,11 +92,12 @@ class HybridRetriever:
     def retrieve(self, query: str, top_k: int | None = None) -> list[dict]:
         """
         Retrieve top-k relevant docs using Qdrant Native RRF fusion.
+        For consulting intent: tiered retrieval to guarantee knowledge/roadmap docs.
         """
         if not self._loaded:
             self.load()
 
-        from qdrant_client.models import Filter, FieldCondition, MatchValue, Prefetch, FusionQuery, Fusion
+        from qdrant_client.models import Filter, FieldCondition, MatchValue, MatchAny, Prefetch, FusionQuery, Fusion
 
         top_k = top_k or self.settings.retrieval_top_k
         parsed = parse_query(query)
@@ -112,41 +113,72 @@ class HybridRetriever:
            parsed.high_confidence_direction and parsed.direction != "Безнал":
             query_filter = Filter(must=[FieldCondition(key="direction", match=MatchValue(value=parsed.direction))])
 
-        try:
-            if sparse_vec is None:
-                db_results = self._client.query_points(
-                    collection_name=self.settings.qdrant_collection,
-                    query=query_vec,
-                    using="dense",
-                    limit=top_k,
-                    query_filter=query_filter,
-                    with_payload=True
-                ).points
-            else:
-                prefetch = [
-                    Prefetch(query=query_vec, using="dense", limit=top_k * 2, filter=query_filter),
-                    Prefetch(query=sparse_vec, using="lexical", limit=top_k * 2, filter=query_filter)
-                ]
-                db_results = self._client.query_points(
-                    collection_name=self.settings.qdrant_collection,
-                    prefetch=prefetch,
-                    query=FusionQuery(fusion=Fusion.RRF),
-                    limit=top_k,
-                    with_payload=True
-                ).points
-        except Exception as e:
-            logger.error("Qdrant hybrid search failed", error=str(e))
-            # Fallback (no filter if filter broke DB)
+        # Tiered retrieval for consulting: guaranteed knowledge/roadmap + open search
+        if parsed.intent == "consulting":
+            knowledge_filter = Filter(must=[
+                FieldCondition(key="doc_type", match=MatchAny(any=["knowledge", "faq", "roadmap"]))
+            ])
+            half_k = max(top_k // 2, 5)
             try:
-                db_results = self._client.query_points(
-                    collection_name=self.settings.qdrant_collection,
-                    query=query_vec,
-                    using="dense",
-                    limit=top_k,
-                    with_payload=True
-                ).points
-            except Exception:
-                return []
+                # Tier 1: knowledge/faq/roadmap only
+                if sparse_vec is not None:
+                    prefetch_k = [
+                        Prefetch(query=query_vec, using="dense", limit=half_k * 2, filter=knowledge_filter),
+                        Prefetch(query=sparse_vec, using="lexical", limit=half_k * 2, filter=knowledge_filter),
+                    ]
+                    knowledge_results = self._client.query_points(
+                        collection_name=self.settings.qdrant_collection,
+                        prefetch=prefetch_k,
+                        query=FusionQuery(fusion=Fusion.RRF),
+                        limit=half_k,
+                        with_payload=True,
+                    ).points
+                else:
+                    knowledge_results = self._client.query_points(
+                        collection_name=self.settings.qdrant_collection,
+                        query=query_vec, using="dense",
+                        limit=half_k, query_filter=knowledge_filter,
+                        with_payload=True,
+                    ).points
+
+                # Tier 2: open search (all doc types)
+                if sparse_vec is not None:
+                    prefetch_o = [
+                        Prefetch(query=query_vec, using="dense", limit=half_k * 2),
+                        Prefetch(query=sparse_vec, using="lexical", limit=half_k * 2),
+                    ]
+                    open_results = self._client.query_points(
+                        collection_name=self.settings.qdrant_collection,
+                        prefetch=prefetch_o,
+                        query=FusionQuery(fusion=Fusion.RRF),
+                        limit=half_k,
+                        with_payload=True,
+                    ).points
+                else:
+                    open_results = self._client.query_points(
+                        collection_name=self.settings.qdrant_collection,
+                        query=query_vec, using="dense",
+                        limit=half_k, with_payload=True,
+                    ).points
+
+                # Merge and deduplicate
+                seen_ids = set()
+                db_results = []
+                for p in knowledge_results + open_results:
+                    if p.id not in seen_ids:
+                        seen_ids.add(p.id)
+                        db_results.append(p)
+
+                logger.info("Tiered consulting retrieval",
+                            knowledge_hits=len(knowledge_results),
+                            open_hits=len(open_results),
+                            merged=len(db_results))
+
+            except Exception as e:
+                logger.warning("Tiered retrieval failed, falling back to standard", error=str(e))
+                db_results = self._standard_search(query_vec, sparse_vec, query_filter, top_k)
+        else:
+            db_results = self._standard_search(query_vec, sparse_vec, query_filter, top_k)
 
         candidates = []
         for p in db_results:
@@ -159,13 +191,51 @@ class HybridRetriever:
                 "parsed_query": parsed,
                 "qdrant_id": p.id,
                 "dense_rank": None,
-                "bm25_rank": None, 
+                "bm25_rank": None,
                 "bm25_score": 0.0,
             })
 
         # Soft boost sorting over returned top K candidates
         candidates.sort(key=lambda x: x["rrf_score"], reverse=True)
         return candidates[:top_k]
+
+    def _standard_search(self, query_vec, sparse_vec, query_filter, top_k):
+        """Standard hybrid search (non-tiered)."""
+        from qdrant_client.models import Prefetch, FusionQuery, Fusion
+        try:
+            if sparse_vec is None:
+                return self._client.query_points(
+                    collection_name=self.settings.qdrant_collection,
+                    query=query_vec,
+                    using="dense",
+                    limit=top_k,
+                    query_filter=query_filter,
+                    with_payload=True
+                ).points
+            else:
+                prefetch = [
+                    Prefetch(query=query_vec, using="dense", limit=top_k * 2, filter=query_filter),
+                    Prefetch(query=sparse_vec, using="lexical", limit=top_k * 2, filter=query_filter)
+                ]
+                return self._client.query_points(
+                    collection_name=self.settings.qdrant_collection,
+                    prefetch=prefetch,
+                    query=FusionQuery(fusion=Fusion.RRF),
+                    limit=top_k,
+                    with_payload=True
+                ).points
+        except Exception as e:
+            logger.error("Qdrant hybrid search failed", error=str(e))
+            try:
+                return self._client.query_points(
+                    collection_name=self.settings.qdrant_collection,
+                    query=query_vec,
+                    using="dense",
+                    limit=top_k,
+                    with_payload=True
+                ).points
+            except Exception:
+                return []
 
     def retrieve_for_component(self, sub_query: str, top_k: int = 8) -> list[dict]:
         """Targeted retrieval for a single component sub-query (Product only)."""
