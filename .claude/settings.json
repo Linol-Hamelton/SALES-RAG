@@ -1,4 +1,18 @@
 {
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "playwright",
+    "memory_chroma_l1",
+    "memory_milvus_l2",
+    "memory_milvus_l2_b",
+    "memory_qdrant_l3",
+    "memory_qdrant_l3_b",
+    "memory_sql_l4_a",
+    "memory_sql_l4_b",
+    "memory_lexical_l5",
+    "memory_reranker_l5",
+    "ui_ux_pro"
+  ],
   "permissions": {
     "allow": [
       "Read(//d/SALES_RAG/RAG_ANALYTICS/output/normalized//**)",

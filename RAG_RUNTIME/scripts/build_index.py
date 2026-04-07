@@ -19,11 +19,17 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from app.utils.text import tokenize_ru
 
 
+SKIP_FILES = {"photo_analysis_raw.jsonl"}  # raw source, not for indexing
+
+
 def load_all_docs(data_dir: Path) -> list[dict]:
     """Load all JSONL files from data directory."""
     docs = []
     jsonl_files = sorted(data_dir.glob("*.jsonl"))
     for f in jsonl_files:
+        if f.name in SKIP_FILES:
+            click.echo(f"  Skipping {f.name} (raw source)")
+            continue
         click.echo(f"  Loading {f.name}...")
         with open(f, encoding="utf-8") as fh:
             file_docs = [json.loads(line) for line in fh if line.strip()]
@@ -100,7 +106,7 @@ def upsert_to_qdrant(docs: list[dict], embeddings: np.ndarray, qdrant_url: str, 
         )
 
     click.echo("  Creating payload indexes...")
-    for field in ["doc_type", "direction", "price_mode", "confidence_tier"]:
+    for field in ["doc_type", "direction", "price_mode", "confidence_tier", "category", "roadmap_title"]:
         try:
             client.create_payload_index(
                 collection_name=collection,
@@ -124,7 +130,7 @@ def upsert_to_qdrant(docs: list[dict], embeddings: np.ndarray, qdrant_url: str, 
             payload["doc_id"] = doc["doc_id"]
             
             full_text = doc.get("searchable_text", "")
-            payload["searchable_text"] = full_text[:2000]
+            payload["searchable_text"] = full_text[:4000]
 
             tokens = tokenize_ru(full_text)
             counts = Counter(tokens)

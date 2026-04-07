@@ -26,7 +26,7 @@ RAG_DATA = PROJECT_ROOT.parent / "RAG_DATA"
 DEALS_JSON_PATH = RAG_DATA / "deals.json"
 OFFERS_CSV_PATH = RAG_DATA / "offers.csv"
 GOODS_CSV_PATH = RAG_DATA / "goods.csv"
-OUTPUT_PATH = PROJECT_ROOT / "data" / "photo_analysis_docs.jsonl"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "photo_analysis_raw.jsonl"
 ENV_FILE = PROJECT_ROOT / "configs" / ".env"
 
 # URL path segments that always return 404 — skip instantly
@@ -844,7 +844,7 @@ def main(limit, migrate, clean):
     # --- Normal mode: process new images via local Ollama ---
     env = load_env()
     base_url = env.get("VISION_BASE_URL", "http://localhost:11434")
-    model = env.get("VISION_MODEL", "openbmb/minicpm-v4.5:latest")
+    model = env.get("VISION_MODEL", "openbmb/minicpm-v4.5:Q8_0")
 
     if not DEALS_JSON_PATH.exists():
         print(f"Data not found at {DEALS_JSON_PATH}. Run generateRagData.mjs first.")

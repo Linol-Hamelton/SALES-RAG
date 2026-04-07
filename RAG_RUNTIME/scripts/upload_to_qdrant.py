@@ -40,9 +40,14 @@ def main():
 
     collection = "labus_docs"
 
+    SKIP_FILES = {"photo_analysis_raw.jsonl"}  # raw source, not for indexing
+
     # Load docs
     docs = []
     for f in sorted(data_dir.glob("*.jsonl")):
+        if f.name in SKIP_FILES:
+            print(f"  Skipping {f.name} (raw source)")
+            continue
         with open(f, encoding="utf-8") as fh:
             file_docs = [json.loads(line) for line in fh if line.strip()]
         print(f"  {f.name}: {len(file_docs)}")
@@ -81,7 +86,7 @@ def main():
         sparse_vectors_config={"lexical": SparseVectorParams(modifier=Modifier.IDF)},
     )
 
-    for field in ["doc_type", "direction", "price_mode", "confidence_tier"]:
+    for field in ["doc_type", "direction", "price_mode", "confidence_tier", "category", "roadmap_title"]:
         try:
             client.create_payload_index(
                 collection_name=collection,
@@ -103,7 +108,7 @@ def main():
             payload["doc_type"] = doc["doc_type"]
             payload["doc_id"] = doc["doc_id"]
             full_text = doc.get("searchable_text", "")
-            payload["searchable_text"] = full_text[:2000]
+            payload["searchable_text"] = full_text[:4000]
 
             tokens = tokenize_ru(full_text)
             counts = Counter(tokens)

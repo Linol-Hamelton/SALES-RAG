@@ -26,7 +26,7 @@ RAG_DATA = PROJECT_ROOT.parent / "RAG_DATA"
 DEALS_JSON_PATH = RAG_DATA / "deals.json"
 OFFERS_CSV_PATH = RAG_DATA / "offers.csv"
 GOODS_CSV_PATH = RAG_DATA / "goods.csv"
-OUTPUT_PATH = PROJECT_ROOT / "data" / "photo_analysis_docs.jsonl"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "photo_analysis_raw.jsonl"
 ENV_FILE = PROJECT_ROOT / "configs" / ".env"
 
 
