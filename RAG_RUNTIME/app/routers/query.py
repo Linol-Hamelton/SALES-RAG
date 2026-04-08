@@ -1,5 +1,7 @@
 """Query endpoints: /query and /query_structured."""
 import time
+from collections import OrderedDict
+from threading import Lock
 from fastapi import APIRouter, Request, HTTPException, Depends
 from app.schemas.query import QueryRequest, HumanQueryResponse, StructuredResponse, ChatMessage
 from app.schemas.pricing import (
@@ -28,10 +30,45 @@ _ESTIMATE_KEYWORDS = [
     "сформируй сделку", "составь сделку", "позиции для сделки",
     "заполни сделку", "создай сделку", "что включить в сделку",
     # Pricing intent (П7): любые «сколько стоит / под ключ / оцени / прайс»
-    # — это запрос на estimate, требующий SmetaEngine, а не свободный summary.
     "под ключ", "сколько стоит", "сколько будет", "сколько обойдётся", "сколько обойдется",
     "оцени", "оцените", "оценить", "оценка", "прайс", "цена на", "цену на",
     "стоимость", "посчитай", "посчитайте", "рассчитай", "рассчитайте", "расчёт", "расчет",
+    # П7.1 #5: типография / тираж / форматные продукты
+    "тираж", "напечат", "печать", "печатать",
+    "визитк", "плакат", "баннер", "листовк", "наклейк", "буклет", "флаер", "афиш",
+    "а3", "а4", "а5", "а2", "а1", "а0",
+]
+
+# П7.1 #4: маркеры under-key/брендбук-намерения. Если запрос содержит хоть один —
+# дешёвый шаблон «Логотип» (отрисовка) НЕ должен побеждать. Форсим LLM-фоллбэк.
+_UNDERKEY_INTENT_MARKERS = [
+    "под ключ", "брендбук", "брендинг", "фирменн", "фирстил", "айдентик",
+    "брифинг", "бриф ", "интервью", "концепци", "три идеи", "3 идеи",
+    "несколько вариант", "вариант", "разработка с нуля", "с нуля",
+    "креатив",
+]
+
+# Категории, которые слишком дёшевы для under-key запросов и должны отключаться.
+_UNDERKEY_BLACKLIST_CATEGORIES = {"Логотип", "Логотипы"}
+
+# П7.1-hotfix: «помойные» категории шаблонов — слишком маленькие/дешёвые,
+# чтобы закрывать реальные under-key запросы. Блокируем в рантайме до П7.5-ребилда.
+_JUNK_CATEGORIES = {"Вывески"}
+
+# П7.1-hotfix: минимальная сумма шаблона, при которой его разрешено отдавать
+# под under-key-запрос. Шаблон меньше — скорее всего дефектный.
+_UNDERKEY_MIN_TEMPLATE_TOTAL = 15000
+
+# П7.1-hotfix: маркеры «не оценка, а помощь с текстом/описанием/переговорами».
+# При попадании — SmetaEngine пропускаем и идём в LLM.
+_DESCRIBE_INTENT_MARKERS = [
+    "помоги составить описание", "составить описание", "корректное описание",
+    "корректное текстовое описание", "текстовое описание", "помоги с описанием",
+    "опиши смету", "опиши вывеску", "опиши", "напиши текст", "напиши описание",
+    "как ответить", "что сказать", "что ему ответить", "что ответить",
+    "как презентовать", "презентуй", "презентацию",
+    "переговоры", "скрипт", "аргумент",
+    "выстроить переговоры",
 ]
 
 
@@ -39,6 +76,64 @@ def _is_deal_estimate_query(query: str) -> bool:
     """Detect if the user wants a deal estimate (list of products for Bitrix24)."""
     q_lower = query.lower()
     return any(kw in q_lower for kw in _ESTIMATE_KEYWORDS)
+
+
+def _is_underkey_intent(query: str) -> bool:
+    q_lower = query.lower()
+    return any(m in q_lower for m in _UNDERKEY_INTENT_MARKERS)
+
+
+def _is_describe_intent(query: str) -> bool:
+    """True если пользователь просит помочь с текстом/описанием/переговорами,
+    а не построить смету. SmetaEngine для таких запросов бесполезен."""
+    q_lower = query.lower()
+    return any(m in q_lower for m in _DESCRIBE_INTENT_MARKERS)
+
+
+def _looks_like_user_provided_smeta(query: str) -> bool:
+    """True если пользователь сам прислал готовую смету (таблица с позициями).
+    Эвристика: ≥5 чисел + ≥2 единиц измерения (шт/м²/мп) + длина > 400.
+    """
+    if len(query) < 400:
+        return False
+    import re as _re
+    nums = _re.findall(r"\b\d[\d\s]{2,}\b", query)
+    units = sum(query.lower().count(u) for u in ("шт", "м²", "кв.м", "мп", "м2"))
+    return len(nums) >= 5 and units >= 2
+
+
+# П7.1 #1: in-memory LRU кэш SmetaResult по нормализованному запросу + decomp.
+# Снимает 60-90с на повторных запросах от менеджеров (см. чаты 47–50).
+_SMETA_CACHE_MAX = 256
+_SMETA_CACHE: "OrderedDict[tuple, object]" = OrderedDict()
+_SMETA_CACHE_LOCK = Lock()
+
+
+def _smeta_cache_key(query: str, decomp_dict: dict | None) -> tuple:
+    norm = " ".join(query.lower().split())
+    d = decomp_dict or {}
+    return (
+        norm,
+        int(d.get("letter_count", 0) or 0),
+        int(d.get("height_cm", 0) or 0),
+        float(d.get("linear_meters", 0) or 0),
+    )
+
+
+def _smeta_cache_get(key: tuple):
+    with _SMETA_CACHE_LOCK:
+        v = _SMETA_CACHE.get(key)
+        if v is not None:
+            _SMETA_CACHE.move_to_end(key)
+        return v
+
+
+def _smeta_cache_put(key: tuple, value) -> None:
+    with _SMETA_CACHE_LOCK:
+        _SMETA_CACHE[key] = value
+        _SMETA_CACHE.move_to_end(key)
+        while len(_SMETA_CACHE) > _SMETA_CACHE_MAX:
+            _SMETA_CACHE.popitem(last=False)
 
 
 def _parse_deal_items(raw_json: dict) -> list[DealItem]:
@@ -641,30 +736,107 @@ async def query_structured(req: QueryRequest, request: Request,
                 "risks": [],
                 "is_financial_modifier": False,
             })()
-            if is_estimate:
-                # Inject real product names for deal_items.
-                # Force catalog retrieval: general reranked may return only
-                # offer/deal profiles with no product docs (fb#22/#24 root cause).
-                real_names_set = {
-                    doc["payload"].get("product_name")
-                    for doc in reranked if doc["payload"].get("product_name")
-                }
-                try:
-                    catalog_docs = retriever.retrieve_for_component(req.query, top_k=12)
-                    for d in catalog_docs:
-                        name = d["payload"].get("product_name")
-                        if name:
-                            real_names_set.add(name)
-                except Exception as e:
-                    logger.warning("Catalog retrieval for deal_items failed", error=str(e))
-                real_names = sorted(n for n in real_names_set if n)
-                if real_names:
-                    full_extra += "\nНАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
-                    full_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
-                raw_json = await generator.generate_deal_estimate(
-                    req.query, reranked, pr_obj,
-                    extra_context=full_extra, history=req.history,
-                )
+            # П7.1-hotfix: describe-intent / user-provided-smeta → SmetaEngine не нужен
+            _force_llm = _is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query)
+            if _force_llm:
+                logger.info("SmetaEngine skipped (describe/provided-smeta intent)")
+            if is_estimate and not _force_llm:
+                # П7.1 #2: pre-LLM SmetaEngine gating (complex/parametric path).
+                _smeta_engine_pre_c = getattr(request.app.state, "smeta_engine", None)
+                _smeta_pre_usable_c = False
+                _smeta_pre_c = None
+                if _smeta_engine_pre_c is not None and _smeta_engine_pre_c.is_ready:
+                    try:
+                        _decomp_pre_dict_c = {
+                            "letter_count": getattr(decomp, "letter_count", 0) or 0,
+                            "letter_text": getattr(decomp, "letter_text", "") or "",
+                            "height_cm": getattr(decomp, "height_cm", 0) or 0,
+                            "linear_meters": getattr(decomp, "linear_meters", 0) or 0,
+                        }
+                        _cache_key_c = _smeta_cache_key(req.query, _decomp_pre_dict_c)
+                        _smeta_pre_c = _smeta_cache_get(_cache_key_c)
+                        if _smeta_pre_c is None:
+                            _q_vec_pre_c = retriever.embed_query(req.query)
+                            _smeta_pre_c = _smeta_engine_pre_c.build_smeta(
+                                req.query, _q_vec_pre_c, decomp=_decomp_pre_dict_c,
+                            )
+                            _smeta_cache_put(_cache_key_c, _smeta_pre_c)
+                        else:
+                            logger.info("SmetaEngine cache hit (complex)",
+                                        category=getattr(_smeta_pre_c, "category_name", ""))
+                        # Under-key blacklist
+                        if _smeta_pre_c.is_usable and _is_underkey_intent(req.query) \
+                                and _smeta_pre_c.category_name in _UNDERKEY_BLACKLIST_CATEGORIES:
+                            logger.info("SmetaEngine result blocked by under-key intent (complex)",
+                                        category=_smeta_pre_c.category_name)
+                            _smeta_pre_c = None
+                        # П7.1-hotfix: junk categories + min total gate
+                        if _smeta_pre_c is not None and _smeta_pre_c.is_usable \
+                                and _smeta_pre_c.category_name in _JUNK_CATEGORIES:
+                            logger.info("SmetaEngine junk category blocked (complex)",
+                                        category=_smeta_pre_c.category_name)
+                            _smeta_pre_c = None
+                        if _smeta_pre_c is not None and _smeta_pre_c.is_usable \
+                                and _is_underkey_intent(req.query) \
+                                and (_smeta_pre_c.total or 0) < _UNDERKEY_MIN_TEMPLATE_TOTAL:
+                            logger.info("SmetaEngine under min total for under-key (complex)",
+                                        total=_smeta_pre_c.total)
+                            _smeta_pre_c = None
+                        if _smeta_pre_c is not None and _smeta_pre_c.is_usable:
+                            _smeta_pre_usable_c = True
+                            request.state._smeta_precomputed = _smeta_pre_c
+                            logger.info("SmetaEngine hit pre-LLM (complex), skipping generate_deal_estimate",
+                                        category=_smeta_pre_c.category_name,
+                                        sim=round(_smeta_pre_c.match_similarity, 3))
+                    except Exception as _e_pre_c:
+                        logger.warning("Pre-LLM SmetaEngine failed (complex)", error=str(_e_pre_c))
+
+                if _smeta_pre_usable_c:
+                    raw_json = {"summary": "", "reasoning": "", "flags": [], "risks": [],
+                                "deal_items": [], "estimated_price": None, "price_band": None,
+                                "confidence": None}
+                else:
+                    # Soft-context: top-1 шаблон → LLM как ориентир
+                    try:
+                        if _smeta_pre_c is not None and getattr(_smeta_pre_c, "category_name", ""):
+                            _soft_total_c = int(round(getattr(_smeta_pre_c, "total", 0) or 0))
+                            _soft_lines_c = [
+                                "СПРАВОЧНЫЙ ШАБЛОН (для ориентира, не итоговая цена):",
+                                f"- категория: «{_smeta_pre_c.category_name}» "
+                                f"({getattr(_smeta_pre_c, 'deals_in_category', 0)} сделок, "
+                                f"совпадение {getattr(_smeta_pre_c, 'match_similarity', 0):.0%})",
+                                f"- ориентировочный итог: {_soft_total_c:,} ₽".replace(",", " "),
+                            ]
+                            for _it_c in (getattr(_smeta_pre_c, "deal_items", []) or [])[:6]:
+                                _soft_lines_c.append(
+                                    f"  · {_it_c.product_name} — {_it_c.quantity} {_it_c.unit} × "
+                                    f"{int(round(_it_c.unit_price)):,} ₽".replace(",", " ")
+                                )
+                            full_extra += "\n".join(_soft_lines_c) + "\n\n"
+                    except Exception as _e_soft_c:
+                        logger.warning("Soft-context inject failed (complex)", error=str(_e_soft_c))
+
+                    # Inject real product names for deal_items.
+                    real_names_set = {
+                        doc["payload"].get("product_name")
+                        for doc in reranked if doc["payload"].get("product_name")
+                    }
+                    try:
+                        catalog_docs = retriever.retrieve_for_component(req.query, top_k=12)
+                        for d in catalog_docs:
+                            name = d["payload"].get("product_name")
+                            if name:
+                                real_names_set.add(name)
+                    except Exception as e:
+                        logger.warning("Catalog retrieval for deal_items failed", error=str(e))
+                    real_names = sorted(n for n in real_names_set if n)
+                    if real_names:
+                        full_extra += "\nНАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
+                        full_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
+                    raw_json = await generator.generate_deal_estimate(
+                        req.query, reranked, pr_obj,
+                        extra_context=full_extra, history=req.history,
+                    )
             else:
                 raw_json = await generator.generate_structured(
                     req.query, reranked, pr_obj,
@@ -701,29 +873,116 @@ async def query_structured(req: QueryRequest, request: Request,
             breakdown_ctx = _format_pricing_breakdown(pr)
             if breakdown_ctx:
                 vision_extra += breakdown_ctx + "\n\n"
-            if is_estimate:
-                # Inject real product names — force catalog retrieval when
-                # general reranked misses product docs.
-                real_names_set = {
-                    doc["payload"].get("product_name")
-                    for doc in reranked if doc["payload"].get("product_name")
-                }
-                try:
-                    catalog_docs = retriever.retrieve_for_component(req.query, top_k=12)
-                    for d in catalog_docs:
-                        name = d["payload"].get("product_name")
-                        if name:
-                            real_names_set.add(name)
-                except Exception as e:
-                    logger.warning("Catalog retrieval for deal_items failed", error=str(e))
-                real_names = sorted(n for n in real_names_set if n)
-                if real_names:
-                    vision_extra += "НАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
-                    vision_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
-                raw_json = await generator.generate_deal_estimate(
-                    req.query, reranked_relevant, pr,
-                    extra_context=vision_extra, history=req.history,
-                )
+            _force_llm = _is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query)
+            if _force_llm:
+                logger.info("SmetaEngine skipped (describe/provided-smeta intent, std)")
+            if is_estimate and not _force_llm:
+                # П7.1 #2: try SmetaEngine FIRST. If usable, skip the 60-90s LLM
+                # generate_deal_estimate call entirely — summary/items/prices are
+                # all derived deterministically from the template downstream.
+                _smeta_engine_pre = getattr(request.app.state, "smeta_engine", None)
+                _smeta_pre_usable = False
+                if _smeta_engine_pre is not None and _smeta_engine_pre.is_ready:
+                    try:
+                        _decomp_pre_dict = None
+                        _decomp_pre = locals().get("decomp")
+                        if _decomp_pre is not None:
+                            _decomp_pre_dict = {
+                                "letter_count": getattr(_decomp_pre, "letter_count", 0) or 0,
+                                "letter_text": getattr(_decomp_pre, "letter_text", "") or "",
+                                "height_cm": getattr(_decomp_pre, "height_cm", 0) or 0,
+                                "linear_meters": getattr(_decomp_pre, "linear_meters", 0) or 0,
+                            }
+                        _cache_key = _smeta_cache_key(req.query, _decomp_pre_dict)
+                        _smeta_pre = _smeta_cache_get(_cache_key)
+                        if _smeta_pre is None:
+                            _q_vec_pre = retriever.embed_query(req.query)
+                            _smeta_pre = _smeta_engine_pre.build_smeta(
+                                req.query, _q_vec_pre, decomp=_decomp_pre_dict,
+                            )
+                            _smeta_cache_put(_cache_key, _smeta_pre)
+                        else:
+                            logger.info("SmetaEngine cache hit",
+                                        category=getattr(_smeta_pre, "category_name", ""))
+                        # П7.1 #4: under-key blacklist — дешёвая «Логотип»-категория
+                        # не должна закрывать запрос на брендбук/под ключ.
+                        if _smeta_pre.is_usable and _is_underkey_intent(req.query) \
+                                and _smeta_pre.category_name in _UNDERKEY_BLACKLIST_CATEGORIES:
+                            logger.info("SmetaEngine result blocked by under-key intent",
+                                        category=_smeta_pre.category_name)
+                            _smeta_pre = None
+                        # П7.1-hotfix: junk categories + min total gate
+                        if _smeta_pre is not None and _smeta_pre.is_usable \
+                                and _smeta_pre.category_name in _JUNK_CATEGORIES:
+                            logger.info("SmetaEngine junk category blocked (std)",
+                                        category=_smeta_pre.category_name)
+                            _smeta_pre = None
+                        if _smeta_pre is not None and _smeta_pre.is_usable \
+                                and _is_underkey_intent(req.query) \
+                                and (_smeta_pre.total or 0) < _UNDERKEY_MIN_TEMPLATE_TOTAL:
+                            logger.info("SmetaEngine under min total for under-key (std)",
+                                        total=_smeta_pre.total)
+                            _smeta_pre = None
+                        if _smeta_pre is not None and _smeta_pre.is_usable:
+                            _smeta_pre_usable = True
+                            # Stash so the downstream block can reuse without re-embedding.
+                            request.state._smeta_precomputed = _smeta_pre
+                            logger.info("SmetaEngine hit pre-LLM, skipping generate_deal_estimate",
+                                        category=_smeta_pre.category_name,
+                                        sim=round(_smeta_pre.match_similarity, 3))
+                    except Exception as _e_pre:
+                        logger.warning("Pre-LLM SmetaEngine failed", error=str(_e_pre))
+
+                if _smeta_pre_usable:
+                    # Stub raw_json — downstream block overrides summary/reasoning/items.
+                    raw_json = {"summary": "", "reasoning": "", "flags": [], "risks": [],
+                                "deal_items": [], "estimated_price": None, "price_band": None,
+                                "confidence": None}
+                else:
+                    # П7.1 #3: soft-context. Если top-1 шаблон не usable (или заблокирован
+                    # under-key blacklist), всё равно отдаём его LLM как «справочный шаблон»,
+                    # чтобы модель не галлюцинировала с нуля.
+                    try:
+                        _soft = locals().get("_smeta_pre")
+                        if _soft is not None and getattr(_soft, "category_name", ""):
+                            _soft_total = int(round(getattr(_soft, "total", 0) or 0))
+                            _soft_lines = [
+                                "СПРАВОЧНЫЙ ШАБЛОН (для ориентира, не итоговая цена):",
+                                f"- категория: «{_soft.category_name}» "
+                                f"({getattr(_soft, 'deals_in_category', 0)} сделок, "
+                                f"совпадение {getattr(_soft, 'match_similarity', 0):.0%})",
+                                f"- ориентировочный итог по шаблону: {_soft_total:,} ₽".replace(",", " "),
+                            ]
+                            for _it in (getattr(_soft, "deal_items", []) or [])[:6]:
+                                _soft_lines.append(
+                                    f"  · {_it.product_name} — {_it.quantity} {_it.unit} × "
+                                    f"{int(round(_it.unit_price)):,} ₽".replace(",", " ")
+                                )
+                            vision_extra += "\n".join(_soft_lines) + "\n\n"
+                    except Exception as _e_soft:
+                        logger.warning("Soft-context inject failed", error=str(_e_soft))
+                    # Inject real product names — force catalog retrieval when
+                    # general reranked misses product docs.
+                    real_names_set = {
+                        doc["payload"].get("product_name")
+                        for doc in reranked if doc["payload"].get("product_name")
+                    }
+                    try:
+                        catalog_docs = retriever.retrieve_for_component(req.query, top_k=12)
+                        for d in catalog_docs:
+                            name = d["payload"].get("product_name")
+                            if name:
+                                real_names_set.add(name)
+                    except Exception as e:
+                        logger.warning("Catalog retrieval for deal_items failed", error=str(e))
+                    real_names = sorted(n for n in real_names_set if n)
+                    if real_names:
+                        vision_extra += "НАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
+                        vision_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
+                    raw_json = await generator.generate_deal_estimate(
+                        req.query, reranked_relevant, pr,
+                        extra_context=vision_extra, history=req.history,
+                    )
             else:
                 raw_json = await generator.generate_structured(
                     req.query, reranked_relevant, pr,
@@ -859,13 +1118,25 @@ async def query_structured(req: QueryRequest, request: Request,
 
         deal_items = []
         smeta_result = None
-        if is_estimate:
+        # П7.1-hotfix: respect pre-LLM decision to skip SmetaEngine entirely.
+        _smeta_blocked_reason = (
+            "describe/provided-smeta intent"
+            if (_is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query))
+            else None
+        )
+        if is_estimate and _smeta_blocked_reason:
+            logger.info("SmetaEngine downstream override blocked",
+                        reason=_smeta_blocked_reason)
+        if is_estimate and not _smeta_blocked_reason:
             # PRIMARY (П7): SmetaEngine — deterministic template with price statistics.
             smeta_engine = getattr(request.app.state, "smeta_engine", None)
-            if smeta_engine is not None and smeta_engine.is_ready:
+            # П7.1 #2: reuse precomputed smeta_result from pre-LLM stage if present.
+            _precomputed = getattr(request.state, "_smeta_precomputed", None)
+            if _precomputed is not None:
+                smeta_result = _precomputed
+            elif smeta_engine is not None and smeta_engine.is_ready:
                 try:
                     q_vec_smeta = retriever.embed_query(req.query)
-                    # Pass parametric decomp so SmetaEngine can scale per-letter positions
                     _decomp_for_smeta = None
                     try:
                         _decomp_local = locals().get("decomp")
@@ -881,6 +1152,27 @@ async def query_structured(req: QueryRequest, request: Request,
                     smeta_result = smeta_engine.build_smeta(
                         req.query, q_vec_smeta, decomp=_decomp_for_smeta,
                     )
+                except Exception as e:
+                    logger.warning("SmetaEngine failed", error=str(e))
+
+            # П7.1-hotfix: downstream filter — junk categories + min total under-key.
+            if smeta_result is not None and smeta_result.is_usable:
+                if smeta_result.category_name in _JUNK_CATEGORIES:
+                    logger.info("SmetaEngine junk category blocked (downstream)",
+                                category=smeta_result.category_name)
+                    smeta_result = None
+                elif _is_underkey_intent(req.query) \
+                        and smeta_result.category_name in _UNDERKEY_BLACKLIST_CATEGORIES:
+                    logger.info("SmetaEngine under-key blacklist (downstream)")
+                    smeta_result = None
+                elif _is_underkey_intent(req.query) \
+                        and (smeta_result.total or 0) < _UNDERKEY_MIN_TEMPLATE_TOTAL:
+                    logger.info("SmetaEngine under min total (downstream)",
+                                total=smeta_result.total)
+                    smeta_result = None
+
+            if smeta_result is not None:
+                try:
                     if smeta_result.is_usable:
                         deal_items = smeta_result.deal_items
                         logger.info("Deal estimate from SmetaEngine",
@@ -938,7 +1230,7 @@ async def query_structured(req: QueryRequest, request: Request,
                         logger.info("SmetaEngine no match",
                                     reason=smeta_result.match_reason)
                 except Exception as e:
-                    logger.warning("SmetaEngine failed", error=str(e))
+                    logger.warning("Smeta override failed", error=str(e))
 
             # FALLBACK 1: existing DealLookup (legacy real-deal matching)
             if not deal_items:

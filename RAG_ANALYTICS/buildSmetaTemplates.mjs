@@ -131,7 +131,7 @@ const LABUS_CATEGORIES = [
   { parent: "Наружная реклама", name: "Световые короба",
     anyOf: [/лайтбокс/i, /светов(ой|ые)\s+короб/i, /короб\s+светов/i] },
   { parent: "Наружная реклама", name: "Панель-кронштейн",
-    anyOf: [/кронштейн/i, /панель-кронштейн/i] },
+    anyOf: [/кронштейн/i, /панель[-\s]*кронштейн/i] },
   { parent: "Наружная реклама", name: "Штендеры",
     anyOf: [/штендер/i] },
   { parent: "Наружная реклама", name: "Флаги",
@@ -140,8 +140,11 @@ const LABUS_CATEGORIES = [
     anyOf: [/брендирован.*авто/i, /оклейк.*авто/i, /авто.*оклейк/i, /car\s*wrap/i] },
   { parent: "Наружная реклама", name: "Реклама на щитах",
     anyOf: [/билборд/i, /щит\s+реклам/i, /реклам.*щит/i, /3х6/i] },
-  { parent: "Наружная реклама", name: "Вывески",
-    allOf: [/вывеск/i] },
+  // П7.5: «Вывески» как самостоятельная категория УДАЛЕНА. Запросы "вывеска"
+  // без маркеров объёма/света/композита не должны закрываться коротким
+  // шаблоном на 6000₽ (выдавали 2 позиции: макет + монтаж). Падают в LLM.
+  { parent: "Наружная реклама", name: "Световые вывески",
+    allOf: [/вывеск/i], anyOf: [/светов/i, /подсветк/i, /объ[её]мн/i, /композит/i, /контражур/i, /led|лед/i] },
 
   // ── ВНУТРЕННЯЯ РЕКЛАМА ───────────────────────────────────────────
   { parent: "Внутренняя реклама", name: "Таблички с аппликацией",
@@ -232,10 +235,17 @@ const LABUS_CATEGORIES = [
     anyOf: [/полиграф/i] },
 
   // ── БРЕНДИНГ ─────────────────────────────────────────────────────
-  { parent: "Брендинг", name: "Логотип",
-    anyOf: [/логотип/i] },
+  // П7.5: split «Логотип» — дорогие under-key проекты (брифинг, концепции,
+  // фирменный стиль) отделены от дешёвой отрисовки. Порядок важен: более
+  // специфичная «под ключ» идёт первой.
+  { parent: "Брендинг", name: "Логотип под ключ",
+    allOf: [/логотип/i],
+    anyOf: [/под\s*ключ/i, /бриф/i, /концепц/i, /фирменн.*стил/i, /брендбук/i,
+            /айдентик/i, /разработк.*с\s*нул/i, /креатив/i, /нейминг/i] },
   { parent: "Брендинг", name: "Брендбук",
     anyOf: [/брендбук|brand[\s-]?book/i] },
+  { parent: "Брендинг", name: "Логотип",
+    anyOf: [/логотип/i] },
   { parent: "Брендинг", name: "Фирменный стиль",
     anyOf: [/фирменн.*стил/i, /стил.*фирм/i] },
   { parent: "Брендинг", name: "Иллюстрации",
@@ -522,27 +532,55 @@ async function main() {
   for (const cluster of categoryClusters.values()) {
     if (cluster.deals.length < MIN_CATEGORY_DEALS) continue;
 
-    // Pick canonical smeta: min unique GOOD_IDs (>= MIN_POS), prefer orders.
-    // Fix 10: канонический шаблон должен иметь ≥2 позиций если в категории
-    // вообще есть многопозиционные сделки. Иначе мы выбираем вырожденную
-    // сделку с одним «Макет вывески» вместо реального составного шаблона.
+    // П7.5: canonical smeta = MEDIAN deal by unique positions count
+    // (было: минимальная сделка — давала вырожденные шаблоны типа
+    // «Макет+Монтаж=6000₽» для «Вывесок»). Берём сделку с числом позиций
+    // ближе к медиане пула — это репрезентативный реальный заказ.
     const MIN_CANONICAL_POSITIONS = 2;
     const dealsWithEnoughPos = cluster.deals.filter(
       (d) => new Set(d.lineItems.map((li) => li.good_id)).size >= MIN_CANONICAL_POSITIONS,
     );
     const candidatePool = dealsWithEnoughPos.length > 0 ? dealsWithEnoughPos : cluster.deals;
-    const sortedDeals = [...candidatePool].sort((a, b) => {
+    const byPosAsc = [...candidatePool].sort((a, b) => {
       const uniqA = new Set(a.lineItems.map((li) => li.good_id)).size;
       const uniqB = new Set(b.lineItems.map((li) => li.good_id)).size;
-      if (uniqA !== uniqB) return uniqA - uniqB;
-      // Prefer orders over offers
-      if (a.dataset !== b.dataset) {
-        return a.dataset === "orders" ? -1 : 1;
-      }
-      return 0;
+      return uniqA - uniqB;
     });
-    const canonicalDeal = sortedDeals[0];
+    // П7.5: canonical = сделка с positions ≥ p60 по числу позиций и
+    // opportunity ближе всего к p50 по сумме. Это отсекает
+    // вырожденные 2-позиционные сделки И гигантские тиражи-выбросы.
+    const sortedByPos = [...candidatePool].map((d) => ({
+      deal: d,
+      pos: new Set(d.lineItems.map((li) => li.good_id)).size,
+    })).sort((a, b) => a.pos - b.pos);
+    const p60Idx = Math.floor(sortedByPos.length * 0.6);
+    const p60Pos = sortedByPos[Math.min(p60Idx, sortedByPos.length - 1)].pos;
+    const oppsSorted = candidatePool
+      .map((d) => d.opportunity || 0)
+      .filter((v) => v > 0)
+      .sort((a, b) => a - b);
+    const medianOpp =
+      oppsSorted.length > 0
+        ? oppsSorted[Math.floor(oppsSorted.length * 0.5)]
+        : 0;
+    const eligible = sortedByPos
+      .filter((x) => x.pos >= p60Pos)
+      .map((x) => x.deal);
+    eligible.sort((a, b) => {
+      if (a.dataset !== b.dataset) return a.dataset === "orders" ? -1 : 1;
+      const da = Math.abs((a.opportunity || 0) - medianOpp);
+      const db = Math.abs((b.opportunity || 0) - medianOpp);
+      return da - db;
+    });
+    const canonicalDeal =
+      eligible[0] || sortedByPos[sortedByPos.length - 1].deal;
     if (!canonicalDeal || canonicalDeal.lineItems.length === 0) continue;
+    // П7.5: hard minimum — канонический шаблон с одной позицией бесполезен
+    // (даёт вырожденные оценки типа «Логотип под ключ: 1 поз, 4000₽»).
+    const canonicalUniq = new Set(
+      canonicalDeal.lineItems.map((li) => li.good_id),
+    ).size;
+    if (canonicalUniq < 2) continue;
 
     // Aggregate prices by GOOD_ID across ALL deals in this category
     const priceSamplesByGoodId = new Map();
