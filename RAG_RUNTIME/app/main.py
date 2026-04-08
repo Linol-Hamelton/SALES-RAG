@@ -30,6 +30,7 @@ from app.core.vision import VisionAnalyzer
 from app.core.feedback_store import FeedbackStore
 from app.core.deal_lookup import DealLookup
 from app.core.photo_index import PhotoIndex
+from app.core.smeta_engine import SmetaEngine
 from app.database import init_db
 from app.routers import health, query, admin, eval as eval_router
 from app.routers import auth_router, chats
@@ -102,6 +103,22 @@ async def lifespan(app: FastAPI):
         logger.error("Photo index load failed", error=str(e))
         photo_index = None
     app.state.photo_index = photo_index
+
+    # Initialize smeta engine (П7: template-based deal estimation)
+    try:
+        analytics_out = Path(settings.analytics_output_path)
+        smeta_engine = SmetaEngine(
+            templates_path=analytics_out / "smeta_templates.json",
+            embeddings_path=analytics_out / "smeta_category_embeddings.npy",
+        ).load()
+        if smeta_engine.is_ready:
+            logger.info("Smeta engine ready")
+        else:
+            logger.warning("Smeta engine loaded but not ready — templates or embeddings missing")
+    except Exception as e:
+        logger.error("Smeta engine load failed", error=str(e))
+        smeta_engine = None
+    app.state.smeta_engine = smeta_engine
 
     logger.info("Application ready")
     yield

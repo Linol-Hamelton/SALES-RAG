@@ -27,6 +27,11 @@ _ESTIMATE_KEYWORDS = [
     "список товаров", "что добавить в сделку", "товары для сделки",
     "сформируй сделку", "составь сделку", "позиции для сделки",
     "заполни сделку", "создай сделку", "что включить в сделку",
+    # Pricing intent (П7): любые «сколько стоит / под ключ / оцени / прайс»
+    # — это запрос на estimate, требующий SmetaEngine, а не свободный summary.
+    "под ключ", "сколько стоит", "сколько будет", "сколько обойдётся", "сколько обойдется",
+    "оцени", "оцените", "оценить", "оценка", "прайс", "цена на", "цену на",
+    "стоимость", "посчитай", "посчитайте", "рассчитай", "рассчитайте", "расчёт", "расчет",
 ]
 
 
@@ -637,11 +642,22 @@ async def query_structured(req: QueryRequest, request: Request,
                 "is_financial_modifier": False,
             })()
             if is_estimate:
-                # Inject real product names for deal_items
-                real_names = sorted({
+                # Inject real product names for deal_items.
+                # Force catalog retrieval: general reranked may return only
+                # offer/deal profiles with no product docs (fb#22/#24 root cause).
+                real_names_set = {
                     doc["payload"].get("product_name")
                     for doc in reranked if doc["payload"].get("product_name")
-                })
+                }
+                try:
+                    catalog_docs = retriever.retrieve_for_component(req.query, top_k=12)
+                    for d in catalog_docs:
+                        name = d["payload"].get("product_name")
+                        if name:
+                            real_names_set.add(name)
+                except Exception as e:
+                    logger.warning("Catalog retrieval for deal_items failed", error=str(e))
+                real_names = sorted(n for n in real_names_set if n)
                 if real_names:
                     full_extra += "\nНАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
                     full_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
@@ -686,11 +702,21 @@ async def query_structured(req: QueryRequest, request: Request,
             if breakdown_ctx:
                 vision_extra += breakdown_ctx + "\n\n"
             if is_estimate:
-                # Inject real product names so LLM uses catalog names in deal_items
-                real_names = sorted({
+                # Inject real product names — force catalog retrieval when
+                # general reranked misses product docs.
+                real_names_set = {
                     doc["payload"].get("product_name")
                     for doc in reranked if doc["payload"].get("product_name")
-                })
+                }
+                try:
+                    catalog_docs = retriever.retrieve_for_component(req.query, top_k=12)
+                    for d in catalog_docs:
+                        name = d["payload"].get("product_name")
+                        if name:
+                            real_names_set.add(name)
+                except Exception as e:
+                    logger.warning("Catalog retrieval for deal_items failed", error=str(e))
+                real_names = sorted(n for n in real_names_set if n)
                 if real_names:
                     vision_extra += "НАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
                     vision_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
@@ -832,24 +858,134 @@ async def query_structured(req: QueryRequest, request: Request,
         all_risks = list(dict.fromkeys(pr_risks + llm_risks))
 
         deal_items = []
+        smeta_result = None
         if is_estimate:
-            # Primary: look up real line items from matching deal in CSV
-            deal_lookup: DealLookup | None = getattr(request.app.state, "deal_lookup", None)
-            matched_title = ""
-            if deal_lookup and deal_lookup._loaded:
-                deal_items, matched_title = deal_lookup.find_best_deal_items(reranked)
-                if deal_items:
-                    logger.info("Deal estimate from real data",
-                                items=len(deal_items), source_deal=matched_title[:60])
-                    if matched_title:
-                        all_flags = [f"Состав по аналогу: «{matched_title[:80]}»"] + all_flags
+            # PRIMARY (П7): SmetaEngine — deterministic template with price statistics.
+            smeta_engine = getattr(request.app.state, "smeta_engine", None)
+            if smeta_engine is not None and smeta_engine.is_ready:
+                try:
+                    q_vec_smeta = retriever.embed_query(req.query)
+                    # Pass parametric decomp so SmetaEngine can scale per-letter positions
+                    _decomp_for_smeta = None
+                    try:
+                        _decomp_local = locals().get("decomp")
+                        if _decomp_local is not None:
+                            _decomp_for_smeta = {
+                                "letter_count": getattr(_decomp_local, "letter_count", 0) or 0,
+                                "letter_text": getattr(_decomp_local, "letter_text", "") or "",
+                                "height_cm": getattr(_decomp_local, "height_cm", 0) or 0,
+                                "linear_meters": getattr(_decomp_local, "linear_meters", 0) or 0,
+                            }
+                    except Exception:
+                        _decomp_for_smeta = None
+                    smeta_result = smeta_engine.build_smeta(
+                        req.query, q_vec_smeta, decomp=_decomp_for_smeta,
+                    )
+                    if smeta_result.is_usable:
+                        deal_items = smeta_result.deal_items
+                        logger.info("Deal estimate from SmetaEngine",
+                                    category=smeta_result.category_name,
+                                    quality=smeta_result.match_quality,
+                                    sim=round(smeta_result.match_similarity, 3),
+                                    items=len(deal_items),
+                                    total=smeta_result.total)
+                        # Authoritative price override from template statistics
+                        estimated_price = EstimatedPrice(
+                            value=smeta_result.total,
+                            currency="RUB",
+                            basis=f"шаблон категории «{smeta_result.category_name}» ({smeta_result.deals_in_category} сделок)",
+                        )
+                        price_band = PriceBand(
+                            min=smeta_result.price_band_min,
+                            max=smeta_result.price_band_max,
+                            currency="RUB",
+                        )
+                        # Map smeta confidence to StructuredResponse schema
+                        _smeta_conf_map = {"high": "auto", "medium": "guided", "low": "manual"}
+                        confidence_out = _smeta_conf_map.get(smeta_result.confidence, "manual")
+                        all_flags = [smeta_result.match_reason] + smeta_result.flags + all_flags
 
-            # Fallback: use LLM-generated items if no real deal found
+                        # Fix E: rewrite summary from authoritative smeta data so
+                        # the textual answer cannot disagree with estimated_price.
+                        try:
+                            _fmt_total = f"{int(round(smeta_result.total)):,}".replace(",", " ")
+                            _fmt_min = f"{int(round(smeta_result.price_band_min)):,}".replace(",", " ")
+                            _fmt_max = f"{int(round(smeta_result.price_band_max)):,}".replace(",", " ")
+                            _conf_ru = {"high": "высокая", "medium": "средняя", "low": "низкая"}.get(
+                                smeta_result.confidence, "средняя"
+                            )
+                            _lines = [
+                                f"Оценка по шаблону категории «{smeta_result.category_name}» "
+                                f"(база: {smeta_result.deals_in_category} аналогичных сделок).",
+                                f"Итого: {_fmt_total} ₽ (диапазон {_fmt_min}–{_fmt_max} ₽), "
+                                f"уверенность {_conf_ru}.",
+                            ]
+                            if deal_items:
+                                _lines.append(f"Состав сметы: {len(deal_items)} позиций.")
+                            if smeta_result.flags:
+                                _lines.append("⚠ " + "; ".join(smeta_result.flags[:2]))
+                            summary = " ".join(_lines)
+                            reasoning = (
+                                f"Шаблон выбран по семантической близости запроса к категории "
+                                f"«{smeta_result.category_name}» (cosine {smeta_result.match_similarity:.2f}, "
+                                f"качество совпадения: {smeta_result.match_quality}). "
+                                f"Цены — статистическое среднее (mean+median+weighted+trimmed) "
+                                f"по {smeta_result.deals_in_category} сделкам категории."
+                            )
+                        except Exception as _e_sum:
+                            logger.warning("Smeta summary rewrite failed", error=str(_e_sum))
+                    else:
+                        logger.info("SmetaEngine no match",
+                                    reason=smeta_result.match_reason)
+                except Exception as e:
+                    logger.warning("SmetaEngine failed", error=str(e))
+
+            # FALLBACK 1: existing DealLookup (legacy real-deal matching)
+            if not deal_items:
+                deal_lookup: DealLookup | None = getattr(request.app.state, "deal_lookup", None)
+                matched_title = ""
+                if deal_lookup and deal_lookup._loaded:
+                    deal_items, matched_title = deal_lookup.find_best_deal_items(reranked)
+                    if deal_items:
+                        logger.info("Deal estimate from DealLookup fallback",
+                                    items=len(deal_items), source_deal=matched_title[:60])
+                        if matched_title:
+                            all_flags = [f"Состав по аналогу: «{matched_title[:80]}»"] + all_flags
+
+            # FALLBACK 2: LLM-generated items if no template and no real deal matched
             if not deal_items:
                 deal_items = _parse_deal_items(raw_json)
                 if deal_items:
                     all_flags = ["Состав сформирован моделью — нет точного аналога в базе"] + all_flags
                 logger.info("Deal estimate from LLM fallback", item_count=len(deal_items))
+
+            # --- PRICE RECONCILIATION (SINGLE SOURCE OF TRUTH) ---
+            # When deal_items exist, their sum becomes authoritative: estimated_price,
+            # price_band and summary must agree. This prevents the 4-number disagreement
+            # (summary / deal_items / estimated_price / parametric_breakdown).
+            if deal_items:
+                items_total = sum((di.total or 0) for di in deal_items)
+                if items_total > 0:
+                    current_val = estimated_price.value if estimated_price else 0
+                    drift = abs(items_total - current_val) / max(items_total, 1)
+                    if current_val == 0 or drift > 0.05:
+                        logger.info("Price reconciliation applied",
+                                    old=current_val, new=items_total,
+                                    items=len(deal_items), drift=round(drift, 2))
+                        estimated_price = EstimatedPrice(
+                            value=round(items_total),
+                            currency="RUB",
+                            basis="сумма позиций сметы (deal_items)",
+                        )
+                        price_band = PriceBand(
+                            min=round(items_total * 0.85),
+                            max=round(items_total * 1.15),
+                            currency="RUB",
+                        )
+                        # Parametric breakdown was computed independently — stale now
+                        if parametric_breakdown_schema is not None:
+                            all_flags = ["Параметрический расчёт заменён сметой"] + all_flags
+                            parametric_breakdown_schema = None
 
         response = StructuredResponse(
             summary=summary,
