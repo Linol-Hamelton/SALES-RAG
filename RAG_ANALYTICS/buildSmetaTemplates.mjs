@@ -245,7 +245,10 @@ const LABUS_CATEGORIES = [
   { parent: "Брендинг", name: "Брендбук",
     anyOf: [/брендбук|brand[\s-]?book/i] },
   { parent: "Брендинг", name: "Логотип",
-    anyOf: [/логотип/i] },
+    anyOf: [/логотип/i],
+    // П7.6: исключаем мерч-носители («Ручка с логотипом», «Кружка с логотипом»),
+    // которые иначе контаминируют keywords_text и эмбеддинг категории.
+    notAny: [/ручк|кружк|термокружк|футболк|кепк|бейсболк|шоппер|худи|свитшот|толстовк|поло|кофт|майк|магнит|шоколад|сахар|бутылк|повербанк|значок|значк|брелок|пакет|ежедневник|блокнот|зажигалк|флешк|наклейк|стикер|этикет|визитк|баннер|табличк|вывеск|футляр|плед|шапк|зонт|носок|носк|ложк|вилк|нож/i] },
   { parent: "Брендинг", name: "Фирменный стиль",
     anyOf: [/фирменн.*стил/i, /стил.*фирм/i] },
   { parent: "Брендинг", name: "Иллюстрации",
@@ -296,6 +299,8 @@ function mapToLabusCategory(title) {
     if (!allOk) continue;
     const anyOk = !cat.anyOf || cat.anyOf.some((re) => re.test(t));
     if (!anyOk) continue;
+    const notOk = !cat.notAny || !cat.notAny.some((re) => re.test(t));
+    if (!notOk) continue;
     return cat.name;
   }
   return null;
@@ -467,6 +472,46 @@ function computePriceStats(samples) {
 const round2 = (x) => Math.round(x * 100) / 100;
 const round4 = (x) => Math.round(x * 10000) / 10000;
 
+// ─── П7.6: SEED_DEALS — hand-curated canonical templates ────────────────
+// Для категорий, где дефолтный p60-picker даёт нерепрезентативный canonical
+// (например "Логотип" — под ключ vs дешёвая отрисовка). Ключ = category_name
+// после prettifyCategoryName; значение = {dataset, seed_ids, min_overlap}.
+//
+// Логика: canonical positions = union line_items из seed сделок; для каждого
+// good_id берём медианное quantity и наиболее частое product_name среди seeds.
+// Price stats — из ВСЕХ сделок кластера (offers+orders), как раньше, но
+// дополнительно из самих seed сделок если good_id отсутствует в кластере.
+const SEED_DEALS = {
+  "Логотип": {
+    dataset: "offers",
+    // canonical_id = конкретная сделка-образец (4–6 позиций, 16–30к).
+    // Остальные seed_ids идут в price stats и keywords.
+    canonical_id: "21208",
+    seed_ids: ["21208", "46416", "46414", "21210", "46428", "46426", "21214", "46424", "46422"],
+  },
+};
+
+/**
+ * Builds a synthetic canonical "deal" from seed deal IDs.
+ * Returns {id, dataset, title, lineItems} or null if no seeds found.
+ */
+function buildCanonicalFromSeeds(cluster, seedConfig, offerDeals, orderDeals) {
+  const sourceMap = seedConfig.dataset === "orders" ? orderDeals : offerDeals;
+  const seeds = [];
+  for (const sid of seedConfig.seed_ids) {
+    const d = sourceMap.get(sid);
+    if (d) seeds.push(d);
+  }
+  if (seeds.length === 0) return null;
+
+  // canonical_id = явно указанная сделка-образец. Остальные seeds
+  // инжектятся в cluster.deals для обогащения price_stats и frequency.
+  const canonical = sourceMap.get(seedConfig.canonical_id);
+  if (!canonical || canonical.lineItems.length === 0) return null;
+
+  return { ...canonical, _isSeed: true, _seedDeals: seeds };
+}
+
 // ─── Main build ──────────────────────────────────────────────────────────
 
 async function main() {
@@ -532,6 +577,24 @@ async function main() {
   for (const cluster of categoryClusters.values()) {
     if (cluster.deals.length < MIN_CATEGORY_DEALS) continue;
 
+    // П7.6: SEED_DEALS override — hand-curated canonical for specific categories
+    let seedCanonical = null;
+    const seedCfg = SEED_DEALS[cluster.name];
+    if (seedCfg) {
+      seedCanonical = buildCanonicalFromSeeds(cluster, seedCfg, offerDeals, orderDeals);
+      if (seedCanonical) {
+        console.log(
+          `  [SEED] ${cluster.name}: ${seedCanonical.lineItems.length} canonical positions from ${seedCfg.seed_ids.length} seed ids`,
+        );
+        // Inject seed deals into cluster.deals if missing — чтобы их line_items
+        // участвовали в price_stats и good_id frequency.
+        const haveIds = new Set(cluster.deals.map((d) => d.id));
+        for (const sd of seedCanonical._seedDeals) {
+          if (!haveIds.has(sd.id)) cluster.deals.push(sd);
+        }
+      }
+    }
+
     // П7.5: canonical smeta = MEDIAN deal by unique positions count
     // (было: минимальная сделка — давала вырожденные шаблоны типа
     // «Макет+Монтаж=6000₽» для «Вывесок»). Берём сделку с числом позиций
@@ -573,7 +636,9 @@ async function main() {
       return da - db;
     });
     const canonicalDeal =
-      eligible[0] || sortedByPos[sortedByPos.length - 1].deal;
+      seedCanonical ||
+      eligible[0] ||
+      sortedByPos[sortedByPos.length - 1].deal;
     if (!canonicalDeal || canonicalDeal.lineItems.length === 0) continue;
     // П7.5: hard minimum — канонический шаблон с одной позицией бесполезен
     // (даёт вырожденные оценки типа «Логотип под ключ: 1 поз, 4000₽»).
