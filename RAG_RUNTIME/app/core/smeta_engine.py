@@ -21,6 +21,7 @@ Match quality levels:
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Literal, Optional
@@ -33,6 +34,39 @@ from app.utils.logging import get_logger
 logger = get_logger("smeta_engine")
 
 MatchQuality = Literal["maximal", "significant", "minimal", "none"]
+
+# П7.7-A: safety net — keyword override семантического ретривера. Если запрос
+# содержит include-слово без exclude-слов, форсируем конкретную категорию минуя
+# cosine-ранжирование. Нужно для коротких запросов («Сколько стоит логотип?»),
+# где enrichment keywords_text всё равно не вытягивают матч против конкурентов
+# с большим n (например, «Титульные вывески» перебивают по bias log10(n)).
+#
+# include: ВСЕ регексы должны матчиться.
+# exclude: НИ ОДИН не должен матчиться (мерч-носители, под-ключ варианты).
+# target: имя категории как в smeta_templates.json.
+_KEYWORD_OVERRIDES: list[dict] = [
+    {
+        "target": "Логотип",
+        "include": [re.compile(r"логотип", re.IGNORECASE)],
+        "exclude": [
+            re.compile(r"под\s*ключ|брифинг|концепц|фирменн.*стил|брендбук|айдентик|разработк.*с\s*нул|креатив|нейминг", re.IGNORECASE),
+            re.compile(r"ручк|кружк|футболк|шоппер|худи|толстовк|магнит|шоколад|скотч|значок|брелок|бейдж", re.IGNORECASE),
+        ],
+    },
+]
+
+
+def _check_keyword_override(query: str) -> Optional[str]:
+    """Return forced category name or None."""
+    if not query:
+        return None
+    for rule in _KEYWORD_OVERRIDES:
+        if not all(rx.search(query) for rx in rule["include"]):
+            continue
+        if any(rx.search(query) for rx in rule["exclude"]):
+            continue
+        return rule["target"]
+    return None
 
 
 @dataclass
@@ -149,11 +183,33 @@ class SmetaEngine:
         if not self.is_ready:
             return SmetaResult(match_reason="SmetaEngine not loaded")
 
+        # П7.7-A: keyword override — проверяем до семантики.
+        forced_name = _check_keyword_override(query)
+        forced_idx: Optional[int] = None
+        if forced_name:
+            for i, c in enumerate(self._categories):
+                if c.get("category_name") == forced_name:
+                    forced_idx = i
+                    break
+            if forced_idx is not None:
+                logger.info("keyword override applied",
+                            category=forced_name, query=query[:80])
+
         matches = self.find_category(query_embedding, top_k=3)
-        if not matches:
+        if not matches and forced_idx is None:
             return SmetaResult(match_reason="no category matches")
 
-        best_idx, best_sim = matches[0]
+        if forced_idx is not None:
+            # cosine между запросом и принудительной категорией — чтобы reason
+            # был честным по качеству, а не поддельный 1.0.
+            q = np.asarray(query_embedding, dtype=np.float32)
+            if q.ndim == 1:
+                q = q.reshape(1, -1)
+            forced_sim = float((self._embeddings[forced_idx] @ q.T).flatten()[0])
+            best_idx = forced_idx
+            best_sim = max(forced_sim, self.SIM_SIGNIFICANT)
+        else:
+            best_idx, best_sim = matches[0]
         cat = self._categories[best_idx]
 
         # Quality classification
