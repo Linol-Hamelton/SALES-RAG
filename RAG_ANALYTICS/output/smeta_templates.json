@@ -1,7 +1,7 @@
 {
-  "built_at": "2026-04-08T21:35:40.791Z",
+  "built_at": "2026-04-09T01:12:48.199Z",
   "total_categories": 124,
-  "total_deals_analyzed": 5747,
+  "total_deals_analyzed": 5406,
   "min_category_deals": 3,
   "freshness_half_life_days": 365,
   "categories": [
@@ -446,516 +446,6 @@
           "frequency": 0.01,
           "final": 14,
           "sample_size": 6
-        }
-      ]
-    },
-    {
-      "category_id": "labus:Логотип",
-      "category_name": "Логотип",
-      "keywords": [
-        "логотипом",
-        "ручка",
-        "толстовка",
-        "капюшоном",
-        "мужская",
-        "логотипа",
-        "solid",
-        "унисекс"
-      ],
-      "keywords_text": "Логотип. примеры заказов: Ручка с логотипом (Gage) | Ручка с логотипом (Какаду) | Ручка с логотипом  (Эко 3.0) | Ручка с логотипом (ECO W) | Ручка с логотипом (Coffee) | Ручка с логотипом (Bamboo) | Ручка с логотипом (PET) | Ручка-стилус с логотипом (Jucy) | Ручка-стилус с логотипом (Голд Сойер) | Ручка-soft-touch с логотипом (Tender). ключевые слова: логотипом, ручка, толстовка, капюшоном, мужская, логотипа, solid, унисекс. компоненты: Почасовая работа с дизайнером - криэйтором 1 час; Полноформатная съемка Простая 1 час; Написание сценария для видеоролика от 10 сек до 300 секунд 1 идея; Аудиомонтаж Средней сложности 1 час; Видеомонтаж Средней сложности 1 час.",
-      "sample_titles": [
-        "Ручка с логотипом (Gage)",
-        "Ручка с логотипом (Какаду)",
-        "Ручка с логотипом  (Эко 3.0)",
-        "Ручка с логотипом (ECO W)",
-        "Ручка с логотипом (Coffee)",
-        "Ручка с логотипом (Bamboo)",
-        "Ручка с логотипом (PET)",
-        "Ручка-стилус с логотипом (Jucy)",
-        "Ручка-стилус с логотипом (Голд Сойер)",
-        "Ручка-soft-touch с логотипом (Tender)",
-        "Ручка-стилус с логотипом (Sway)",
-        "Ручка с логотипом (Бремен)",
-        "Ручка с логотипом (Eve)",
-        "Ручка  с логотипом (Xelo White)",
-        "Ручка  с логотипом (Tek)",
-        "Ручка  с логотипом (Xelo Solid)",
-        "Ручка  с логотипом (Lio Solid)",
-        "Ручка  с логотипом (Rico White)",
-        "Ручка  с логотипом (Vini Solid)",
-        "Ручка  с логотипом (Ines Solid)"
-      ],
-      "deals_count": 398,
-      "avg_deal_value": 207373.29,
-      "canonical_smeta": {
-        "source_deal_id": "65824",
-        "source_deal_type": "orders",
-        "source_title": "АВР - 0089 Съемка рилс (Логотип за 500р)",
-        "positions_count": 5,
-        "total": 16285.41,
-        "positions": [
-          {
-            "good_id": "13616",
-            "product_name": "Почасовая работа с дизайнером - криэйтором 1 час",
-            "section_name": "Почасовая работа",
-            "parent_section": "Дизайн",
-            "direction": "Дизайн",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.01,
-            "price_stats": {
-              "mean": 2333.33,
-              "median": 2000,
-              "weighted_mean": 2474.97,
-              "trimmed_mean": 2333.33,
-              "final": 2285.41,
-              "std": 471.4,
-              "cv": 0.2063,
-              "confidence": "medium",
-              "sample_size": 3
-            }
-          },
-          {
-            "good_id": "21960",
-            "product_name": "Полноформатная съемка Простая 1 час",
-            "section_name": "Полноформатная съемка",
-            "parent_section": "СММ",
-            "direction": "Дизайн",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.01,
-            "price_stats": {
-              "mean": 2500,
-              "median": 2500,
-              "weighted_mean": 2500,
-              "trimmed_mean": 2500,
-              "final": 2500,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 3
-            }
-          },
-          {
-            "good_id": "22010",
-            "product_name": "Написание сценария для видеоролика от 10 сек до 300 секунд 1 идея",
-            "section_name": "Написание сценария для видеоролика",
-            "parent_section": "СММ",
-            "direction": "Дизайн",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.01,
-            "price_stats": {
-              "mean": 3000,
-              "median": 3000,
-              "weighted_mean": 3000,
-              "trimmed_mean": 3000,
-              "final": 3000,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 4
-            }
-          },
-          {
-            "good_id": "21980",
-            "product_name": "Аудиомонтаж Средней сложности 1 час",
-            "section_name": "Аудиомонтаж",
-            "parent_section": "СММ",
-            "direction": "Дизайн",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.01,
-            "price_stats": {
-              "mean": 2500,
-              "median": 2500,
-              "weighted_mean": 2500,
-              "trimmed_mean": 2500,
-              "final": 2500,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 4
-            }
-          },
-          {
-            "good_id": "21974",
-            "product_name": "Видеомонтаж Средней сложности 1 час",
-            "section_name": "Видеомонтаж",
-            "parent_section": "СММ",
-            "direction": "Дизайн",
-            "quantity_typical": 2,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.01,
-            "price_stats": {
-              "mean": 3000,
-              "median": 3000,
-              "weighted_mean": 3000,
-              "trimmed_mean": 3000,
-              "final": 3000,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 2
-            }
-          }
-        ]
-      },
-      "all_goods_in_category": [
-        {
-          "good_id": "10420",
-          "product_name": "Креативная графическая идея для логотипа с обоснованием 1 эскиз",
-          "frequency": 0.02,
-          "final": 4792.5,
-          "sample_size": 8
-        },
-        {
-          "good_id": "10404",
-          "product_name": "Наложение макета на Простой мокап 1 изображение",
-          "frequency": 0.02,
-          "final": 217.8,
-          "sample_size": 6
-        },
-        {
-          "good_id": "10722",
-          "product_name": "Отрисовка ручная с доработкой простого эскиза логотипа 1 векторное изображение",
-          "frequency": 0.01,
-          "final": 3278.84,
-          "sample_size": 4
-        },
-        {
-          "good_id": "10414",
-          "product_name": "Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение",
-          "frequency": 0.01,
-          "final": 5460.01,
-          "sample_size": 3
-        },
-        {
-          "good_id": "10416",
-          "product_name": "Отрисовка ручная с доработкой сложного эскиза логотипа 1 векторное изображение",
-          "frequency": 0.01,
-          "final": 10000,
-          "sample_size": 2
-        },
-        {
-          "good_id": "10412",
-          "product_name": "Отрисовка ручная эскиза сложного логотипа 1 изображение",
-          "frequency": 0.01,
-          "final": 7768.37,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14310",
-          "product_name": "Ручка Наварра пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 72.03,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14298",
-          "product_name": "Ручка Гейдж пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 77.44,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14286",
-          "product_name": "Ручка Какаду пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 55.32,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14274",
-          "product_name": "Ручка Эко 3.0 картонная от 200 шт",
-          "frequency": 0.01,
-          "final": 86.51,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13926",
-          "product_name": "Ручка ЭКО ДУБЛЬВ из пшеничной соломы от 200 шт",
-          "frequency": 0.01,
-          "final": 71.44,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14262",
-          "product_name": "Ручка Кофе шариковая из кофейных зерен от 200 шт",
-          "frequency": 0.01,
-          "final": 94.08,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14250",
-          "product_name": "Ручка Бамбу бамбуковая от 200 шт",
-          "frequency": 0.01,
-          "final": 105.73,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14238",
-          "product_name": "Ручка ПЕТ шариковая из переработанных бутылок от 200 шт",
-          "frequency": 0.01,
-          "final": 229.92,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14226",
-          "product_name": "Ручка-стилус Джуси металлическая от 200 шт",
-          "frequency": 0.01,
-          "final": 99.33,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14214",
-          "product_name": "Ручка-стилус Голд Сойер металлическая от 200 шт",
-          "frequency": 0.01,
-          "final": 139.2,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14202",
-          "product_name": "Ручка Тендер металлическая от 200 шт",
-          "frequency": 0.01,
-          "final": 150.46,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14190",
-          "product_name": "Ручка-стилус Свей софт-тач металлическая от 200 шт",
-          "frequency": 0.01,
-          "final": 153.09,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14178",
-          "product_name": "Ручка Бремен металлическая от 200 шт",
-          "frequency": 0.01,
-          "final": 176.13,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14166",
-          "product_name": "Ручка Ив пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 97.47,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14170",
-          "product_name": "Ручка Ив пластиковая от 1000 шт",
-          "frequency": 0.01,
-          "final": 85.29,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14154",
-          "product_name": "Ручка Ксело Вайт пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 68.03,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14142",
-          "product_name": "Ручка Тек пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 110.27,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13956",
-          "product_name": "Ручка Нави софт-тек пластиковая от 2000 шт",
-          "frequency": 0.01,
-          "final": 80.12,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14130",
-          "product_name": "Ручка Ксело Солид пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 86.64,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14118",
-          "product_name": "Ручка Лио Солид пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 72.48,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14106",
-          "product_name": "Ручка Рико Вайт пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 78.4,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14094",
-          "product_name": "Ручка Вини Солид пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 105.6,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14082",
-          "product_name": "Ручка Инес Солид пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 105.6,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14070",
-          "product_name": "Ручка Макс Солид пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 88.51,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14034",
-          "product_name": "Ручка Атриум металлическая от 200 шт",
-          "frequency": 0.01,
-          "final": 128.29,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14022",
-          "product_name": "Ручка Сага бамбуковая от 200 шт",
-          "frequency": 0.01,
-          "final": 132.94,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14010",
-          "product_name": "Ручка Жако металлическая от 200 шт",
-          "frequency": 0.01,
-          "final": 135.5,
-          "sample_size": 2
-        },
-        {
-          "good_id": "14046",
-          "product_name": "Ручка Старко Металлик пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 121.97,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13996",
-          "product_name": "Ручка Наш пластиковая от 100 шт",
-          "frequency": 0.01,
-          "final": 112.2,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13986",
-          "product_name": "Ручка Тапер пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 97.92,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13974",
-          "product_name": "Ручка Умбо пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 87.68,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13962",
-          "product_name": "Ручка Эко 2.0 картонная от 200 шт",
-          "frequency": 0.01,
-          "final": 77.44,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13950",
-          "product_name": "Ручка Нави софт-тек пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 98.61,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13914",
-          "product_name": "Ручка Умбо БиКолор пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 66.32,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13902",
-          "product_name": "Ручка Миллениум пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 68.48,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13938",
-          "product_name": "Ручка Ресайклд из бумаги с колпачком от 200 шт",
-          "frequency": 0.01,
-          "final": 77.55,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13940",
-          "product_name": "Ручка Ресайклд из бумаги с колпачком от 500 шт",
-          "frequency": 0.01,
-          "final": 72.71,
-          "sample_size": 2
-        },
-        {
-          "good_id": "21464",
-          "product_name": "Подбор шрифта для логотипа 1 решение",
-          "frequency": 0.01,
-          "final": 1521.31,
-          "sample_size": 4
-        },
-        {
-          "good_id": "21466",
-          "product_name": "Подбор шрифта для логотипа 3 решения",
-          "frequency": 0.01,
-          "final": 3500,
-          "sample_size": 2
-        },
-        {
-          "good_id": "21468",
-          "product_name": "Подбор шрифта для логотипа 5 решений",
-          "frequency": 0.01,
-          "final": 5000,
-          "sample_size": 2
-        },
-        {
-          "good_id": "22616",
-          "product_name": "Ручка шариковая «C1» soft-touch пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 107.97,
-          "sample_size": 2
-        },
-        {
-          "good_id": "22628",
-          "product_name": "Ручка шариковая «C1» soft-touch металлическая от 200 шт",
-          "frequency": 0.01,
-          "final": 121.63,
-          "sample_size": 2
-        },
-        {
-          "good_id": "22640",
-          "product_name": "Ручка шариковая «Taper Metal» soft-touch металлическая от 200 шт",
-          "frequency": 0.01,
-          "final": 136.27,
-          "sample_size": 2
-        },
-        {
-          "good_id": "22652",
-          "product_name": "Ручка soft-touch шариковая «Zorro» пластиковая от 200 шт",
-          "frequency": 0.01,
-          "final": 110.19,
-          "sample_size": 2
         }
       ]
     },
@@ -17382,6 +16872,494 @@
       ]
     },
     {
+      "category_id": "labus:Логотип",
+      "category_name": "Логотип",
+      "keywords": [
+        "логотипа",
+        "разработка",
+        "логотип",
+        "пакет",
+        "отрисовка",
+        "ручная",
+        "эскиза",
+        "гм-"
+      ],
+      "keywords_text": "Логотип. примеры заказов: Отрисовка ручная с доработкой эскиза логотипа | Отрисовка ручная эскиза логотипа | Разработка шрифтового логотипа | Подбор шрифта для логотипа | Редизайн логотипа | Разработка логотипа пакет \"Стандарт\" | Разработка логотипа пакет \"Базовый\" | Разработка логотипа пакет \"Креативная группа\" | ГГ-0061 (Логотип \"Воевода\") | ГМ-0498 (доработка слайдов примеров работ стр логотипы). ключевые слова: логотипа, разработка, логотип, пакет, отрисовка, ручная, эскиза, гм-. компоненты: Заполнение брифа для разработки логотипа 1 интервью; Креативная графическая идея для логотипа с обоснованием 1 эскиз; Правила использования логотипа 10 слайдов; Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение.",
+      "sample_titles": [
+        "Отрисовка ручная с доработкой эскиза логотипа",
+        "Отрисовка ручная эскиза логотипа",
+        "Разработка шрифтового логотипа",
+        "Подбор шрифта для логотипа",
+        "Редизайн логотипа",
+        "Разработка логотипа пакет \"Стандарт\"",
+        "Разработка логотипа пакет \"Базовый\"",
+        "Разработка логотипа пакет \"Креативная группа\"",
+        "ГГ-0061 (Логотип \"Воевода\")",
+        "ГМ-0498 (доработка слайдов примеров работ стр логотипы)",
+        "АА 0030 Логотип",
+        "ГМ-0538 (ЛОГОТИП МАЛИКА ШИХАМИРОВА)",
+        "РД-0067 Логотип",
+        "ГМ-0542 (ПРИМЕР РАБОТ ДЛЯ КАРУСЕЛИ ЛОГОТИПЫ)",
+        "АА 0220 Логотип ИМПЕРИАЛ",
+        "МХ0033 Логотип",
+        "ААХ 0051 Отрисовка логотипа",
+        "АВР - 0073 Видеоролик Логотип КУРАГА https://rutube.ru/shorts/1e3f6ecd29b344aad183596c8ab032d6/",
+        "ГМ-0568 (РОЛИК ДЛЯ ИНСТЫ ЛОГОТИП)",
+        "АВР - 0074 Видеоролик Логотип Тулуза https://rutube.ru/shorts/c7c332dc0978abc918e25b75ad8cdddb/"
+      ],
+      "deals_count": 47,
+      "avg_deal_value": 20064.47,
+      "canonical_smeta": {
+        "source_deal_id": "21208",
+        "source_deal_type": "offers",
+        "source_title": "Разработка логотипа пакет \"Стандарт\"",
+        "positions_count": 4,
+        "total": 23186.21,
+        "positions": [
+          {
+            "good_id": "10418",
+            "product_name": "Заполнение брифа для разработки логотипа 1 интервью",
+            "section_name": "Логотипы",
+            "parent_section": "Брендинг",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.23,
+            "price_stats": {
+              "mean": 4454.55,
+              "median": 5000,
+              "weighted_mean": 3095.53,
+              "trimmed_mean": 4666.67,
+              "final": 4304.19,
+              "std": 1157.08,
+              "cv": 0.2688,
+              "confidence": "medium",
+              "sample_size": 11
+            }
+          },
+          {
+            "good_id": "10420",
+            "product_name": "Креативная графическая идея для логотипа с обоснованием 1 эскиз",
+            "section_name": "Логотипы",
+            "parent_section": "Брендинг",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.34,
+            "price_stats": {
+              "mean": 4838.24,
+              "median": 5000,
+              "weighted_mean": 4901.31,
+              "trimmed_mean": 5000,
+              "final": 4934.89,
+              "std": 711.98,
+              "cv": 0.1443,
+              "confidence": "high",
+              "sample_size": 17
+            }
+          },
+          {
+            "good_id": "10724",
+            "product_name": "Правила использования логотипа 10 слайдов",
+            "section_name": "Логотипы",
+            "parent_section": "Брендинг",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.11,
+            "price_stats": {
+              "mean": 8000,
+              "median": 10000,
+              "weighted_mean": 5754.09,
+              "trimmed_mean": 8000,
+              "final": 7938.52,
+              "std": 2449.49,
+              "cv": 0.3086,
+              "confidence": "low",
+              "sample_size": 5
+            }
+          },
+          {
+            "good_id": "10414",
+            "product_name": "Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение",
+            "section_name": "Логотипы",
+            "parent_section": "Брендинг",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.09,
+            "price_stats": {
+              "mean": 6250,
+              "median": 6250,
+              "weighted_mean": 5284.45,
+              "trimmed_mean": 6250,
+              "final": 6008.61,
+              "std": 1250,
+              "cv": 0.208,
+              "confidence": "medium",
+              "sample_size": 4
+            }
+          }
+        ]
+      },
+      "all_goods_in_category": [
+        {
+          "good_id": "10420",
+          "product_name": "Креативная графическая идея для логотипа с обоснованием 1 эскиз",
+          "frequency": 0.34,
+          "final": 4934.89,
+          "sample_size": 17
+        },
+        {
+          "good_id": "10418",
+          "product_name": "Заполнение брифа для разработки логотипа 1 интервью",
+          "frequency": 0.23,
+          "final": 4304.19,
+          "sample_size": 11
+        },
+        {
+          "good_id": "10722",
+          "product_name": "Отрисовка ручная с доработкой простого эскиза логотипа 1 векторное изображение",
+          "frequency": 0.21,
+          "final": 4348.11,
+          "sample_size": 10
+        },
+        {
+          "good_id": "21464",
+          "product_name": "Подбор шрифта для логотипа 1 решение",
+          "frequency": 0.13,
+          "final": 1517.66,
+          "sample_size": 6
+        },
+        {
+          "good_id": "10404",
+          "product_name": "Наложение макета на Простой мокап 1 изображение",
+          "frequency": 0.13,
+          "final": 217.8,
+          "sample_size": 6
+        },
+        {
+          "good_id": "21466",
+          "product_name": "Подбор шрифта для логотипа 3 решения",
+          "frequency": 0.11,
+          "final": 3500,
+          "sample_size": 5
+        },
+        {
+          "good_id": "21468",
+          "product_name": "Подбор шрифта для логотипа 5 решений",
+          "frequency": 0.11,
+          "final": 5000,
+          "sample_size": 5
+        },
+        {
+          "good_id": "10724",
+          "product_name": "Правила использования логотипа 10 слайдов",
+          "frequency": 0.11,
+          "final": 7938.52,
+          "sample_size": 5
+        },
+        {
+          "good_id": "10414",
+          "product_name": "Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение",
+          "frequency": 0.09,
+          "final": 6008.61,
+          "sample_size": 4
+        },
+        {
+          "good_id": "21472",
+          "product_name": "Разработка шрифтового логотипа Средней сложности 1 вариант",
+          "frequency": 0.09,
+          "final": 5000,
+          "sample_size": 4
+        },
+        {
+          "good_id": "21474",
+          "product_name": "Разработка шрифтового логотипа Сложная 1 вариант",
+          "frequency": 0.09,
+          "final": 10000,
+          "sample_size": 4
+        },
+        {
+          "good_id": "11546",
+          "product_name": "Логобук индивидуальный 10 слайдов",
+          "frequency": 0.09,
+          "final": 22111.53,
+          "sample_size": 4
+        },
+        {
+          "good_id": "22010",
+          "product_name": "Написание сценария для видеоролика от 10 сек до 300 секунд 1 идея",
+          "frequency": 0.09,
+          "final": 3000,
+          "sample_size": 4
+        },
+        {
+          "good_id": "21980",
+          "product_name": "Аудиомонтаж Средней сложности 1 час",
+          "frequency": 0.09,
+          "final": 2500,
+          "sample_size": 4
+        },
+        {
+          "good_id": "11544",
+          "product_name": "Логобук шаблонный 10 слайдов",
+          "frequency": 0.09,
+          "final": 13422.62,
+          "sample_size": 4
+        },
+        {
+          "good_id": "21470",
+          "product_name": "Разработка шрифтового логотипа Простая 1 вариант",
+          "frequency": 0.06,
+          "final": 2500,
+          "sample_size": 3
+        },
+        {
+          "good_id": "13614",
+          "product_name": "Почасовая работа с дизайнером рекламы 1 час",
+          "frequency": 0.06,
+          "final": 1500,
+          "sample_size": 3
+        },
+        {
+          "good_id": "11550",
+          "product_name": "Ручная отрисовка с доработкой орнамента средней сложности 1 векторное изображение",
+          "frequency": 0.06,
+          "final": 8331.23,
+          "sample_size": 3
+        },
+        {
+          "good_id": "10714",
+          "product_name": "Подбор мокапа со стоков 2 решения",
+          "frequency": 0.06,
+          "final": 507.34,
+          "sample_size": 3
+        },
+        {
+          "good_id": "10396",
+          "product_name": "Подбор мокапа со стоков 5 решений",
+          "frequency": 0.06,
+          "final": 1013.33,
+          "sample_size": 3
+        },
+        {
+          "good_id": "21550",
+          "product_name": "Подбор фирменных цветов 1 решение",
+          "frequency": 0.06,
+          "final": 2024.15,
+          "sample_size": 3
+        },
+        {
+          "good_id": "21960",
+          "product_name": "Полноформатная съемка Простая 1 час",
+          "frequency": 0.06,
+          "final": 2500,
+          "sample_size": 3
+        },
+        {
+          "good_id": "13616",
+          "product_name": "Почасовая работа с дизайнером - криэйтором 1 час",
+          "frequency": 0.06,
+          "final": 2285.41,
+          "sample_size": 3
+        },
+        {
+          "good_id": "10416",
+          "product_name": "Отрисовка ручная с доработкой сложного эскиза логотипа 1 векторное изображение",
+          "frequency": 0.04,
+          "final": 10000,
+          "sample_size": 2
+        },
+        {
+          "good_id": "10412",
+          "product_name": "Отрисовка ручная эскиза сложного логотипа 1 изображение",
+          "frequency": 0.04,
+          "final": 7768.37,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7278",
+          "product_name": "Подбор фона 2 решения",
+          "frequency": 0.04,
+          "final": 500,
+          "sample_size": 2
+        },
+        {
+          "good_id": "10398",
+          "product_name": "Доработка мокапа простая 1 решение",
+          "frequency": 0.04,
+          "final": 500,
+          "sample_size": 2
+        },
+        {
+          "good_id": "21400",
+          "product_name": "Макет поста для социальных сетей Простой 1 решение",
+          "frequency": 0.04,
+          "final": 1000,
+          "sample_size": 2
+        },
+        {
+          "good_id": "21972",
+          "product_name": "Видеомонтаж Простой 1 час",
+          "frequency": 0.04,
+          "final": 2000,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7290",
+          "product_name": "Макет визитки Простой 1 сторона",
+          "frequency": 0.04,
+          "final": 790.65,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7280",
+          "product_name": "Подбор фона 5 решений",
+          "frequency": 0.04,
+          "final": 1023.38,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7394",
+          "product_name": "Фотомонтаж Простой 1 объект",
+          "frequency": 0.04,
+          "final": 1023.08,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7346",
+          "product_name": "Гайдлайн Простой верстка 1 страницы",
+          "frequency": 0.04,
+          "final": 1025.28,
+          "sample_size": 2
+        },
+        {
+          "good_id": "21974",
+          "product_name": "Видеомонтаж Средней сложности 1 час",
+          "frequency": 0.04,
+          "final": 3000,
+          "sample_size": 2
+        },
+        {
+          "good_id": "10408",
+          "product_name": "Отрисовка ручная простого эскиза логотипа 1 изображение",
+          "frequency": 0.02,
+          "final": 2500,
+          "sample_size": 1
+        },
+        {
+          "good_id": "10410",
+          "product_name": "Отрисовка ручная эскиза логотипа средней сложности 1 изображение",
+          "frequency": 0.02,
+          "final": 5000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21458",
+          "product_name": "Редизайн логотипа Простой 1 решение",
+          "frequency": 0.02,
+          "final": 2500,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21460",
+          "product_name": "Редизайн логотипа Средней сложности 1 решение",
+          "frequency": 0.02,
+          "final": 5000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21462",
+          "product_name": "Редизайн логотипа Сложный 1 решение",
+          "frequency": 0.02,
+          "final": 10000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "10422",
+          "product_name": "Отрисовка ручная простого орнамента 1 векторное изображение",
+          "frequency": 0.02,
+          "final": 1000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7286",
+          "product_name": "Подбор шрифта 2 решения",
+          "frequency": 0.02,
+          "final": 200,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21190",
+          "product_name": "Макет слайда презентации со статьей простой 1 слайд",
+          "frequency": 0.02,
+          "final": 1500,
+          "sample_size": 1
+        },
+        {
+          "good_id": "13612",
+          "product_name": "Почасовая работа с дизайнером - художником 1 час",
+          "frequency": 0.02,
+          "final": 1000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21482",
+          "product_name": "Создание эскиза логотипа с помощью нейросети Сложное 1 вариант",
+          "frequency": 0.02,
+          "final": 15000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7282",
+          "product_name": "Подбор иконки 2 решения",
+          "frequency": 0.02,
+          "final": 500,
+          "sample_size": 1
+        },
+        {
+          "good_id": "13818",
+          "product_name": "Безнал 10%",
+          "frequency": 0.02,
+          "final": 100,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21978",
+          "product_name": "Аудиомонтаж Простой 1 час",
+          "frequency": 0.02,
+          "final": 2000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "11192",
+          "product_name": "Макет иконки Сложный 1 решение",
+          "frequency": 0.02,
+          "final": 2000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7362",
+          "product_name": "Макет плаката имиджевого Простой 1 решение",
+          "frequency": 0.02,
+          "final": 2000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "13594",
+          "product_name": "Макет одноразового стаканчика Средней сложности 1 оригинал-макет",
+          "frequency": 0.02,
+          "final": 4000,
+          "sample_size": 1
+        }
+      ]
+    },
+    {
       "category_id": "labus:Презентации",
       "category_name": "Презентации",
       "keywords": [
@@ -24454,6 +24432,331 @@
       ]
     },
     {
+      "category_id": "labus:Шоколад с логотипом",
+      "category_name": "Шоколад с логотипом",
+      "keywords": [
+        "шоколад",
+        "логотипом",
+        "бельгийский",
+        "гм-",
+        "таб",
+        "царапанный",
+        "пластик",
+        "гравировкой"
+      ],
+      "keywords_text": "Шоколад с логотипом. примеры заказов: Шоколад с логотипом 10 гр | Шоколад бельгийский с логотипом 5 гр | ГМ-0504 (ТАБ С ЦАРАПАННЫЙ ПЛАСТИК С ГРАВИРОВКОЙ И ШОКОЛАД) | АА 0292 Умуд шоколадки | ИИ #64952 Шоколад | ИИ - 68338 обертки для шоколада 300 шт. | ЗМ- Шоколад Фигаро | Лого клубника в шоколаде. ключевые слова: шоколад, логотипом, бельгийский, гм-, таб, царапанный, пластик, гравировкой. компоненты: Биговка 5-40 шт Печатная; Скругление двух углов до 5 мм 5-40 шт Печатная; А5 Печать 4+4 8-80 шт Печатная; НЕВИЯ А5 Бумага 200 гр. 1 шт Печатная; Подготовка макета к производству за 1 макет.",
+      "sample_titles": [
+        "Шоколад с логотипом 10 гр",
+        "Шоколад бельгийский с логотипом 5 гр",
+        "ГМ-0504 (ТАБ С ЦАРАПАННЫЙ ПЛАСТИК С ГРАВИРОВКОЙ И ШОКОЛАД)",
+        "АА 0292 Умуд шоколадки",
+        "ИИ #64952 Шоколад",
+        "ИИ - 68338 обертки для шоколада 300 шт.",
+        "ЗМ- Шоколад Фигаро",
+        "Лого клубника в шоколаде"
+      ],
+      "deals_count": 16,
+      "avg_deal_value": 8431.54,
+      "canonical_smeta": {
+        "source_deal_id": "59972",
+        "source_deal_type": "orders",
+        "source_title": "АА 0292 Умуд шоколадки ",
+        "positions_count": 7,
+        "total": 5695.5,
+        "positions": [
+          {
+            "good_id": "9094",
+            "product_name": "Биговка 5-40 шт Печатная",
+            "section_name": "Постпечатка",
+            "parent_section": "Типография",
+            "direction": "Печатная",
+            "quantity_typical": 30,
+            "unit": "шт",
+            "b24_section": "Печатная",
+            "frequency": 0.06,
+            "price_stats": {
+              "mean": 1.4,
+              "median": 1.4,
+              "weighted_mean": 1.4,
+              "trimmed_mean": 1.4,
+              "final": 1.4,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "9108",
+            "product_name": "Скругление двух углов до 5 мм 5-40 шт Печатная",
+            "section_name": "Постпечатка",
+            "parent_section": "Типография",
+            "direction": "Печатная",
+            "quantity_typical": 30,
+            "unit": "шт",
+            "b24_section": "Печатная",
+            "frequency": 0.06,
+            "price_stats": {
+              "mean": 1.4,
+              "median": 1.4,
+              "weighted_mean": 1.4,
+              "trimmed_mean": 1.4,
+              "final": 1.4,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "4706",
+            "product_name": "А5 Печать 4+4 8-80 шт Печатная",
+            "section_name": "Печать",
+            "parent_section": "А5",
+            "direction": "Печатная",
+            "quantity_typical": 30,
+            "unit": "шт",
+            "b24_section": "Печатная",
+            "frequency": 0.06,
+            "price_stats": {
+              "mean": 34.62,
+              "median": 34.62,
+              "weighted_mean": 34.62,
+              "trimmed_mean": 34.62,
+              "final": 34.62,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "4800",
+            "product_name": "НЕВИЯ А5 Бумага 200 гр. 1 шт Печатная",
+            "section_name": "Бумага",
+            "parent_section": "А5",
+            "direction": "Печатная",
+            "quantity_typical": 30,
+            "unit": "шт",
+            "b24_section": "Печатная",
+            "frequency": 0.06,
+            "price_stats": {
+              "mean": 4.9,
+              "median": 4.9,
+              "weighted_mean": 4.9,
+              "trimmed_mean": 4.9,
+              "final": 4.9,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "7352",
+            "product_name": "Подготовка макета к производству за 1 макет",
+            "section_name": "Дизайн",
+            "parent_section": "",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.19,
+            "price_stats": {
+              "mean": 500,
+              "median": 500,
+              "weighted_mean": 500,
+              "trimmed_mean": 500,
+              "final": 500,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 3
+            }
+          },
+          {
+            "good_id": "0",
+            "product_name": "------------------------------------------------------------------------------------",
+            "section_name": "",
+            "parent_section": "",
+            "direction": "",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "",
+            "frequency": 0.19,
+            "price_stats": {
+              "mean": 14,
+              "median": 14,
+              "weighted_mean": 21.62,
+              "trimmed_mean": 14,
+              "final": 15.9,
+              "std": 11,
+              "cv": 0.6916,
+              "confidence": "low",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "22076",
+            "product_name": "Шоколад с логотипом 10 гр 200 шт",
+            "section_name": "Шоколад",
+            "parent_section": "Мерч",
+            "direction": "Мерч",
+            "quantity_typical": 200,
+            "unit": "шт",
+            "b24_section": "Мерч",
+            "frequency": 0.13,
+            "price_stats": {
+              "mean": 19.55,
+              "median": 19.55,
+              "weighted_mean": 19.55,
+              "trimmed_mean": 19.55,
+              "final": 19.55,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          }
+        ]
+      },
+      "all_goods_in_category": [
+        {
+          "good_id": "7352",
+          "product_name": "Подготовка макета к производству за 1 макет",
+          "frequency": 0.19,
+          "final": 500,
+          "sample_size": 3
+        },
+        {
+          "good_id": "0",
+          "product_name": "------------------------------------------------------------------------------------",
+          "frequency": 0.19,
+          "final": 15.9,
+          "sample_size": 2
+        },
+        {
+          "good_id": "22074",
+          "product_name": "Шоколад с логотипом 10 гр 100 шт",
+          "frequency": 0.13,
+          "final": 22.5,
+          "sample_size": 2
+        },
+        {
+          "good_id": "22076",
+          "product_name": "Шоколад с логотипом 10 гр 200 шт",
+          "frequency": 0.13,
+          "final": 19.55,
+          "sample_size": 2
+        },
+        {
+          "good_id": "22078",
+          "product_name": "Шоколад с логотипом 10 гр 300 шт",
+          "frequency": 0.06,
+          "final": 17.6,
+          "sample_size": 1
+        },
+        {
+          "good_id": "22080",
+          "product_name": "Шоколад с логотипом 10 гр 500 шт",
+          "frequency": 0.06,
+          "final": 15,
+          "sample_size": 1
+        },
+        {
+          "good_id": "22082",
+          "product_name": "Шоколад с логотипом 10 гр 1000 шт",
+          "frequency": 0.06,
+          "final": 13.02,
+          "sample_size": 1
+        },
+        {
+          "good_id": "22184",
+          "product_name": "Шоколад бельгийский с логотипом 5 гр 100 шт",
+          "frequency": 0.06,
+          "final": 27.9,
+          "sample_size": 1
+        },
+        {
+          "good_id": "22186",
+          "product_name": "Шоколад бельгийский с логотипом 5 гр 200 шт",
+          "frequency": 0.06,
+          "final": 25.5,
+          "sample_size": 1
+        },
+        {
+          "good_id": "22188",
+          "product_name": "Шоколад бельгийский с логотипом 5 гр 300 шт",
+          "frequency": 0.06,
+          "final": 24,
+          "sample_size": 1
+        },
+        {
+          "good_id": "22190",
+          "product_name": "Шоколад бельгийский с логотипом 5 гр 500 шт",
+          "frequency": 0.06,
+          "final": 21.75,
+          "sample_size": 1
+        },
+        {
+          "good_id": "22192",
+          "product_name": "Шоколад бельгийский с логотипом 5 гр 1000 шт",
+          "frequency": 0.06,
+          "final": 19.6,
+          "sample_size": 1
+        },
+        {
+          "good_id": "13612",
+          "product_name": "Почасовая работа с дизайнером - художником 1 час",
+          "frequency": 0.06,
+          "final": 1000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "9094",
+          "product_name": "Биговка 5-40 шт Печатная",
+          "frequency": 0.06,
+          "final": 1.4,
+          "sample_size": 1
+        },
+        {
+          "good_id": "9108",
+          "product_name": "Скругление двух углов до 5 мм 5-40 шт Печатная",
+          "frequency": 0.06,
+          "final": 1.4,
+          "sample_size": 1
+        },
+        {
+          "good_id": "4706",
+          "product_name": "А5 Печать 4+4 8-80 шт Печатная",
+          "frequency": 0.06,
+          "final": 34.62,
+          "sample_size": 1
+        },
+        {
+          "good_id": "4800",
+          "product_name": "НЕВИЯ А5 бум. 200 гр. 1 шт Печатная",
+          "frequency": 0.06,
+          "final": 4.9,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7284",
+          "product_name": "Подбор иконки 5 решений",
+          "frequency": 0.06,
+          "final": 1050,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21468",
+          "product_name": "Подбор шрифта для логотипа 5 решений",
+          "frequency": 0.06,
+          "final": 5250,
+          "sample_size": 1
+        }
+      ]
+    },
+    {
       "category_id": "светильник подвесной",
       "category_name": "Светильник Подвесной",
       "keywords": [
@@ -27657,273 +27960,6 @@
       ]
     },
     {
-      "category_id": "labus:Шоколад с логотипом",
-      "category_name": "Шоколад с логотипом",
-      "keywords": [
-        "шоколад",
-        "гм-",
-        "таб",
-        "царапанный",
-        "пластик",
-        "гравировкой",
-        "умуд",
-        "шоколадки"
-      ],
-      "keywords_text": "Шоколад с логотипом. примеры заказов: ГМ-0504 (ТАБ С ЦАРАПАННЫЙ ПЛАСТИК С ГРАВИРОВКОЙ И ШОКОЛАД) | АА 0292 Умуд шоколадки | ИИ #64952 Шоколад | ИИ - 68338 обертки для шоколада 300 шт. | ЗМ- Шоколад Фигаро | Лого клубника в шоколаде. ключевые слова: шоколад, гм-, таб, царапанный, пластик, гравировкой, умуд, шоколадки. компоненты: Биговка 5-40 шт Печатная; Скругление двух углов до 5 мм 5-40 шт Печатная; А5 Печать 4+4 8-80 шт Печатная; НЕВИЯ А5 Бумага 200 гр. 1 шт Печатная; Подготовка макета к производству за 1 макет.",
-      "sample_titles": [
-        "ГМ-0504 (ТАБ С ЦАРАПАННЫЙ ПЛАСТИК С ГРАВИРОВКОЙ И ШОКОЛАД)",
-        "АА 0292 Умуд шоколадки",
-        "ИИ #64952 Шоколад",
-        "ИИ - 68338 обертки для шоколада 300 шт.",
-        "ЗМ- Шоколад Фигаро",
-        "Лого клубника в шоколаде"
-      ],
-      "deals_count": 6,
-      "avg_deal_value": 9563.27,
-      "canonical_smeta": {
-        "source_deal_id": "59972",
-        "source_deal_type": "orders",
-        "source_title": "АА 0292 Умуд шоколадки ",
-        "positions_count": 7,
-        "total": 5695.5,
-        "positions": [
-          {
-            "good_id": "9094",
-            "product_name": "Биговка 5-40 шт Печатная",
-            "section_name": "Постпечатка",
-            "parent_section": "Типография",
-            "direction": "Печатная",
-            "quantity_typical": 30,
-            "unit": "шт",
-            "b24_section": "Печатная",
-            "frequency": 0.17,
-            "price_stats": {
-              "mean": 1.4,
-              "median": 1.4,
-              "weighted_mean": 1.4,
-              "trimmed_mean": 1.4,
-              "final": 1.4,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 1
-            }
-          },
-          {
-            "good_id": "9108",
-            "product_name": "Скругление двух углов до 5 мм 5-40 шт Печатная",
-            "section_name": "Постпечатка",
-            "parent_section": "Типография",
-            "direction": "Печатная",
-            "quantity_typical": 30,
-            "unit": "шт",
-            "b24_section": "Печатная",
-            "frequency": 0.17,
-            "price_stats": {
-              "mean": 1.4,
-              "median": 1.4,
-              "weighted_mean": 1.4,
-              "trimmed_mean": 1.4,
-              "final": 1.4,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 1
-            }
-          },
-          {
-            "good_id": "4706",
-            "product_name": "А5 Печать 4+4 8-80 шт Печатная",
-            "section_name": "Печать",
-            "parent_section": "А5",
-            "direction": "Печатная",
-            "quantity_typical": 30,
-            "unit": "шт",
-            "b24_section": "Печатная",
-            "frequency": 0.17,
-            "price_stats": {
-              "mean": 34.62,
-              "median": 34.62,
-              "weighted_mean": 34.62,
-              "trimmed_mean": 34.62,
-              "final": 34.62,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 1
-            }
-          },
-          {
-            "good_id": "4800",
-            "product_name": "НЕВИЯ А5 Бумага 200 гр. 1 шт Печатная",
-            "section_name": "Бумага",
-            "parent_section": "А5",
-            "direction": "Печатная",
-            "quantity_typical": 30,
-            "unit": "шт",
-            "b24_section": "Печатная",
-            "frequency": 0.17,
-            "price_stats": {
-              "mean": 4.9,
-              "median": 4.9,
-              "weighted_mean": 4.9,
-              "trimmed_mean": 4.9,
-              "final": 4.9,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 1
-            }
-          },
-          {
-            "good_id": "7352",
-            "product_name": "Подготовка макета к производству за 1 макет",
-            "section_name": "Дизайн",
-            "parent_section": "",
-            "direction": "Дизайн",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.5,
-            "price_stats": {
-              "mean": 500,
-              "median": 500,
-              "weighted_mean": 500,
-              "trimmed_mean": 500,
-              "final": 500,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 3
-            }
-          },
-          {
-            "good_id": "0",
-            "product_name": "------------------------------------------------------------------------------------",
-            "section_name": "",
-            "parent_section": "",
-            "direction": "",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "",
-            "frequency": 0.5,
-            "price_stats": {
-              "mean": 14,
-              "median": 14,
-              "weighted_mean": 21.62,
-              "trimmed_mean": 14,
-              "final": 15.9,
-              "std": 11,
-              "cv": 0.6916,
-              "confidence": "low",
-              "sample_size": 2
-            }
-          },
-          {
-            "good_id": "22076",
-            "product_name": "Шоколад с логотипом 10 гр 200 шт",
-            "section_name": "Шоколад",
-            "parent_section": "Мерч",
-            "direction": "Мерч",
-            "quantity_typical": 200,
-            "unit": "шт",
-            "b24_section": "Мерч",
-            "frequency": 0.17,
-            "price_stats": {
-              "mean": 19.55,
-              "median": 19.55,
-              "weighted_mean": 19.55,
-              "trimmed_mean": 19.55,
-              "final": 19.55,
-              "std": 0,
-              "cv": 0,
-              "confidence": "high",
-              "sample_size": 1
-            }
-          }
-        ]
-      },
-      "all_goods_in_category": [
-        {
-          "good_id": "7352",
-          "product_name": "Подготовка макета к производству за 1 макет",
-          "frequency": 0.5,
-          "final": 500,
-          "sample_size": 3
-        },
-        {
-          "good_id": "0",
-          "product_name": "------------------------------------------------------------------------------------",
-          "frequency": 0.5,
-          "final": 15.9,
-          "sample_size": 2
-        },
-        {
-          "good_id": "13612",
-          "product_name": "Почасовая работа с дизайнером - художником 1 час",
-          "frequency": 0.17,
-          "final": 1000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "9094",
-          "product_name": "Биговка 5-40 шт Печатная",
-          "frequency": 0.17,
-          "final": 1.4,
-          "sample_size": 1
-        },
-        {
-          "good_id": "9108",
-          "product_name": "Скругление двух углов до 5 мм 5-40 шт Печатная",
-          "frequency": 0.17,
-          "final": 1.4,
-          "sample_size": 1
-        },
-        {
-          "good_id": "4706",
-          "product_name": "А5 Печать 4+4 8-80 шт Печатная",
-          "frequency": 0.17,
-          "final": 34.62,
-          "sample_size": 1
-        },
-        {
-          "good_id": "4800",
-          "product_name": "НЕВИЯ А5 бум. 200 гр. 1 шт Печатная",
-          "frequency": 0.17,
-          "final": 4.9,
-          "sample_size": 1
-        },
-        {
-          "good_id": "22076",
-          "product_name": "Шоколад с логотипом 10 гр 200 шт",
-          "frequency": 0.17,
-          "final": 19.55,
-          "sample_size": 1
-        },
-        {
-          "good_id": "22074",
-          "product_name": "Шоколад с логотипом 10 гр 100 шт",
-          "frequency": 0.17,
-          "final": 22.5,
-          "sample_size": 1
-        },
-        {
-          "good_id": "7284",
-          "product_name": "Подбор иконки 5 решений",
-          "frequency": 0.17,
-          "final": 1050,
-          "sample_size": 1
-        },
-        {
-          "good_id": "21468",
-          "product_name": "Подбор шрифта для логотипа 5 решений",
-          "frequency": 0.17,
-          "final": 5250,
-          "sample_size": 1
-        }
-      ]
-    },
-    {
       "category_id": "конверты",
       "category_name": "Конверты",
       "keywords": [
@@ -29738,7 +29774,7 @@
             "price_stats": {
               "mean": 234.37,
               "median": 234.37,
-              "weighted_mean": 234.36,
+              "weighted_mean": 234.37,
               "trimmed_mean": 234.37,
               "final": 234.37,
               "std": 153.14,
@@ -29760,7 +29796,7 @@
             "price_stats": {
               "mean": 234.37,
               "median": 234.37,
-              "weighted_mean": 234.36,
+              "weighted_mean": 234.37,
               "trimmed_mean": 234.37,
               "final": 234.37,
               "std": 153.14,
@@ -29782,7 +29818,7 @@
             "price_stats": {
               "mean": 234.37,
               "median": 234.37,
-              "weighted_mean": 234.36,
+              "weighted_mean": 234.37,
               "trimmed_mean": 234.37,
               "final": 234.37,
               "std": 153.14,
