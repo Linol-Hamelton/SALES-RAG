@@ -35,29 +35,71 @@ logger = get_logger("smeta_engine")
 
 MatchQuality = Literal["maximal", "significant", "minimal", "none"]
 
-# П7.7-A: safety net — keyword override семантического ретривера. Если запрос
-# содержит include-слово без exclude-слов, форсируем конкретную категорию минуя
-# cosine-ранжирование. Нужно для коротких запросов («Сколько стоит логотип?»),
-# где enrichment keywords_text всё равно не вытягивают матч против конкурентов
-# с большим n (например, «Титульные вывески» перебивают по bias log10(n)).
+# П7.7-A / П8.4: safety net — keyword override семантического ретривера. Если
+# запрос содержит include-слова без exclude-слов, форсируем конкретную категорию
+# минуя cosine-ранжирование. Нужно для коротких запросов («Сколько стоит
+# логотип?», «Световая вывеска ресторана»), где enrichment keywords_text всё
+# равно не вытягивают матч против конкурентов с большим n (например,
+# «Титульные вывески» перебивают по bias log10(n)).
+#
+# Каждый override имеет поле `strong`:
+#   - strong=True  → уверенный матч, forced_sim пола = SIM_MAXIMAL (auto-tier).
+#                    Для коротких чётких запросов, где мы знаем категорию.
+#   - strong=False → мягкий матч, пол = SIM_SIGNIFICANT (guided-tier).
+#                    Используется для неоднозначных случаев.
 #
 # include: ВСЕ регексы должны матчиться.
-# exclude: НИ ОДИН не должен матчиться (мерч-носители, под-ключ варианты).
+# exclude: НИ ОДИН не должен матчиться (мерч-носители, под-ключ варианты,
+#          пакеты/комплексы → ожидают bundle-флоу, а не canonical).
 # target: имя категории как в smeta_templates.json.
 _KEYWORD_OVERRIDES: list[dict] = [
     {
         "target": "Логотип",
-        "include": [re.compile(r"логотип", re.IGNORECASE)],
+        "strong": True,
+        "include": [re.compile(r"логотип|\bлого\b", re.IGNORECASE)],
         "exclude": [
             re.compile(r"под\s*ключ|брифинг|концепц|фирменн.*стил|брендбук|айдентик|разработк.*с\s*нул|креатив|нейминг", re.IGNORECASE),
             re.compile(r"ручк|кружк|футболк|шоппер|худи|толстовк|магнит|шоколад|скотч|значок|брелок|бейдж", re.IGNORECASE),
         ],
     },
+    # П8.4: «Объёмные буквы» — стабильная L1-категория, нужна L3.
+    {
+        "target": "Объемные буквы",
+        "strong": True,
+        "include": [re.compile(r"букв", re.IGNORECASE)],
+        "exclude": [
+            # bundle / комплексы / под-ключ → отдаются bundle-флоу
+            re.compile(r"под\s*ключ|пакет\s+услуг|полный\s+комплект|\bкомплект\b|комплекс|набор", re.IGNORECASE),
+            # печатная продукция: «буквы на листовке», «буквы на баннере»
+            re.compile(r"на\s+листовк|на\s+баннер|на\s+этикет|визитк", re.IGNORECASE),
+        ],
+    },
+    # П8.4: «Световые вывески» — стабильная L1-категория, нужна L3.
+    {
+        "target": "Световые вывески",
+        "strong": True,
+        "include": [
+            re.compile(r"вывеск", re.IGNORECASE),
+            re.compile(r"светов|светодиод|подсветк|объ[её]мн|контражур|led|лед|композит|акрил|неон", re.IGNORECASE),
+        ],
+        "exclude": [
+            # Титульные вывески — отдельный LABUS-кластер
+            re.compile(r"титульн", re.IGNORECASE),
+            # «под ключ» / bundle-запросы — в bundle-флоу
+            re.compile(r"под\s*ключ|пакет\s+услуг|полный\s+комплект|комплекс|\bвсе?\s+что\s+входит", re.IGNORECASE),
+            # ремонт — отдельный manual-флоу
+            re.compile(r"ремонт|починк|восстановл", re.IGNORECASE),
+        ],
+    },
 ]
 
 
-def _check_keyword_override(query: str) -> Optional[str]:
-    """Return forced category name or None."""
+def _check_keyword_override(query: str) -> Optional[tuple[str, bool]]:
+    """Return (forced_category_name, is_strong) or None.
+
+    is_strong=True → override уверенный, forced_sim пола = SIM_MAXIMAL.
+    is_strong=False → мягкий override, пол = SIM_SIGNIFICANT.
+    """
     if not query:
         return None
     for rule in _KEYWORD_OVERRIDES:
@@ -65,7 +107,7 @@ def _check_keyword_override(query: str) -> Optional[str]:
             continue
         if any(rx.search(query) for rx in rule["exclude"]):
             continue
-        return rule["target"]
+        return (rule["target"], bool(rule.get("strong", False)))
     return None
 
 
@@ -183,17 +225,21 @@ class SmetaEngine:
         if not self.is_ready:
             return SmetaResult(match_reason="SmetaEngine not loaded")
 
-        # П7.7-A: keyword override — проверяем до семантики.
-        forced_name = _check_keyword_override(query)
+        # П7.7-A / П8.4: keyword override — проверяем до семантики.
+        override = _check_keyword_override(query)
         forced_idx: Optional[int] = None
-        if forced_name:
+        forced_strong = False
+        if override is not None:
+            forced_name, forced_strong = override
             for i, c in enumerate(self._categories):
                 if c.get("category_name") == forced_name:
                     forced_idx = i
                     break
             if forced_idx is not None:
                 logger.info("keyword override applied",
-                            category=forced_name, query=query[:80])
+                            category=forced_name,
+                            strong=forced_strong,
+                            query=query[:80])
 
         matches = self.find_category(query_embedding, top_k=3)
         if not matches and forced_idx is None:
@@ -207,7 +253,12 @@ class SmetaEngine:
                 q = q.reshape(1, -1)
             forced_sim = float((self._embeddings[forced_idx] @ q.T).flatten()[0])
             best_idx = forced_idx
-            best_sim = max(forced_sim, self.SIM_SIGNIFICANT)
+            # П8.4: strong override → пол = SIM_MAXIMAL (auto-tier). Раньше всегда
+            # использовался SIM_SIGNIFICANT, из-за чего override никогда не мог
+            # дотянуть до auto-confidence даже для очевидных коротких запросов
+            # типа «логотип цена».
+            sim_floor = self.SIM_MAXIMAL if forced_strong else self.SIM_SIGNIFICANT
+            best_sim = max(forced_sim, sim_floor)
         else:
             best_idx, best_sim = matches[0]
         cat = self._categories[best_idx]
