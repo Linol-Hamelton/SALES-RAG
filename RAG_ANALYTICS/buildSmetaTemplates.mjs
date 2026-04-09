@@ -127,7 +127,10 @@ const LABUS_CATEGORIES = [
     allOf: [/буква|буквы|буквенн/i],
     anyOf: [/объ[её]мн/i, /световая\s+буква/i, /3d/i, /акрил/i, /пвх/i] },
   { parent: "Наружная реклама", name: "Титульные вывески",
-    allOf: [/титульн/i, /вывеск/i] },
+    allOf: [/титульн/i, /вывеск/i],
+    // П7.7-C: исключаем TITLE'ы с «логотип» — они контаминировали кластер и
+    // попадали в семантический матч при коротких запросах про логотип.
+    notAny: [/логотип/i] },
   { parent: "Наружная реклама", name: "Световые короба",
     anyOf: [/лайтбокс/i, /светов(ой|ые)\s+короб/i, /короб\s+светов/i] },
   { parent: "Наружная реклама", name: "Панель-кронштейн",
@@ -484,10 +487,15 @@ const round4 = (x) => Math.round(x * 10000) / 10000;
 const SEED_DEALS = {
   "Логотип": {
     dataset: "offers",
-    // canonical_id = конкретная сделка-образец (4–6 позиций, 16–30к).
-    // Остальные seed_ids идут в price stats и keywords.
     canonical_id: "21208",
     seed_ids: ["21208", "46416", "46414", "21210", "46428", "46426", "21214", "46424", "46422"],
+    // П7.7-B: enrichment pool для keywords_text и sample_titles. Берём ВСЕ сделки
+    // (offers+orders), чей TITLE матчит enrich_regex — это широкий пул для
+    // семантического сигнала BGE-M3, который иначе голодает на 47 чистых deals.
+    // canonical/price_stats по-прежнему считаются по отфильтрованному cluster.deals.
+    enrich_regex: /логотип/i,
+    // Мерч-носители исключаются из enrichment pool (как и из cluster).
+    enrich_exclude: /ручк|кружк|термокружк|футболк|кепк|бейсболк|шоппер|худи|свитшот|толстовк|поло|кофт|майк|магнит|шоколад|сахар|бутылк|повербанк|значок|значк|брелок|пакет|ежедневник|блокнот|зажигалк|флешк|наклейк|стикер|этикет|визитк|баннер|табличк|вывеск|футляр|плед|шапк|зонт|носок|носк|ложк|вилк|нож|скотч|ленты|лента|флаг|упаковк|бейдж|папк|брошюр|буклет|открытк|магнит|календар|бирк|ценник/i,
   },
 };
 
@@ -724,13 +732,29 @@ async function main() {
       cluster.deals.reduce((sum, d) => sum + (d.opportunity || 0), 0) /
       cluster.deals.length;
 
-    // Keywords: top non-stopword tokens across all titles
-    const keywords = extractKeywords(cluster.deals.map((d) => d.title));
+    // П7.7-B: enrichment pool для keywords/sample_titles у SEED-категорий.
+    // После П7.6 фильтрации cluster.deals может усохнуть (47 вместо 407) — этого
+    // мало BGE-M3 для уверенного матча. Собираем широкий пул из ВСЕХ deals,
+    // чей TITLE матчит enrich_regex и не матчит enrich_exclude.
+    let enrichPool = cluster.deals;
+    if (seedCfg && seedCfg.enrich_regex) {
+      const allDeals = [...offerDeals.values(), ...orderDeals.values()];
+      enrichPool = allDeals.filter((d) => {
+        const t = String(d.title || "");
+        if (!seedCfg.enrich_regex.test(t)) return false;
+        if (seedCfg.enrich_exclude && seedCfg.enrich_exclude.test(t)) return false;
+        return true;
+      });
+      if (enrichPool.length === 0) enrichPool = cluster.deals;
+    }
+
+    // Keywords: top non-stopword tokens across enrichment pool titles
+    const keywords = extractKeywords(enrichPool.map((d) => d.title));
 
     // Top-20 raw deal TITLEs by frequency (Fix 2: дать BGE-M3 живую лексику —
     // в том числе бренды/имена клиентов вроде «ШАУРМА», которых нет в keywords).
     const titleCounts = new Map();
-    for (const deal of cluster.deals) {
+    for (const deal of enrichPool) {
       const t = (deal.title || "").trim();
       if (!t) continue;
       titleCounts.set(t, (titleCounts.get(t) || 0) + 1);
