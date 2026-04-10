@@ -368,7 +368,10 @@ class SmetaEngine:
         total = round(sum(di.total for di in deal_items), 2)
 
         # Overall confidence
-        if quality == "maximal" and not any_low_conf:
+        # П8.4-B: strong keyword override → force high confidence regardless of
+        # per-position low-conf stats. Without this, any_low_conf always demotes
+        # to "medium" (→ guided) even when the category match is certain.
+        if quality == "maximal" and (forced_strong or not any_low_conf):
             overall_conf: Literal["high", "medium", "low"] = "high"
         elif quality in ("maximal", "significant"):
             overall_conf = "medium"
