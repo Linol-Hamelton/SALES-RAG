@@ -287,6 +287,57 @@ class HybridRetriever:
             logger.error("Component retrieval failed", sub_query=sub_query[:60], error=str(e))
             return []
 
+    def retrieve_bundles(self, query: str, top_k: int = 5) -> list[dict]:
+        """Dedicated retrieval filtered to doc_type=bundle for bundle-intent queries."""
+        if not self._loaded:
+            self.load()
+
+        from qdrant_client.models import Filter, FieldCondition, MatchValue, Prefetch, FusionQuery, Fusion
+        query_vec = self.embed_query(query)
+        sparse_vec = generate_sparse_vector(query)
+        bundle_filter = Filter(must=[FieldCondition(key="doc_type", match=MatchValue(value="bundle"))])
+
+        try:
+            if sparse_vec is None:
+                results = self._client.query_points(
+                    collection_name=self.settings.qdrant_collection,
+                    query=query_vec,
+                    using="dense",
+                    limit=top_k,
+                    query_filter=bundle_filter,
+                    with_payload=True,
+                ).points
+            else:
+                prefetch = [
+                    Prefetch(query=query_vec, using="dense", limit=top_k * 2, filter=bundle_filter),
+                    Prefetch(query=sparse_vec, using="lexical", limit=top_k * 2, filter=bundle_filter),
+                ]
+                results = self._client.query_points(
+                    collection_name=self.settings.qdrant_collection,
+                    prefetch=prefetch,
+                    query=FusionQuery(fusion=Fusion.RRF),
+                    limit=top_k,
+                    with_payload=True,
+                ).points
+
+            docs = []
+            for r in results:
+                docs.append({
+                    "doc_id": r.payload.get("doc_id", f"id_{r.id}"),
+                    "score": r.score,
+                    "payload": r.payload,
+                    "rrf_score": r.score,
+                    "final_score": r.score,
+                    "bm25_score": 0.0,
+                })
+            docs.sort(key=lambda x: x["final_score"], reverse=True)
+            logger.info("Bundle retrieval", query=query[:60], hits=len(docs))
+            return docs
+
+        except Exception as e:
+            logger.error("Bundle retrieval failed", query=query[:60], error=str(e))
+            return []
+
     def multi_retrieve(self, components: list) -> dict[str, list[dict]]:
         """Run separate targeted retrieval for each ComponentSpec."""
         pools: dict[str, list[dict]] = {}

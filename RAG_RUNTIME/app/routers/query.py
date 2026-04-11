@@ -136,6 +136,33 @@ def _is_financial_modifier_query(query: str) -> bool:
     return any(rx.search(query) for rx in _FINANCIAL_MODIFIER_MARKERS)
 
 
+# П8.7-C: bundle-intent маркеры. Запросы, где клиент явно просит "под ключ /
+# комплект / что входит / пакет". Для таких запросов стандартный ретривер
+# часто возвращает товары/сделки выше bundle-доков, поэтому мы добавляем
+# таргетированный doc_type=bundle фетч поверх обычного reranked.
+_BUNDLE_INTENT_MARKERS = [
+    re.compile(r"под\s+ключ", re.IGNORECASE),
+    re.compile(r"что\s+(входит|включ|идёт|идет)", re.IGNORECASE),
+    re.compile(r"из\s+чего\s+состо|какой\s+состав|состав\s+и\s+стоимост", re.IGNORECASE),
+    re.compile(r"\bкомплект\w*|\bкомплектац", re.IGNORECASE),
+    re.compile(r"\bпакет\s+(услуг|рекламн|для|на)|\bпакет\w*\s+для", re.IGNORECASE),
+    re.compile(r"\bвесь\s+пакет|\bполный\s+пакет", re.IGNORECASE),
+    re.compile(r"\bнабор\s+(рекламн|материал|услуг|для|монтаж)|\bполный\s+набор", re.IGNORECASE),
+    re.compile(r"комплексн\w*\s+(печатн|рекламн|кампани|проект)", re.IGNORECASE),
+    re.compile(r"брендирован\w*|брендинг", re.IGNORECASE),
+    re.compile(r"всё\s+для\s+открыт|все\s+для\s+открыт|для\s+открыт\w*\s+(кафе|магазин|аптек|ресторан|офис|точк)", re.IGNORECASE),
+]
+
+
+def _is_bundle_intent_query(query: str) -> bool:
+    """П8.7-C: True если запрос явно про комплект/пакет/под-ключ/состав.
+    В этом случае применяем таргетированный bundle-фетч, чтобы гарантированно
+    вернуть suggested_bundle в ответе."""
+    if not query:
+        return False
+    return any(rx.search(query) for rx in _BUNDLE_INTENT_MARKERS)
+
+
 # П7.1-hotfix: маркеры «не оценка, а помощь с текстом/описанием/переговорами».
 # При попадании — SmetaEngine пропускаем и идём в LLM.
 _DESCRIBE_INTENT_MARKERS = [
@@ -481,13 +508,17 @@ def _filter_relevant_docs(docs: list[dict]) -> list[dict]:
 
 
 def _build_suggested_bundle(docs: list[dict]) -> list[BundleItem]:
-    """Build BundleItem list from top bundle docs."""
+    """Build BundleItem list from the first bundle doc in the candidate list.
+
+    П8.7-C: scan ALL provided docs (not just top 5) — bundle docs may rank
+    below product/deal_profile in mixed retrieval, but we still want to
+    surface them for bundle-intent queries. For dedicated bundle fetches,
+    the first doc IS the best bundle."""
     items = []
-    for doc in docs[:5]:
+    for doc in docs:
         payload = doc.get("payload", {})
         if payload.get("doc_type") != "bundle":
             continue
-        sample_products_str = payload.get("sample_products", "")
         bundle_key = payload.get("bundle_key", "")
         product_keys = bundle_key.split("|") if bundle_key else []
         for key in product_keys[:6]:
@@ -497,7 +528,8 @@ def _build_suggested_bundle(docs: list[dict]) -> list[BundleItem]:
                     product_name=f"Продукт {key.strip()}",
                     direction=payload.get("direction", ""),
                 ))
-        break  # only top bundle doc
+        if items:
+            break  # only top bundle doc
     return items
 
 
@@ -1408,9 +1440,25 @@ async def query_structured(req: QueryRequest, request: Request,
             if _manual_flag not in all_flags:
                 all_flags = [_manual_flag] + all_flags
 
+        # П8.7-C: для bundle-intent запросов делаем таргетированный фетч
+        # doc_type=bundle и используем его как основу для suggested_bundle.
+        # Стандартный reranked остаётся приоритетным (если bundle-док уже в топе),
+        # а dedicated fetch служит fallback'ом когда bundle проигрывает
+        # product/deal_profile докам по semantic score.
+        bundle_pool = reranked
+        if _is_bundle_intent_query(req.query):
+            try:
+                dedicated_bundles = retriever.retrieve_bundles(req.query, top_k=5)
+                if dedicated_bundles:
+                    bundle_pool = list(reranked) + dedicated_bundles
+                    logger.info("Bundle intent — dedicated bundle fetch",
+                                query=req.query[:80], hits=len(dedicated_bundles))
+            except Exception as e:
+                logger.warning("Bundle dedicated fetch failed", error=str(e))
+
         response = StructuredResponse(
             summary=summary,
-            suggested_bundle=_build_suggested_bundle(reranked),
+            suggested_bundle=_build_suggested_bundle(bundle_pool),
             estimated_price=estimated_price,
             price_band=price_band,
             confidence=confidence_out,
