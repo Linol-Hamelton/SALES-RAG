@@ -89,6 +89,53 @@ def _is_manual_complexity_query(query: str) -> bool:
     return any(rx.search(query) for rx in _MANUAL_COMPLEXITY_MARKERS)
 
 
+# П8.7-D1: out-of-scope запросы — не про товары/услуги вообще. Модель
+# склонна галлюцинировать цену («1000 руб» на «Какой у вас режим работы?»),
+# поэтому для таких запросов принудительно обнуляем estimated_price/price_band,
+# force confidence=manual и добавляем флаг о неподходящей тематике.
+_OUT_OF_SCOPE_MARKERS = [
+    re.compile(r"режим\s+работы|график\s+работы|часы\s+работы|время\s+работы", re.IGNORECASE),
+    re.compile(r"когда\s+(откры|закры|работае)|во\s+сколько\s+(откры|закры)", re.IGNORECASE),
+    re.compile(r"расписани[еяю]|выходны[еыхй]\s+(дн|ли)", re.IGNORECASE),
+    re.compile(r"как\s+(добрать|проехать|найти)|где\s+(находит|расположен)", re.IGNORECASE),
+    re.compile(r"адрес\s+офиса|адрес\s+компани|\bваш\s+адрес", re.IGNORECASE),
+    re.compile(r"номер\s+телефон|контактн.*телефон|\bтелефон\s+офис", re.IGNORECASE),
+]
+
+
+def _is_out_of_scope_query(query: str) -> bool:
+    """П8.7-D1: True если запрос не про наши товары/услуги (режим работы,
+    адрес, контакты, график и т.д.). Такие запросы не должны получать
+    estimated_price вообще — только информационный ответ."""
+    if not query:
+        return False
+    return any(rx.search(query) for rx in _OUT_OF_SCOPE_MARKERS)
+
+
+# П8.7-D2/D3: финансовые модификаторы — запросы про наценку/скидку/безнал/ндс,
+# не являющиеся самостоятельным товаром. pricing_resolver детектирует только по
+# product_name в retrieval, но ретривер может не вернуть нужный документ. Делаем
+# query-level детектор, чтобы не зависеть от ретривера.
+_FINANCIAL_MODIFIER_MARKERS = [
+    # Модификатор с явным упоминанием процента или цены
+    re.compile(r"безнал\w*", re.IGNORECASE),
+    re.compile(r"\bналичн\w*|\bналичк\w*", re.IGNORECASE),
+    re.compile(r"скидк\w*\s*\d+\s*%|скидк\w*.*стоимост|\d+\s*%\s*скидк", re.IGNORECASE),
+    re.compile(r"надбавк\w*|наценк\w*", re.IGNORECASE),
+    re.compile(r"\bндс\b|без\s*ндс|с\s*ндс", re.IGNORECASE),
+    re.compile(r"предоплат\w*\s*\d+\s*%|рассрочк\w*", re.IGNORECASE),
+]
+
+
+def _is_financial_modifier_query(query: str) -> bool:
+    """П8.7-D2: True если запрос — про финансовый модификатор (безнал,
+    скидка, надбавка, НДС и т.п.), а не про товар. Такие запросы не должны
+    получать конкретную цену — только флаг о модификаторе и ручной расчёт."""
+    if not query:
+        return False
+    return any(rx.search(query) for rx in _FINANCIAL_MODIFIER_MARKERS)
+
+
 # П7.1-hotfix: маркеры «не оценка, а помощь с текстом/описанием/переговорами».
 # При попадании — SmetaEngine пропускаем и идём в LLM.
 _DESCRIBE_INTENT_MARKERS = [
@@ -682,7 +729,7 @@ async def query_human(req: QueryRequest, request: Request,
         raise HTTPException(500, f"Query failed: {str(e)}")
 
 
-@router.post("/query_structured", response_model=StructuredResponse)
+@router.post("/query_structured", response_model=StructuredResponse, response_model_exclude_none=True)
 async def query_structured(req: QueryRequest, request: Request,
                            user: dict | None = Depends(get_optional_user)) -> StructuredResponse:
     """
@@ -1319,6 +1366,35 @@ async def query_structured(req: QueryRequest, request: Request,
                         if parametric_breakdown_schema is not None:
                             all_flags = ["Параметрический расчёт заменён сметой"] + all_flags
                             parametric_breakdown_schema = None
+
+        # П8.7-D1: out-of-scope queries (рабочие часы, адрес, контакты).
+        # Force manual confidence + nullify price + inject clear scope flag.
+        if _is_out_of_scope_query(req.query):
+            logger.info("Out-of-scope query — forcing no-price response",
+                        query=req.query[:80])
+            estimated_price = None
+            price_band = PriceBand()
+            deal_items = []
+            parametric_breakdown_schema = None
+            confidence_out = "manual"
+            _oos_flag = "Запрос вне рабочей тематики (цены не применимы)"
+            if _oos_flag not in all_flags:
+                all_flags = [_oos_flag] + all_flags
+
+        # П8.7-D2/D3: financial modifier queries (безнал, скидка, НДС).
+        # Не являются самостоятельным товаром — обнуляем цену, force manual,
+        # инжектим флаг со словом "модификатор".
+        if _is_financial_modifier_query(req.query):
+            logger.info("Financial modifier query — forcing no-price response",
+                        query=req.query[:80])
+            estimated_price = None
+            price_band = PriceBand()
+            deal_items = []
+            parametric_breakdown_schema = None
+            confidence_out = "manual"
+            _fm_flag = "Финансовый модификатор — не является самостоятельным товаром (ручной расчёт)"
+            if _fm_flag not in all_flags:
+                all_flags = [_fm_flag] + all_flags
 
         # П8.6-B: complexity markers force confidence=manual regardless of
         # LLM/SmetaEngine verdict. Also injects a flag containing the words
