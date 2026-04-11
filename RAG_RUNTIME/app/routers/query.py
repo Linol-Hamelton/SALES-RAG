@@ -187,14 +187,24 @@ def _is_visualization_request(query: str) -> bool:
     return bool(_VISUALIZATION_QUERY_PATTERN.search(query))
 
 
+_CANONICAL_VIZ_RESPONSE = (
+    "Визуализация объекта на фасаде выполняется только после выезда "
+    "замерщика и платного аванса за дизайн-проект. Без этих этапов мы не "
+    "даём 3D-макеты и не оцениваем условия монтажа по фото. Согласуйте "
+    "выезд на замеры — менеджер подберёт подходящий вариант и рассчитает "
+    "стоимость дизайна и изготовления."
+)
+
+
 def _apply_forbidden_promise_filter(
     summary: str,
     reasoning: str,
     flags: list[str],
     query: str,
 ) -> tuple[str, str, list[str]]:
-    """П8.8-G: пост-фильтр. Убирает упоминания «бесплат*» и добавляет канонические
-    фразы, если запрос про визуализацию или если модель обещала бесплатную услугу.
+    """П8.8-G: пост-фильтр. Убирает упоминания «бесплат*» и для viz-запросов
+    полностью заменяет summary каноном — иначе LLM успевает предложить
+    3D-визуализацию за 3000 ₽ до выезда на замеры (см. fb#19).
     """
     new_flags = list(flags)
     txt_before = (summary or "") + " " + (reasoning or "")
@@ -204,12 +214,11 @@ def _apply_forbidden_promise_filter(
     def _strip_free(text: str) -> str:
         if not text:
             return text
-        # Удаляем предложения, содержащие «бесплат*».
         sentences = re.split(r"(?<=[.!?])\s+", text)
         kept = [s for s in sentences if not _FORBIDDEN_FREE_PATTERN.search(s)]
-        return " ".join(kept).strip() or text  # если всё вычистили — оставляем исходник
+        return " ".join(kept).strip() or text
 
-    if had_free_promise:
+    if had_free_promise and not is_viz_request:
         summary = _strip_free(summary)
         reasoning = _strip_free(reasoning)
         extra = _CANONICAL_FREE_PHRASE
@@ -220,8 +229,15 @@ def _apply_forbidden_promise_filter(
             new_flags = [flag] + new_flags
 
     if is_viz_request:
-        if _CANONICAL_VIZ_PHRASE not in summary:
-            summary = (summary + " " + _CANONICAL_VIZ_PHRASE).strip()
+        # P8.8-hotfix: полностью заменяем summary/reasoning — нельзя оставлять
+        # LLM-генерацию, которая предлагает 3D-макет за 3000 ₽ отдельным
+        # предложением от слова «визуализация».
+        summary = _CANONICAL_VIZ_RESPONSE
+        reasoning = (
+            "Запрос про визуализацию объекта на фасаде. По правилам "
+            "компании мы не выдаём бесплатных визуализаций и не оцениваем "
+            "условия монтажа по фото — сначала замеры и аванс за дизайн."
+        )
         flag = "Визуализация — только после замеров и аванса за дизайн"
         if flag not in new_flags:
             new_flags = [flag] + new_flags
@@ -1579,6 +1595,21 @@ async def query_structured(req: QueryRequest, request: Request,
             deal_items = []
             parametric_breakdown_schema = None
             confidence_out = "manual"
+            # P8.8-hotfix: reset summary/reasoning so LLM/smeta hallucinations
+            # (напр. «БББ-2115, направление РИК, 115003 руб» или «Визуальный
+            # анализ фотографий…») не попадают в ответ клиенту.
+            summary = (
+                "Не указан товар или направление. Пожалуйста, уточните, "
+                "какую конкретно услугу нужно оценить — логотип, вывеска "
+                "(объёмные буквы, световой короб, штендер), листовки, "
+                "баннер, монтаж и т.п. — и пришлите ключевые параметры: "
+                "размеры, тираж, материалы, место размещения."
+            )
+            reasoning = (
+                "Запрос не содержит продуктового контекста — оценка без "
+                "конкретики неизбежно будет неверной, поэтому возвращаем "
+                "запрос на уточнение вместо предположения категории."
+            )
             _clarify_flag = "Не указан товар/направление — уточните, какую услугу оценить"
             if _clarify_flag not in all_flags:
                 all_flags = [_clarify_flag] + all_flags
@@ -1605,6 +1636,24 @@ async def query_structured(req: QueryRequest, request: Request,
                 deal_items = []
                 parametric_breakdown_schema = None
                 confidence_out = "manual"
+                # P8.8-hotfix: reset summary — смета уже переписала его
+                # в «Оценка по шаблону… 2 572 901 ₽». Заменяем на честный
+                # текст про слишком большой разброс категории.
+                _cat_name = getattr(_smeta_res, "category_name", "")
+                summary = (
+                    f"Категория «{_cat_name}» объединяет {_n_items} разнородных "
+                    "позиций с очень широким разбросом цен, поэтому "
+                    "автоматическая оценка будет некорректной. "
+                    "Уточните, что именно нужно: базовый вариант, полный "
+                    "комплект, сроки и материалы — менеджер соберёт точный "
+                    "состав и пришлёт смету."
+                )
+                reasoning = (
+                    f"В шаблоне {_n_items} позиций, диапазон цен "
+                    f"{_bmin:.0f}–{_bmax:.0f} ₽ (разброс x{_band_ratio:.0f}). "
+                    "Суммирование даёт бессмысленный итог — требуется ручной "
+                    "подбор позиций менеджером."
+                )
                 _expl_flag = (
                     f"Слишком большой разброс в шаблоне ({_n_items} позиций) "
                     f"— требуется ручной расчёт менеджером"
