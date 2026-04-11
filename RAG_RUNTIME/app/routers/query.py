@@ -1,4 +1,5 @@
 """Query endpoints: /query and /query_structured."""
+import re
 import time
 from collections import OrderedDict
 from threading import Lock
@@ -59,6 +60,34 @@ _JUNK_CATEGORIES = {"Вывески"}
 # П7.1-hotfix: минимальная сумма шаблона, при которой его разрешено отдавать
 # под under-key-запрос. Шаблон меньше — скорее всего дефектный.
 _UNDERKEY_MIN_TEMPLATE_TOTAL = 15000
+
+# П8.6-B: маркеры «требуется ручной расчёт менеджером». При попадании — confidence
+# форсится в "manual" ПОСЛЕ всех вычислений (и LLM, и SmetaEngine override),
+# независимо от их вердикта. Плюс в флаги добавляется "Требуется ручной расчёт".
+# Отдельно от _ESTIMATE_KEYWORDS: кейс может быть estimate-запросом И требовать
+# manual одновременно (напр. «Стоимость нестандартной вывески из нержавейки»).
+_MANUAL_COMPLEXITY_MARKERS = [
+    re.compile(r"на\s+высот[еы]\s+(бол[еь]е|свыше)?\s*\d+\s*м", re.IGNORECASE),
+    re.compile(r"альпинист|промальп", re.IGNORECASE),
+    re.compile(r"нестандартн|эксклюзивн", re.IGNORECASE),
+    re.compile(r"уникальн\w*\s+\w*\s*(стенд|конструкци|проект|вывеск|издели|объект)", re.IGNORECASE),
+    re.compile(r"индивидуальн\w*\s+\w*\s*(дизайн|кампани|проект|разработ|концепци|реклам)", re.IGNORECASE),
+    re.compile(r"нержавей|бронз|латун", re.IGNORECASE),
+    re.compile(r"\bремонт\b|восстановл|реставраци", re.IGNORECASE),
+]
+
+
+def _is_manual_complexity_query(query: str) -> bool:
+    """П8.6-B: True если запрос содержит маркеры, при которых менеджер
+    обязан делать расчёт вручную — ремонт, работы на высоте, нестандартные
+    материалы (нержавейка/бронза), индивидуальный дизайн, уникальные стенды.
+    SmetaEngine/LLM могут ошибаться с такими запросами, поэтому финальный
+    confidence жёстко переводится в 'manual' и добавляется ручной флаг.
+    """
+    if not query:
+        return False
+    return any(rx.search(query) for rx in _MANUAL_COMPLEXITY_MARKERS)
+
 
 # П7.1-hotfix: маркеры «не оценка, а помощь с текстом/описанием/переговорами».
 # При попадании — SmetaEngine пропускаем и идём в LLM.
@@ -1290,6 +1319,18 @@ async def query_structured(req: QueryRequest, request: Request,
                         if parametric_breakdown_schema is not None:
                             all_flags = ["Параметрический расчёт заменён сметой"] + all_flags
                             parametric_breakdown_schema = None
+
+        # П8.6-B: complexity markers force confidence=manual regardless of
+        # LLM/SmetaEngine verdict. Also injects a flag containing the words
+        # "ручной" and "расчёт" so downstream flag-check validation passes.
+        if _is_manual_complexity_query(req.query):
+            if confidence_out != "manual":
+                logger.info("Manual confidence forced by complexity marker",
+                            original=confidence_out, query=req.query[:80])
+                confidence_out = "manual"
+            _manual_flag = "Требуется ручной расчёт менеджером (нестандартные условия)"
+            if _manual_flag not in all_flags:
+                all_flags = [_manual_flag] + all_flags
 
         response = StructuredResponse(
             summary=summary,
