@@ -14,6 +14,7 @@ from app.core.query_parser import parse_query
 from app.core import parametric_calculator as param_calc
 from app.core.feedback_store import build_feedback_context
 from app.core.deal_lookup import DealLookup
+from app.core.smeta_engine import has_strong_keyword_override
 from app.auth import get_optional_user
 from app.routers.chats import save_message, get_chat_history
 from app.utils.logging import get_logger
@@ -73,9 +74,20 @@ _DESCRIBE_INTENT_MARKERS = [
 
 
 def _is_deal_estimate_query(query: str) -> bool:
-    """Detect if the user wants a deal estimate (list of products for Bitrix24)."""
+    """Detect if the user wants a deal estimate (list of products for Bitrix24).
+
+    П8.5: strong L3 keyword override → форсим estimate-путь даже если в запросе
+    нет классических ценовых ключей. «Нужен новый логотип», «Лого для кофейни»
+    — это по определению заявки на оценку конкретного шаблонного продукта;
+    без этого SmetaEngine блок пропускался, и LLM fallback возвращал guided
+    вместо auto.
+    """
     q_lower = query.lower()
-    return any(kw in q_lower for kw in _ESTIMATE_KEYWORDS)
+    if any(kw in q_lower for kw in _ESTIMATE_KEYWORDS):
+        return True
+    if has_strong_keyword_override(query):
+        return True
+    return False
 
 
 def _is_underkey_intent(query: str) -> bool:

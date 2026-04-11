@@ -111,6 +111,17 @@ def _check_keyword_override(query: str) -> Optional[tuple[str, bool]]:
     return None
 
 
+def has_strong_keyword_override(query: str) -> bool:
+    """Public API: True if query matches a strong L3 keyword override rule.
+
+    Used by routers/query.py to force is_estimate=True for queries like
+    "Нужен новый логотип" that don't contain classic pricing keywords
+    but clearly name a template-covered product.
+    """
+    result = _check_keyword_override(query)
+    return result is not None and result[1] is True
+
+
 @dataclass
 class SmetaResult:
     """Result of building a smeta from templates."""
