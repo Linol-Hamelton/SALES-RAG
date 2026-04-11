@@ -136,6 +136,135 @@ def _is_financial_modifier_query(query: str) -> bool:
     return any(rx.search(query) for rx in _FINANCIAL_MODIFIER_MARKERS)
 
 
+# П8.8-A: пустой контекст смета-запроса. Клиент пишет «дай смету на эту услугу»
+# или «напиши смету для сделки» БЕЗ указания товара/направления — ни контекста
+# в запросе, ни продуктового существительного. SmetaEngine в таких случаях
+# падал на ближайший центроид («Листовки» — самая большая категория) и возвращал
+# 14 015 ₽ вместо клариф-ответа. См. fb#22, fb#24.
+_EMPTY_CONTEXT_SMETA_MARKERS = [
+    re.compile(r"(дай|составь|напиши|сделай|подготов|сформируй|нужн[аы]?)\s+смет\w*\s+(на|для)\s+эт", re.IGNORECASE),
+    re.compile(r"осмет\w*\s+эт", re.IGNORECASE),
+    re.compile(r"смет\w*\s+(для|на)\s+(сделк|услуг|позици|клиент|заявк|этого|этой|этому)", re.IGNORECASE),
+    re.compile(r"^\s*(дай|напиши)\s+смет\w*\s*$", re.IGNORECASE),
+]
+
+# Продуктовые/направлениевые существительные — если хоть одно встретилось,
+# запрос НЕ пустой (контекст указан прямо в фразе).
+_PRODUCT_CONTEXT_NOUNS = (
+    "логотип", "лого", "вывеск", "баннер", "листовк", "визитк", "наклейк",
+    "буклет", "флаер", "брендбук", "брендинг", "штендер", "панель", "кронштейн",
+    "табличк", "реклам", "печат", "монтаж", "дизайн", "объ[её]мн", "букв",
+    "светов", "фасад", "витрин", "стикер", "этикет", "упаковк", "стенд",
+    "постер", "афиш", "плакат", "рол[а-я]п", "шаурм", "кофейн", "ресторан",
+    "магазин", "аптек", "офис", "стиль", "айдентик", "компани",
+    "концепци", "3d", "3-d", "навигаци", "меню", "календар",
+)
+
+
+# П8.8-G: forbidden-promise патчи. Эксперт явно запрещает:
+#   1. Предлагать бесплатные услуги («Мы не оказываем никаких бесплатных услуг»).
+#   2. Давать визуализацию/расчёт по фото («По фото мы не можем оценить условия
+#      монтажа», «Точный расчет возможен только после замеров и дизайна»).
+# Пост-фильтр чистит текст summary/reasoning и инжектит канонические формулировки.
+_FORBIDDEN_FREE_PATTERN = re.compile(r"\bбесплатн\w*", re.IGNORECASE)
+_VISUALIZATION_QUERY_PATTERN = re.compile(
+    r"как\s+(это\s+)?будет\s+на\s+фасад|визуализаци|покаж\w*\s+как|увидеть\s+как\s+(это|будет)|фото\s*ш?оп|3d\s*модел",
+    re.IGNORECASE,
+)
+_CANONICAL_VIZ_PHRASE = (
+    "Визуализация объекта выполняется только после выезда на замеры и "
+    "платного аванса за дизайн-проект."
+)
+_CANONICAL_FREE_PHRASE = (
+    "Мы не оказываем бесплатных услуг — каждая позиция тарифицируется."
+)
+
+
+def _is_visualization_request(query: str) -> bool:
+    """П8.8-G: True если клиент просит «показать как будет на фасаде / визуализацию»."""
+    if not query:
+        return False
+    return bool(_VISUALIZATION_QUERY_PATTERN.search(query))
+
+
+def _apply_forbidden_promise_filter(
+    summary: str,
+    reasoning: str,
+    flags: list[str],
+    query: str,
+) -> tuple[str, str, list[str]]:
+    """П8.8-G: пост-фильтр. Убирает упоминания «бесплат*» и добавляет канонические
+    фразы, если запрос про визуализацию или если модель обещала бесплатную услугу.
+    """
+    new_flags = list(flags)
+    txt_before = (summary or "") + " " + (reasoning or "")
+    had_free_promise = bool(_FORBIDDEN_FREE_PATTERN.search(txt_before))
+    is_viz_request = _is_visualization_request(query)
+
+    def _strip_free(text: str) -> str:
+        if not text:
+            return text
+        # Удаляем предложения, содержащие «бесплат*».
+        sentences = re.split(r"(?<=[.!?])\s+", text)
+        kept = [s for s in sentences if not _FORBIDDEN_FREE_PATTERN.search(s)]
+        return " ".join(kept).strip() or text  # если всё вычистили — оставляем исходник
+
+    if had_free_promise:
+        summary = _strip_free(summary)
+        reasoning = _strip_free(reasoning)
+        extra = _CANONICAL_FREE_PHRASE
+        if extra not in summary:
+            summary = (summary + " " + extra).strip()
+        flag = "Запрос на бесплатную услугу заблокирован — все услуги платные"
+        if flag not in new_flags:
+            new_flags = [flag] + new_flags
+
+    if is_viz_request:
+        if _CANONICAL_VIZ_PHRASE not in summary:
+            summary = (summary + " " + _CANONICAL_VIZ_PHRASE).strip()
+        flag = "Визуализация — только после замеров и аванса за дизайн"
+        if flag not in new_flags:
+            new_flags = [flag] + new_flags
+
+    return summary, reasoning, new_flags
+
+
+# П8.8-J: referential queries — клиент ссылается на «эту вывеску / вместо этой /
+# для этого объекта» без приложенного фото или истории чата. Без контекста
+# модель не может дать оценку, поэтому форсим clarification + «прикрепи фото».
+_REFERENTIAL_MARKERS = [
+    re.compile(r"вместо\s+(эт\w+|этой|этого|этих)", re.IGNORECASE),
+    re.compile(r"\bэт[ау]\s+(услуг|позици|вывеск|букв|баннер|табличк|сделк)", re.IGNORECASE),
+    re.compile(r"для\s+эт\w+\s+(объект|клиент|сделк|проект)", re.IGNORECASE),
+    re.compile(r"как\s+в\s+прошл\w+\s+(раз|сделк|заказ)", re.IGNORECASE),
+]
+
+
+def _is_referential_query(query: str) -> bool:
+    """П8.8-J: True если запрос ссылается на «эту услугу / вместо этой»
+    и не содержит самостоятельного описания того объекта."""
+    if not query:
+        return False
+    return any(rx.search(query) for rx in _REFERENTIAL_MARKERS)
+
+
+def _is_empty_context_smeta_query(query: str) -> bool:
+    """П8.8-A: True если запрос на смету без продуктового контекста.
+    «Дай смету на эту услугу» → True (нужна кларификация).
+    «Смета на листовки А4» → False (есть продукт).
+    Защита от фолбэка SmetaEngine на ближайшую категорию (обычно «Листовки»).
+    """
+    if not query:
+        return False
+    if not any(rx.search(query) for rx in _EMPTY_CONTEXT_SMETA_MARKERS):
+        return False
+    q_lower = query.lower()
+    for noun in _PRODUCT_CONTEXT_NOUNS:
+        if re.search(noun, q_lower):
+            return False
+    return True
+
+
 # П8.7-C: bundle-intent маркеры. Запросы, где клиент явно просит "под ключ /
 # комплект / что входит / пакет". Для таких запросов стандартный ретривер
 # часто возвращает товары/сделки выше bundle-доков, поэтому мы добавляем
@@ -173,6 +302,14 @@ _DESCRIBE_INTENT_MARKERS = [
     "как презентовать", "презентуй", "презентацию",
     "переговоры", "скрипт", "аргумент",
     "выстроить переговоры",
+    # П8.8-F: расширение manager-script — клиент просит сформулировать ответ,
+    # а не посчитать цену. См. fb#16, fb#33, fb#47.
+    "подготовить текст", "подготовь текст", "подготовить ответ", "подготовь ответ",
+    "сформулируй", "сформулировать",
+    "первого ответа", "первый ответ", "ответа клиенту", "ответ клиенту",
+    "клиент спрашивает", "клиент ответил", "клиент сомневается",
+    "клиент пишет", "клиент написал", "клиент хочет",
+    "три идеи", "3 идеи", "несколько идей",
 ]
 
 
@@ -1239,11 +1376,13 @@ async def query_structured(req: QueryRequest, request: Request,
         deal_items = []
         smeta_result = None
         # П7.1-hotfix: respect pre-LLM decision to skip SmetaEngine entirely.
-        _smeta_blocked_reason = (
-            "describe/provided-smeta intent"
-            if (_is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query))
-            else None
-        )
+        # П8.8-A: empty-context smeta queries also block SmetaEngine (no product noun).
+        if _is_empty_context_smeta_query(req.query):
+            _smeta_blocked_reason = "empty-context smeta query"
+        elif _is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query):
+            _smeta_blocked_reason = "describe/provided-smeta intent"
+        else:
+            _smeta_blocked_reason = None
         if is_estimate and _smeta_blocked_reason:
             logger.info("SmetaEngine downstream override blocked",
                         reason=_smeta_blocked_reason)
@@ -1399,6 +1538,80 @@ async def query_structured(req: QueryRequest, request: Request,
                             all_flags = ["Параметрический расчёт заменён сметой"] + all_flags
                             parametric_breakdown_schema = None
 
+        # П8.8-F: manager-script / describe-intent queries must never emit
+        # an estimated price. Модель может проскочить в LLM fallback и выдать
+        # число (см. fb#47 → 200 000 ₽). Жёстко обнуляем ПОСЛЕ основного флоу.
+        if _is_describe_intent(req.query):
+            logger.info("Manager-script intent — forcing no-price response",
+                        query=req.query[:80])
+            estimated_price = None
+            price_band = PriceBand()
+            deal_items = []
+            parametric_breakdown_schema = None
+            confidence_out = "manual"
+            _script_flag = "Переговорный сценарий — ручной расчёт или уточнение у клиента"
+            if _script_flag not in all_flags:
+                all_flags = [_script_flag] + all_flags
+
+        # П8.8-J: referential queries without chat history — сlient refers
+        # to "эту услугу / вместо этой вывески" but no previous message exists.
+        # Force manual + clarification instructing to attach photo or specs.
+        _has_history = bool(getattr(req, "history", None) or getattr(req, "chat_id", None))
+        if _is_referential_query(req.query) and not _has_history:
+            logger.info("Referential query without history — forcing clarification",
+                        query=req.query[:80])
+            estimated_price = None
+            price_band = PriceBand()
+            deal_items = []
+            parametric_breakdown_schema = None
+            confidence_out = "manual"
+            _ref_flag = "Ссылка на «эту/прошлую» услугу — прикрепите фото или укажите параметры"
+            if _ref_flag not in all_flags:
+                all_flags = [_ref_flag] + all_flags
+
+        # П8.8-A: empty-context smeta queries — force clarification response
+        # (модель не должна угадывать товар по умолчанию).
+        if _is_empty_context_smeta_query(req.query):
+            logger.info("Empty-context smeta query — forcing clarification",
+                        query=req.query[:80])
+            estimated_price = None
+            price_band = PriceBand()
+            deal_items = []
+            parametric_breakdown_schema = None
+            confidence_out = "manual"
+            _clarify_flag = "Не указан товар/направление — уточните, какую услугу оценить"
+            if _clarify_flag not in all_flags:
+                all_flags = [_clarify_flag] + all_flags
+
+        # П8.8-B: smeta explosion guard. Если шаблон имеет >25 позиций или
+        # price_band раздут в >20 раз — это брендбук/под-ключ с категорией,
+        # где сумма доминирует выбросами. См. fb#12 (Брендбук 2.57M ₽, 39 позиций,
+        # band 0–6.4M). Обнуляем цену, форсим manual, флажок.
+        _smeta_res = locals().get("smeta_result")
+        if _smeta_res is not None and getattr(_smeta_res, "is_usable", False):
+            _n_items = len(getattr(_smeta_res, "deal_items", []) or [])
+            _bmin = getattr(_smeta_res, "price_band_min", 0) or 0
+            _bmax = getattr(_smeta_res, "price_band_max", 0) or 0
+            _total = getattr(_smeta_res, "total", 0) or 0
+            _band_ratio = (_bmax / _bmin) if _bmin > 0 else float("inf") if _bmax > 0 else 0
+            if _n_items > 25 or _band_ratio > 20 or (_bmin == 0 and _total > 500_000):
+                logger.warning("SmetaEngine explosion blocked",
+                               category=getattr(_smeta_res, "category_name", ""),
+                               items=_n_items, total=_total,
+                               band_min=_bmin, band_max=_bmax,
+                               band_ratio=round(_band_ratio, 1) if _band_ratio != float("inf") else "inf")
+                estimated_price = None
+                price_band = PriceBand()
+                deal_items = []
+                parametric_breakdown_schema = None
+                confidence_out = "manual"
+                _expl_flag = (
+                    f"Слишком большой разброс в шаблоне ({_n_items} позиций) "
+                    f"— требуется ручной расчёт менеджером"
+                )
+                if _expl_flag not in all_flags:
+                    all_flags = [_expl_flag] + all_flags
+
         # П8.7-D1: out-of-scope queries (рабочие часы, адрес, контакты).
         # Force manual confidence + nullify price + inject clear scope flag.
         if _is_out_of_scope_query(req.query):
@@ -1455,6 +1668,24 @@ async def query_structured(req: QueryRequest, request: Request,
                                 query=req.query[:80], hits=len(dedicated_bundles))
             except Exception as e:
                 logger.warning("Bundle dedicated fetch failed", error=str(e))
+
+        # П8.8-G: forbidden-promise post-filter (after all pricing decisions).
+        # Strips «бесплат*» mentions and injects canonical visualization phrasing
+        # when клиент просит показать как будет на фасаде. См. fb#19.
+        try:
+            summary, reasoning, all_flags = _apply_forbidden_promise_filter(
+                summary, reasoning, all_flags, req.query,
+            )
+            # If visualization request — also force manual (no cheap 3D offer).
+            if _is_visualization_request(req.query) and confidence_out != "manual":
+                logger.info("Visualization request — forcing manual confidence",
+                            query=req.query[:80])
+                confidence_out = "manual"
+                estimated_price = None
+                price_band = PriceBand()
+                deal_items = []
+        except Exception as _e_fp:
+            logger.warning("Forbidden-promise filter failed", error=str(_e_fp))
 
         response = StructuredResponse(
             summary=summary,

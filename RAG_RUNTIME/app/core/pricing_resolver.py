@@ -237,7 +237,20 @@ class PricingResolver:
     def _resolve_bundle(self, payload: dict, doc: dict, decomp=None) -> PricingResolution:
         """Resolve pricing for a bundle document with completeness and size adjustments."""
         import re
-        median_value = payload.get("median_deal_value") or payload.get("matched_value_median")
+        # П8.8-K: track which field provided the value so the basis label is honest.
+        # "Медиана сделок" only when we actually have deal-level median; otherwise
+        # clearly label as item-level median (which can be much smaller).
+        _deal_median = payload.get("median_deal_value")
+        _item_median = payload.get("matched_value_median")
+        if _deal_median is not None and _deal_median > 0:
+            median_value = _deal_median
+            _median_basis_label = "Медиана сумм сделок"
+        elif _item_median is not None and _item_median > 0:
+            median_value = _item_median
+            _median_basis_label = "Медиана отдельных услуг (требует сложения)"
+        else:
+            median_value = None
+            _median_basis_label = "Медиана цен"
         band_factor = self.bundle_band_factor
 
         # --- Completeness analysis ---
@@ -280,7 +293,7 @@ class PricingResolver:
         if median_value is not None and median_value > 0:
             adjusted = median_value * completeness_surcharge * size_ratio
             res.estimated_value = round(adjusted)
-            basis_parts = [f"Медиана сделок ({payload.get('deal_count', '?')} сделок)"]
+            basis_parts = [f"{_median_basis_label} ({payload.get('deal_count', '?')} сделок)"]
             if completeness_surcharge > 1.0:
                 basis_parts.append(f"+{int((completeness_surcharge - 1) * 100)}% за {', '.join(missing_services)}")
             if size_ratio != 1.0:
