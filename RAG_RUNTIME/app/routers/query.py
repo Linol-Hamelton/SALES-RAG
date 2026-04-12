@@ -115,6 +115,47 @@ def _is_spec_heavy_signage_query(query: str) -> bool:
     return has_height and has_material
 
 
+# П9.0-J: underspecified category queries — запрос называет широкую категорию
+# но не уточняет критические параметры, от которых зависит цена.
+# fb#1: «монтаж наружной рекламы» без типа изделия (баннер/вывеска/короб/плёнка)
+# fb#2/7: «листовки А4 тираж 1000» без способа производства (офсет vs цифра)
+_MONTAGE_TRIGGER = re.compile(r"монтаж\w*\s+\w*\s*(наружн|реклам|вывеск)", re.IGNORECASE)
+_MONTAGE_SPECIFIERS = re.compile(
+    r"баннер|короб|букв|плёнк|пленк|аппликац|штендер|неон|световой\s+короб|вывеск\w+\s+(из|с\s+)",
+    re.IGNORECASE,
+)
+_LEAFLET_TRIGGER = re.compile(r"листовк|буклет|флаер|брошюр", re.IGNORECASE)
+_LEAFLET_SPECIFIERS = re.compile(
+    r"офсет|цифр\w+\s+печат|оператив|цифровая|срочн|быстр|ризограф",
+    re.IGNORECASE,
+)
+
+_UNDERSPEC_MONTAGE_SUMMARY = (
+    "Стоимость монтажа сильно зависит от типа изделия. "
+    "Уточните, что именно нужно смонтировать: баннер на рейке, баннер на металлокаркасе, "
+    "плёнку виниловую, аппликацию, световой короб, вывеску из объёмных букв? "
+    "Цены и сроки у этих видов монтажа принципиально различаются."
+)
+_UNDERSPEC_LEAFLET_SUMMARY = (
+    "Для расчёта стоимости листовок нужно уточнить способ производства: "
+    "офсет (дешевле, но дольше — от 5 рабочих дней) или цифровая/оперативная печать "
+    "(дороже, но быстрее — 1–2 дня). Цена при тираже 1 000 шт может отличаться в 2–3 раза "
+    "в зависимости от направления."
+)
+
+
+def _underspec_clarification(query: str) -> tuple[str, str] | None:
+    """П9.0-J: returns (summary, flag) if query needs direction/type clarification."""
+    if not query:
+        return None
+    q = query
+    if _MONTAGE_TRIGGER.search(q) and not _MONTAGE_SPECIFIERS.search(q):
+        return (_UNDERSPEC_MONTAGE_SUMMARY, "Не указан тип изделия для монтажа — уточните у клиента")
+    if _LEAFLET_TRIGGER.search(q) and not _LEAFLET_SPECIFIERS.search(q):
+        return (_UNDERSPEC_LEAFLET_SUMMARY, "Не указан способ производства (офсет/цифра) — уточните у клиента")
+    return None
+
+
 def _is_manual_complexity_query(query: str) -> bool:
     """П8.6-B: True если запрос содержит маркеры, при которых менеджер
     обязан делать расчёт вручную — ремонт, работы на высоте, нестандартные
@@ -1777,6 +1818,22 @@ async def query_structured(req: QueryRequest, request: Request,
                 "(высота + материал), которая перекрывает template-медиану категории. "
                 "Estimated_price обнулён; расчёт — вручную по позициям каталога."
             )
+
+        # П9.0-J: underspecified category — монтаж без типа, листовки без способа.
+        # Overrides SmetaEngine template price with clarification question.
+        _underspec = _underspec_clarification(req.query)
+        if _underspec is not None:
+            _us_summary, _us_flag = _underspec
+            logger.info("Underspecified category — forcing clarification",
+                        query=req.query[:80])
+            confidence_out = "manual"
+            estimated_price = None
+            price_band = PriceBand()
+            deal_items = []
+            summary = _us_summary
+            reasoning = "П9.0-J underspecified category gate: запрос слишком общий для автоматической оценки."
+            if _us_flag not in all_flags:
+                all_flags = [_us_flag] + all_flags
 
         # П8.7-C: для bundle-intent запросов делаем таргетированный фетч
         # doc_type=bundle и используем его как основу для suggested_bundle.
