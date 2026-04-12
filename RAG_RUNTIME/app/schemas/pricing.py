@@ -51,6 +51,9 @@ class Reference(BaseModel):
     doc_type: str = ""
     score: float = 0.0
     snippet: str = ""   # first 120 chars of searchable_text
+    article_id: str | None = None
+    product_name: str | None = None
+    direction: str | None = None
 
 
 class SourceSegment(BaseModel):

@@ -524,11 +524,20 @@ def _build_references(docs: list[dict]) -> list[Reference]:
             continue  # skip noise docs
         payload = doc.get("payload", {})
         searchable_text = payload.get("searchable_text", "")
+        doc_type = payload.get("doc_type", "")
+        article_id = None
+        if doc_type == "product":
+            article_id = str(payload.get("product_id") or payload.get("product_key") or "") or None
+        elif doc_type in ("deal_profile", "offer_profile"):
+            article_id = str(payload.get("deal_id") or "") or None
         refs.append(Reference(
             doc_id=payload.get("doc_id", ""),
-            doc_type=payload.get("doc_type", ""),
+            doc_type=doc_type,
             score=round(score, 4),
             snippet=searchable_text[:120],
+            article_id=article_id,
+            product_name=payload.get("product_name") or payload.get("title") or None,
+            direction=payload.get("direction") or None,
         ))
     return refs
 

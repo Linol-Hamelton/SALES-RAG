@@ -106,7 +106,9 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             }
 
             section_name = payload.get("section_name", "")
-            lines = [f"[Продукт] {product_name}" + (f" ({direction})" if direction else "") + (f" [{section_name}]" if section_name else "")]
+            product_id = payload.get("product_id") or payload.get("product_key") or ""
+            art_tag = f" Арт.{product_id}" if product_id else ""
+            lines = [f"[Продукт{art_tag}] {product_name}" + (f" ({direction})" if direction else "") + (f" [{section_name}]" if section_name else "")]
             if base_price:
                 lines.append(f"  Базовая цена: {base_price:.0f} руб")
             if recommended:
@@ -140,7 +142,9 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             contained = payload.get("contained_matches", 0)
 
             completeness, missing = _classify_bundle_completeness(payload)
-            lines = [f"[Набор ({completeness})] {title}" + (f" ({direction})" if direction else "")]
+            bundle_ids = payload.get("sample_deal_ids") or ""
+            bundle_tag = f" сделки:{bundle_ids}" if bundle_ids else ""
+            lines = [f"[Набор ({completeness}){bundle_tag}] {title}" + (f" ({direction})" if direction else "")]
             if missing:
                 lines.append(f"  НЕ ВКЛЮЧАЕТ: {', '.join(missing)} — цена заниженная для полного заказа")
             if product_count:
@@ -207,7 +211,9 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             vision_analysis = payload.get("vision_analysis", "")
 
             deal_class = _classify_deal_profile(payload)
-            lines = [f"[Кейс ({deal_class}) — НЕ для расчёта цены] {title}" + (f" ({direction})" if direction else "")]
+            deal_id = payload.get("deal_id") or ""
+            deal_tag = f" #{deal_id}" if deal_id else ""
+            lines = [f"[Кейс{deal_tag} ({deal_class}) — НЕ для расчёта цены] {title}" + (f" ({direction})" if direction else "")]
             if deal_class == "РЕМОНТ/ДЕМОНТАЖ":
                 lines.append("  РЕМОНТНАЯ СДЕЛКА — цена не применима к производству новых изделий")
             price_parts = []
@@ -227,6 +233,27 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                 lines.append(f"  Анализ по фото (Gemini): {vision_analysis}")
             if image_urls:
                 lines.append(f"  Прямые ссылки на фото проекта: {', '.join(image_urls)}")
+            blocks.append("\n".join(lines))
+
+        elif doc_type == "offer_profile":
+            title = payload.get("title", "?")
+            direction = payload.get("direction", "")
+            line_total = payload.get("line_total")
+            component_summary = payload.get("component_summary", "")
+            sample_products = payload.get("sample_products", "")
+            materials = payload.get("materials", "")
+
+            offer_id = payload.get("deal_id") or ""
+            offer_tag = f" #{offer_id}" if offer_id else ""
+            lines = [f"[Шаблон КП{offer_tag}] {title}" + (f" ({direction})" if direction else "")]
+            if line_total:
+                lines.append(f"  Сумма КП: {line_total:.0f} руб")
+            if component_summary:
+                lines.append(f"  Состав: {component_summary[:500]}")
+            if sample_products:
+                lines.append(f"  Позиции КП: {sample_products[:600]}")
+            if materials:
+                lines.append(f"  Материалы: {materials}")
             blocks.append("\n".join(lines))
 
         elif doc_type == "timeline_fact":
