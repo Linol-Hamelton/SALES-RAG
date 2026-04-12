@@ -144,6 +144,83 @@ _UNDERSPEC_LEAFLET_SUMMARY = (
 )
 
 
+# П9.1-B: height-based signage pricing — deterministic override когда
+# SmetaEngine отдаёт одну category-median для всех высот. fb#66/68/70:
+# ПАРАПЕТ 40см/60см/80см → одинаковая 38384₽. Рыночные ориентиры из промпта:
+_HEIGHT_PRICE_BRACKETS = [
+    (20, 30, 2500, 4000),
+    (30, 50, 4500, 8000),
+    (50, 80, 8000, 16000),
+    (80, 120, 18000, 35000),
+]
+_MONTAGE_BRACKETS = [(0, 50, 20000, 30000), (50, 80, 30000, 45000), (80, 999, 45000, 60000)]
+_KARKAS_BRACKETS = [(0, 50, 10000, 15000), (50, 80, 15000, 25000), (80, 999, 25000, 40000)]
+_DESIGN_RANGE = (5000, 15000)
+_SIGNAGE_HEIGHT_RE = re.compile(r"высот\w*\s*(\d+)\s*см", re.IGNORECASE)
+_ALLCAPS_WORD_RE = re.compile(r"\b([А-ЯЁA-Z]{2,})\b")
+_LETTER_COUNT_RE = re.compile(r"(\d+)\s*букв", re.IGNORECASE)
+_SIGNAGE_TRIGGER_RE = re.compile(
+    r"объ[её]мн\w+\s+букв|световы\w+\s+(объ[её]мн|вывеск)|вывеск\w+.*букв|букв\w+.*вывеск",
+    re.IGNORECASE,
+)
+
+
+def _bracket_lookup(h: int, brackets: list[tuple]) -> tuple[float, float] | None:
+    for lo, hi, pmin, pmax in brackets:
+        if lo <= h < hi:
+            return (pmin, pmax)
+    return None
+
+
+def _compute_height_based_price(query: str) -> dict | None:
+    """П9.1-B: если запрос про вывеску с указанием высоты — считаем цену
+    по рыночным ориентирам вместо template-медианы."""
+    if not _SIGNAGE_TRIGGER_RE.search(query):
+        return None
+    m_h = _SIGNAGE_HEIGHT_RE.search(query)
+    if not m_h:
+        return None
+    height = int(m_h.group(1))
+    if height < 20 or height > 120:
+        return None
+    letter_bracket = _bracket_lookup(height, _HEIGHT_PRICE_BRACKETS)
+    if not letter_bracket:
+        return None
+    lp_min, lp_max = letter_bracket
+    m_lc = _LETTER_COUNT_RE.search(query)
+    caps_words = _ALLCAPS_WORD_RE.findall(query)
+    if m_lc:
+        n_letters = int(m_lc.group(1))
+    elif caps_words:
+        longest = max(caps_words, key=len)
+        n_letters = len(longest)
+    else:
+        n_letters = 0
+    montage = _bracket_lookup(height, _MONTAGE_BRACKETS) or (20000, 30000)
+    karkas = _bracket_lookup(height, _KARKAS_BRACKETS) or (10000, 15000)
+    design_min, design_max = _DESIGN_RANGE
+    if n_letters > 0:
+        total_min = lp_min * n_letters + montage[0] + karkas[0] + design_min
+        total_max = lp_max * n_letters + montage[1] + karkas[1] + design_max
+        letters_label = f"{n_letters} букв × {lp_min:,}–{lp_max:,} руб/букву".replace(",", " ")
+    else:
+        total_min = lp_min * 5 + montage[0] + karkas[0] + design_min
+        total_max = lp_max * 10 + montage[1] + karkas[1] + design_max
+        letters_label = f"{lp_min:,}–{lp_max:,} руб/букву (кол-во букв не указано)".replace(",", " ")
+    total_mid = round((total_min + total_max) / 2, -2)
+    return {
+        "height": height,
+        "n_letters": n_letters,
+        "lp_min": lp_min, "lp_max": lp_max,
+        "total_min": round(total_min, -2),
+        "total_max": round(total_max, -2),
+        "total_mid": total_mid,
+        "letters_label": letters_label,
+        "montage": montage,
+        "karkas": karkas,
+    }
+
+
 def _underspec_clarification(query: str) -> tuple[str, str] | None:
     """П9.0-J: returns (summary, flag) if query needs direction/type clarification."""
     if not query:
@@ -154,6 +231,32 @@ def _underspec_clarification(query: str) -> tuple[str, str] | None:
     if _LEAFLET_TRIGGER.search(q) and not _LEAFLET_SPECIFIERS.search(q):
         return (_UNDERSPEC_LEAFLET_SUMMARY, "Не указан способ производства (офсет/цифра) — уточните у клиента")
     return None
+
+
+# П9.1-A: consultation-intent queries — ознакомительные вопросы типа
+# «Вы делаете логотипы?», «У вас есть вывески?», «Вы работаете с ресторанами?»
+# НЕ являются запросом цены. Эксперт fb#72: «Надо прежде презентовать
+# компанию, продать услугу, а потом считать цену. Ты упираешься в цену
+# даже если тебя не спрашивают.»
+_CONSULTATION_PATTERNS = [
+    re.compile(r"^\s*(а\s+)?(вы|Вы)\s+(делает|можете|умеете|работает|оказыва|выполня|принима|берёт|изготавлива|производит)\w*\s+", re.IGNORECASE),
+    re.compile(r"^\s*(а\s+)?(у вас|У вас)\s+(есть|можно|бывает|имеется)", re.IGNORECASE),
+    re.compile(r"^\s*(вы|а вы)\s+(делает|можете)\w*\s+\w+\s*\??\s*$", re.IGNORECASE),
+]
+
+
+def _is_consultation_query(query: str) -> bool:
+    """П9.1-A: True если запрос — ознакомительный (не ценовой).
+    'Вы делаете логотипы?' → presentation mode, no price."""
+    if not query:
+        return False
+    if any(rx.search(query) for rx in _CONSULTATION_PATTERNS):
+        has_price_kw = bool(re.search(
+            r"стоимост|стоит|цен[аеуы]|расценк|прайс|смет|бюджет|сколько",
+            query, re.IGNORECASE,
+        ))
+        return not has_price_kw
+    return False
 
 
 def _is_manual_complexity_query(query: str) -> bool:
@@ -1834,6 +1937,66 @@ async def query_structured(req: QueryRequest, request: Request,
             reasoning = "П9.0-J underspecified category gate: запрос слишком общий для автоматической оценки."
             if _us_flag not in all_flags:
                 all_flags = [_us_flag] + all_flags
+
+        # П9.1-A: consultation queries — «Вы делаете логотипы?» = не ценовой
+        # запрос. Презентуем компанию, не даём цену. См. fb#72.
+        if _is_consultation_query(req.query):
+            logger.info("Consultation query — presentation mode, no price",
+                        query=req.query[:80])
+            confidence_out = "manual"
+            estimated_price = None
+            price_band = PriceBand()
+            deal_items = []
+            summary = (
+                "Да, мы это делаем! Лабус — рекламно-производственная компания "
+                "в Махачкале с собственным цехом и 15+ лет опыта. Полный цикл: "
+                "дизайн, производство, монтаж, гарантия 12 месяцев. "
+                "Чтобы прикинуть бюджет — уточните, что именно нужно: "
+                "тип изделия, размеры, материал, нужен ли монтаж."
+            )
+            reasoning = "П9.1-A consultation gate: ознакомительный вопрос, не запрос цены."
+            _consult_flag = "Ознакомительный запрос — презентация, не расчёт цены"
+            if _consult_flag not in all_flags:
+                all_flags = [_consult_flag] + all_flags
+
+        # П9.1-B: height-based signage pricing — детерминистический расчёт по
+        # рыночным ориентирам. Заменяет template-median когда указана высота букв.
+        # fb#66 (40см), fb#68 (80см), fb#70 (60см) — все давали 38384₽.
+        if not _is_spec_heavy_signage_query(req.query):
+            _hbp = _compute_height_based_price(req.query)
+            if _hbp is not None:
+                logger.info("Height-based signage pricing override",
+                            height=_hbp["height"], n_letters=_hbp["n_letters"],
+                            total_mid=_hbp["total_mid"], query=req.query[:80])
+                estimated_price = _hbp["total_mid"]
+                price_band = PriceBand(
+                    min=_hbp["total_min"],
+                    max=_hbp["total_max"],
+                    currency="RUB",
+                )
+                confidence_out = "guided"
+                deal_items = []
+                _h = _hbp["height"]
+                _nl = _hbp["n_letters"]
+                _nl_str = f" ({_nl} букв)" if _nl > 0 else ""
+                summary = (
+                    f"Объёмные буквы высотой {_h} см{_nl_str} под ключ: "
+                    f"ориентировочно {_hbp['total_min']:,.0f}–{_hbp['total_max']:,.0f} руб. "
+                    f"Буквы: {_hbp['letters_label']}. "
+                    f"Монтаж: {_hbp['montage'][0]:,.0f}–{_hbp['montage'][1]:,.0f} руб. "
+                    f"Каркас: {_hbp['karkas'][0]:,.0f}–{_hbp['karkas'][1]:,.0f} руб. "
+                    f"Дизайн: {_DESIGN_RANGE[0]:,.0f}–{_DESIGN_RANGE[1]:,.0f} руб. "
+                    "Точная цена зависит от материала, типа подсветки и сложности монтажа — "
+                    "пришлите фото фасада для расчёта."
+                ).replace(",", " ")
+                reasoning = (
+                    f"П9.1-B height-based pricing: высота {_h} см, "
+                    f"{_nl} букв. Расчёт по рыночным ориентирам (цена/букву × кол-во + "
+                    "монтаж + каркас + дизайн)."
+                )
+                _hbp_flag = f"Расчёт по рыночным ориентирам (высота {_h} см)"
+                if _hbp_flag not in all_flags:
+                    all_flags = [_hbp_flag] + all_flags
 
         # П8.7-C: для bundle-intent запросов делаем таргетированный фетч
         # doc_type=bundle и используем его как основу для suggested_bundle.
