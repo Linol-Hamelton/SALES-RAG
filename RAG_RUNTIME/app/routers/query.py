@@ -77,6 +77,44 @@ _MANUAL_COMPLEXITY_MARKERS = [
 ]
 
 
+# П8.9: spec-heavy signage queries — запросы, где пользователь явно указал
+# тип вывески (объёмные буквы / световая вывеска / контражур) вместе с
+# геометрией (высота N см) и материалом (композит/алюминий/акрил/бортогиб).
+# SmetaEngine по таким запросам либо через keyword override, либо через
+# семантический backup матчит категорию «Световые вывески» и выдаёт auto-цену
+# по template-медиане (~38k), тогда как реальная цена определяется именно
+# спецификацией и должна считаться вручную. См. fb#14 (ожидание ~30k) и
+# fb#55 (ожидание постатейного разложения по каталогу). Force manual.
+_SPEC_HEAVY_SIGNAGE_TRIGGERS = [
+    re.compile(r"объ[её]мн\w+\s+букв", re.IGNORECASE),
+    re.compile(r"световы\w+\s+вывеск", re.IGNORECASE),
+    re.compile(r"контражур", re.IGNORECASE),
+    re.compile(r"вывеск\w*\s+.{0,40}?(подсветк|контражур)", re.IGNORECASE),
+]
+_SPEC_HEIGHT_PATTERN = re.compile(
+    r"(высот\w*\s*\d+\s*см|\d+\s*см\s+(?:букв|высот|шрифт)|высот\w*\s+\d+\s*см)",
+    re.IGNORECASE,
+)
+_SPEC_MATERIAL_PATTERN = re.compile(
+    r"композит|акрил|алюмин|бортогиб|пвх|ламинат|подложк\w+\s+(композит|акрил|алюмин)",
+    re.IGNORECASE,
+)
+
+
+def _is_spec_heavy_signage_query(query: str) -> bool:
+    """П8.9: True если в запросе явно указаны (1) тип вывески, (2) высота,
+    (3) материал. Такие запросы должны идти на ручной расчёт — template-оценка
+    по «Световые вывески» систематически промахивается."""
+    if not query:
+        return False
+    has_trigger = any(rx.search(query) for rx in _SPEC_HEAVY_SIGNAGE_TRIGGERS)
+    if not has_trigger:
+        return False
+    has_height = _SPEC_HEIGHT_PATTERN.search(query) is not None
+    has_material = _SPEC_MATERIAL_PATTERN.search(query) is not None
+    return has_height and has_material
+
+
 def _is_manual_complexity_query(query: str) -> bool:
     """П8.6-B: True если запрос содержит маркеры, при которых менеджер
     обязан делать расчёт вручную — ремонт, работы на высоте, нестандартные
@@ -1701,6 +1739,35 @@ async def query_structured(req: QueryRequest, request: Request,
             _manual_flag = "Требуется ручной расчёт менеджером (нестандартные условия)"
             if _manual_flag not in all_flags:
                 all_flags = [_manual_flag] + all_flags
+
+        # П8.9: spec-heavy signage queries — height + material spec → manual.
+        # См. fb#14 (41см алюминий/бортогиб) и fb#55 (45см композит/контражур):
+        # template-оценка по «Световые вывески» даёт ~38k, но реальная цена
+        # определяется спецификацией. Обнуляем price/band, force manual.
+        if _is_spec_heavy_signage_query(req.query):
+            if confidence_out != "manual":
+                logger.info("Spec-heavy signage — forcing manual",
+                            original=confidence_out, query=req.query[:80])
+            confidence_out = "manual"
+            estimated_price = None
+            price_band = PriceBand()
+            deal_items = []
+            _spec_flag = "Требуется ручной расчёт по спецификации (высота + материал)"
+            if _spec_flag not in all_flags:
+                all_flags = [_spec_flag] + all_flags
+            summary = (
+                "Цена объёмной вывески с подсветкой определяется именно спецификацией: "
+                "высотой букв, материалом (композит / акрил / алюминий / бортогиб), "
+                "типом подсветки (лицевая / контражур) и площадью подложки. "
+                "Template-оценка по категории здесь системно промахивается, поэтому "
+                "менеджер соберёт смету постатейно из прайс-листа — дизайн, "
+                "производство буквы, блок питания, светодиоды, подложка, монтаж."
+            )
+            reasoning = (
+                "П8.9 spec-heavy signage gate: в запросе есть спецификация "
+                "(высота + материал), которая перекрывает template-медиану категории. "
+                "Estimated_price обнулён; расчёт — вручную по позициям каталога."
+            )
 
         # П8.7-C: для bundle-intent запросов делаем таргетированный фетч
         # doc_type=bundle и используем его как основу для suggested_bundle.
