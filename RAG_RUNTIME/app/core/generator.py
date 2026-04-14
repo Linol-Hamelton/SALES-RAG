@@ -302,6 +302,56 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             content = payload.get("searchable_text", "")
             blocks.append(content[:2500])
 
+        elif doc_type == "service_pricing_bridge":
+            service = payload.get("service", "?")
+            direction = payload.get("direction", "")
+            packages = payload.get("packages", [])
+            roi = payload.get("roi_anchor", "")
+            prepayment = payload.get("prepayment", "")
+            questions = payload.get("clarification_questions", [])
+            extras = payload.get("extra_services", [])
+
+            lines = [f"[Пакеты «{service}»]" + (f" ({direction})" if direction else "")]
+            for pkg in packages:
+                pmin = pkg.get("price_min", 0)
+                pmax = pkg.get("price_max", 0)
+                desc = pkg.get("description", "")
+                lines.append(f"  • {pkg.get('name','?')}: {pmin:,} – {pmax:,} ₽" + (f" — {desc}" if desc else ""))
+                products = pkg.get("products", [])
+                if products:
+                    lines.append(f"    Состав: {', '.join(products[:6])}")
+            if roi:
+                lines.append(f"  ROI: {roi}")
+            if prepayment:
+                lines.append(f"  Оплата: {prepayment}")
+            if questions:
+                lines.append(f"  Уточняющие вопросы: {'; '.join(questions)}")
+            if extras:
+                lines.append(f"  Доп. услуги: {'; '.join(extras)}")
+            blocks.append("\n".join(lines))
+
+        elif doc_type == "offer_composition":
+            title = payload.get("title", "?")
+            direction = payload.get("direction", "")
+            tier = payload.get("package_tier", "")
+            total = payload.get("total_price", 0)
+            products = payload.get("products", [])
+            offer_id = payload.get("offer_id", "")
+
+            tier_tag = f" ({tier})" if tier else ""
+            lines = [f"[КП #{offer_id}{tier_tag}] {title}" + (f" ({direction})" if direction else "")]
+            lines.append(f"  Итого: {total:,.0f} ₽")
+            for p in products[:10]:
+                qty = p.get("qty", 1)
+                price = p.get("price", 0)
+                name = p.get("name", "?")
+                line = f"  • {name}"
+                if qty != 1:
+                    line += f" × {qty:g}"
+                line += f" — {price:,.0f} ₽"
+                lines.append(line)
+            blocks.append("\n".join(lines))
+
     return "\n---\n".join(blocks)
 
 
@@ -319,9 +369,13 @@ class DeepseekGenerator:
             return
 
         from openai import AsyncOpenAI
+        # P9: bridge-документы делают контекст длиннее → LLM дольше генерирует.
+        # Дефолт AsyncOpenAI = 60s приводил к "Request timed out" на логотипных
+        # запросах. Поднято до 120s.
         self._client = AsyncOpenAI(
             api_key=self.settings.deepseek_api_key,
             base_url=self.settings.deepseek_base_url,
+            timeout=120.0,
         )
         self._prompts = _load_prompts(self.settings)
         logger.info("Deepseek generator initialized",
@@ -347,7 +401,7 @@ class DeepseekGenerator:
         messages.append({"role": "user", "content": user_prompt})
         return messages
 
-    async def generate(self, query: str, docs: list[dict], pricing_resolution=None, history: list = None, extra_context: str = "") -> str:
+    async def generate(self, query: str, docs: list[dict], pricing_resolution=None, history: list = None, extra_context: str = "", intent_instruction: str = "") -> str:
         """Generate a human-readable response."""
         if self._client is None:
             self.load()
@@ -378,6 +432,8 @@ class DeepseekGenerator:
             context=full_context,
             history=history_text,
         )
+        if intent_instruction:
+            user_prompt = intent_instruction + "\n\n" + user_prompt
 
         try:
             response = await self._client.chat.completions.create(
@@ -393,7 +449,7 @@ class DeepseekGenerator:
             logger.error("Deepseek API error", error=str(e))
             raise
 
-    async def generate_structured(self, query: str, docs: list[dict], pricing_resolution=None, extra_context: str = "", history: list = None) -> dict:
+    async def generate_structured(self, query: str, docs: list[dict], pricing_resolution=None, extra_context: str = "", history: list = None, intent_instruction: str = "") -> dict:
         """Generate structured JSON response."""
         if self._client is None:
             self.load()
@@ -409,6 +465,8 @@ class DeepseekGenerator:
             context=context,
             history=history_text,
         )
+        if intent_instruction:
+            user_prompt = intent_instruction + "\n\n" + user_prompt
 
         try:
             response = await self._client.chat.completions.create(
@@ -437,6 +495,7 @@ class DeepseekGenerator:
         pricing_resolution=None,
         extra_context: str = "",
         history: list = None,
+        intent_instruction: str = "",
     ) -> dict:
         """Generate a structured JSON response with deal_items for Bitrix24 estimate."""
         if self._client is None:
@@ -458,6 +517,8 @@ class DeepseekGenerator:
             context=context,
             history=history_text,
         )
+        if intent_instruction:
+            user_prompt = intent_instruction + "\n\n" + user_prompt
 
         try:
             response = await self._client.chat.completions.create(

@@ -16,12 +16,31 @@ from app.core import parametric_calculator as param_calc
 from app.core.feedback_store import build_feedback_context
 from app.core.deal_lookup import DealLookup
 from app.core.smeta_engine import has_strong_keyword_override
+from app.core.intent_classifier import IntentResult, get_classifier
+from app.config import settings as app_settings
 from app.auth import get_optional_user
 from app.routers.chats import save_message, get_chat_history
 from app.utils.logging import get_logger
 
 logger = get_logger(__name__)
 router = APIRouter(tags=["Query"])
+
+
+def _get_intent_instruction(intent: str) -> str:
+    """Load intent-specific instruction from prompts.yaml cache."""
+    import yaml
+    from functools import lru_cache
+
+    @lru_cache(maxsize=1)
+    def _load():
+        from pathlib import Path
+        p = Path(__file__).parent.parent.parent / "configs" / "prompts.yaml"
+        if p.exists():
+            with open(p, encoding="utf-8") as f:
+                return yaml.safe_load(f).get("intent_instructions", {})
+        return {}
+
+    return _load().get(intent, "")
 
 
 MIN_RELEVANT_SCORE = 0.005  # below this = cross-encoder deems irrelevant, don't use for pricing
@@ -56,6 +75,14 @@ _UNDERKEY_BLACKLIST_CATEGORIES = {"Логотип", "Логотипы"}
 # П7.1-hotfix: «помойные» категории шаблонов — слишком маленькие/дешёвые,
 # чтобы закрывать реальные under-key запросы. Блокируем в рантайме до П7.5-ребилда.
 _JUNK_CATEGORIES = {"Вывески"}
+
+# P9: категории, для которых у нас есть service_pricing_bridge-документы
+# с корректными пакетами из roadmap (Стандарт/Базовый/Креативный и т.п.).
+# SmetaEngine отдаёт по ним плоскую среднюю (~20K для логотипа), что ниже
+# минимальной цены даже базового пакета. Блокируем SmetaEngine для этих
+# категорий — пусть LLM получит bridge-документы через intent-aware retrieval
+# и предложит клиенту 2-3 пакета с диапазонами.
+_BRIDGE_CATEGORIES = {"Логотип", "Брендбук", "Фирменный стиль"}
 
 # П7.1-hotfix: минимальная сумма шаблона, при которой его разрешено отдавать
 # под under-key-запрос. Шаблон меньше — скорее всего дефектный.
@@ -1142,6 +1169,22 @@ async def query_structured(req: QueryRequest, request: Request,
         if parsed.needs_clarification:
             clarification_prefix = "ВАЖНО: Запрос слишком общий — не указан тип изделия, размеры или направление. Задай 1-2 уточняющих вопроса клиенту ВМЕСТО угадывания цены. Дай примерные диапазоны по типам.\n\n"
 
+        # --- Intent classification (when enabled) ---
+        _has_history = bool(getattr(req, "history", None) or getattr(req, "chat_id", None))
+        intent_result: IntentResult | None = None
+        intent_instruction = ""
+        _use_intent = app_settings.use_intent_classifier
+        if _use_intent:
+            _clf = get_classifier()
+            if _clf is not None and _clf.is_ready:
+                intent_result = _clf.classify(req.query, has_history=_has_history)
+                intent_instruction = _get_intent_instruction(intent_result.intent)
+                logger.info("Intent classified",
+                            intent=intent_result.intent,
+                            confidence=round(intent_result.confidence, 3),
+                            method=intent_result.method,
+                            query=req.query[:80])
+
         # --- Decompose query: detect complex multi-component requests ---
         decomp = decompose(req.query)
         parametric_breakdown_schema: ParametricBreakdown | None = None
@@ -1240,6 +1283,12 @@ async def query_structured(req: QueryRequest, request: Request,
                             logger.info("SmetaEngine junk category blocked (complex)",
                                         category=_smeta_pre_c.category_name)
                             _smeta_pre_c = None
+                        # P9: bridge-категории → через LLM с пакетами
+                        if _smeta_pre_c is not None and _smeta_pre_c.is_usable \
+                                and _smeta_pre_c.category_name in _BRIDGE_CATEGORIES:
+                            logger.info("SmetaEngine bridge-category blocked (complex)",
+                                        category=_smeta_pre_c.category_name)
+                            _smeta_pre_c = None
                         if _smeta_pre_c is not None and _smeta_pre_c.is_usable \
                                 and _is_underkey_intent(req.query) \
                                 and (_smeta_pre_c.total or 0) < _UNDERKEY_MIN_TEMPLATE_TOTAL:
@@ -1300,16 +1349,25 @@ async def query_structured(req: QueryRequest, request: Request,
                     raw_json = await generator.generate_deal_estimate(
                         req.query, reranked, pr_obj,
                         extra_context=full_extra, history=req.history,
+                        intent_instruction=intent_instruction,
                     )
             else:
                 raw_json = await generator.generate_structured(
                     req.query, reranked, pr_obj,
                     extra_context=full_extra, history=req.history,
+                    intent_instruction=intent_instruction,
                 )
 
         else:
             # --- Standard pipeline for simple queries ---
-            candidates = retriever.retrieve(req.query, top_k=req.top_k * 2)
+            # Use intent-aware retrieval when classifier is active
+            if _use_intent and intent_result is not None and intent_result.confidence >= 0.75:
+                candidates = retriever.retrieve_by_intent(
+                    req.query, intent_result.intent,
+                    hints=intent_result.hints, top_k=req.top_k * 2,
+                )
+            else:
+                candidates = retriever.retrieve(req.query, top_k=req.top_k * 2)
             if not candidates:
                 return StructuredResponse(
                     summary="По вашему запросу не найдено подходящих товаров/услуг.",
@@ -1381,6 +1439,12 @@ async def query_structured(req: QueryRequest, request: Request,
                             logger.info("SmetaEngine junk category blocked (std)",
                                         category=_smeta_pre.category_name)
                             _smeta_pre = None
+                        # P9: bridge-категории → через LLM с пакетами
+                        if _smeta_pre is not None and _smeta_pre.is_usable \
+                                and _smeta_pre.category_name in _BRIDGE_CATEGORIES:
+                            logger.info("SmetaEngine bridge-category blocked (std)",
+                                        category=_smeta_pre.category_name)
+                            _smeta_pre = None
                         if _smeta_pre is not None and _smeta_pre.is_usable \
                                 and _is_underkey_intent(req.query) \
                                 and (_smeta_pre.total or 0) < _UNDERKEY_MIN_TEMPLATE_TOTAL:
@@ -1446,11 +1510,13 @@ async def query_structured(req: QueryRequest, request: Request,
                     raw_json = await generator.generate_deal_estimate(
                         req.query, reranked_relevant, pr,
                         extra_context=vision_extra, history=req.history,
+                        intent_instruction=intent_instruction,
                     )
             else:
                 raw_json = await generator.generate_structured(
                     req.query, reranked_relevant, pr,
                     extra_context=vision_extra, history=req.history,
+                    intent_instruction=intent_instruction,
                 )
 
         # --- Build unified response ---
@@ -1627,6 +1693,10 @@ async def query_structured(req: QueryRequest, request: Request,
                     logger.info("SmetaEngine junk category blocked (downstream)",
                                 category=smeta_result.category_name)
                     smeta_result = None
+                elif smeta_result.category_name in _BRIDGE_CATEGORIES:
+                    logger.info("SmetaEngine bridge-category blocked (downstream)",
+                                category=smeta_result.category_name)
+                    smeta_result = None
                 elif _is_underkey_intent(req.query) \
                         and smeta_result.category_name in _UNDERKEY_BLACKLIST_CATEGORIES:
                     logger.info("SmetaEngine under-key blacklist (downstream)")
@@ -1745,10 +1815,42 @@ async def query_structured(req: QueryRequest, request: Request,
                             all_flags = ["Параметрический расчёт заменён сметой"] + all_flags
                             parametric_breakdown_schema = None
 
+        # --- Intent-driven post-LLM handling (replaces hardcoded gate summaries) ---
+        # When intent classifier is active, no-price intents nullify pricing
+        # but KEEP the LLM's summary (which was guided by intent_instruction).
+        # Old gates below still run as safety nets for edge cases.
+        _intent_handled = False
+        if _use_intent and intent_result is not None and intent_result.confidence >= 0.75:
+            _ir = intent_result
+            if _ir.is_no_price:
+                logger.info("Intent-driven no-price override",
+                            intent=_ir.intent, method=_ir.method,
+                            query=req.query[:80])
+                estimated_price = None
+                price_band = PriceBand()
+                deal_items = []
+                parametric_breakdown_schema = None
+                confidence_out = "manual"
+                _intent_handled = True
+                # Add a flag but do NOT replace summary — LLM already got the instruction
+                _intent_flag_map = {
+                    "consultation": "Ознакомительный запрос — презентация, не расчёт цены",
+                    "describe": "Переговорный сценарий — ручной расчёт или уточнение у клиента",
+                    "out_of_scope": "Запрос вне рабочей тематики (цены не применимы)",
+                    "financial_modifier": "Финансовый модификатор — не является самостоятельным товаром (ручной расчёт)",
+                    "visualization": "Визуализация — только после замеров и аванса за дизайн",
+                    "referential": "Ссылка на «эту/прошлую» услугу — прикрепите фото или укажите параметры",
+                    "empty_context_smeta": "Не указан товар/направление — уточните, какую услугу оценить",
+                    "underspec": "Запрос слишком общий — требуется уточнение параметров",
+                }
+                _iflag = _intent_flag_map.get(_ir.intent, "")
+                if _iflag and _iflag not in all_flags:
+                    all_flags = [_iflag] + all_flags
+
         # П8.8-F: manager-script / describe-intent queries must never emit
         # an estimated price. Модель может проскочить в LLM fallback и выдать
         # число (см. fb#47 → 200 000 ₽). Жёстко обнуляем ПОСЛЕ основного флоу.
-        if _is_describe_intent(req.query):
+        if not _intent_handled and _is_describe_intent(req.query):
             logger.info("Manager-script intent — forcing no-price response",
                         query=req.query[:80])
             estimated_price = None
@@ -1763,8 +1865,7 @@ async def query_structured(req: QueryRequest, request: Request,
         # П8.8-J: referential queries without chat history — сlient refers
         # to "эту услугу / вместо этой вывески" but no previous message exists.
         # Force manual + clarification instructing to attach photo or specs.
-        _has_history = bool(getattr(req, "history", None) or getattr(req, "chat_id", None))
-        if _is_referential_query(req.query) and not _has_history:
+        if not _intent_handled and _is_referential_query(req.query) and not _has_history:
             logger.info("Referential query without history — forcing clarification",
                         query=req.query[:80])
             estimated_price = None
@@ -1778,7 +1879,7 @@ async def query_structured(req: QueryRequest, request: Request,
 
         # П8.8-A: empty-context smeta queries — force clarification response
         # (модель не должна угадывать товар по умолчанию).
-        if _is_empty_context_smeta_query(req.query):
+        if not _intent_handled and _is_empty_context_smeta_query(req.query):
             logger.info("Empty-context smeta query — forcing clarification",
                         query=req.query[:80])
             estimated_price = None
@@ -1897,7 +1998,7 @@ async def query_structured(req: QueryRequest, request: Request,
         # См. fb#14 (41см алюминий/бортогиб) и fb#55 (45см композит/контражур):
         # template-оценка по «Световые вывески» даёт ~38k, но реальная цена
         # определяется спецификацией. Обнуляем price/band, force manual.
-        if _is_spec_heavy_signage_query(req.query):
+        if not _intent_handled and _is_spec_heavy_signage_query(req.query):
             if confidence_out != "manual":
                 logger.info("Spec-heavy signage — forcing manual",
                             original=confidence_out, query=req.query[:80])
@@ -1925,7 +2026,7 @@ async def query_structured(req: QueryRequest, request: Request,
         # П9.0-J: underspecified category — монтаж без типа, листовки без способа.
         # Overrides SmetaEngine template price with clarification question.
         _underspec = _underspec_clarification(req.query)
-        if _underspec is not None:
+        if not _intent_handled and _underspec is not None:
             _us_summary, _us_flag = _underspec
             logger.info("Underspecified category — forcing clarification",
                         query=req.query[:80])
@@ -1940,7 +2041,7 @@ async def query_structured(req: QueryRequest, request: Request,
 
         # П9.1-A: consultation queries — «Вы делаете логотипы?» = не ценовой
         # запрос. Презентуем компанию, не даём цену. См. fb#72.
-        if _is_consultation_query(req.query):
+        if not _intent_handled and _is_consultation_query(req.query):
             logger.info("Consultation query — presentation mode, no price",
                         query=req.query[:80])
             confidence_out = "manual"
@@ -1962,7 +2063,7 @@ async def query_structured(req: QueryRequest, request: Request,
         # П9.1-B: height-based signage pricing — детерминистический расчёт по
         # рыночным ориентирам. Заменяет template-median когда указана высота букв.
         # fb#66 (40см), fb#68 (80см), fb#70 (60см) — все давали 38384₽.
-        if not _is_spec_heavy_signage_query(req.query):
+        if not _intent_handled and not _is_spec_heavy_signage_query(req.query):
             _hbp = _compute_height_based_price(req.query)
             if _hbp is not None:
                 logger.info("Height-based signage pricing override",

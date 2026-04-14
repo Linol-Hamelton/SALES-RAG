@@ -9,11 +9,12 @@ from app.schemas.pricing import (
 
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant"]
-    content: str = Field(..., max_length=4000)
+    content: str = Field(..., max_length=10000)
 
 
 class QueryRequest(BaseModel):
-    query: str = Field(..., min_length=1, max_length=2000, description="User query in Russian or English")
+    # P9: расширено до 10000 символов — чтобы клиентские письма влезали целиком
+    query: str = Field(..., min_length=1, max_length=10000, description="User query in Russian or English")
     top_k: int = Field(default=8, ge=1, le=20, description="Number of results to retrieve")
     language: Literal["ru", "en", "auto"] = "auto"
     history: list[ChatMessage] = Field(default_factory=list, description="Previous chat turns (last 6 max)")
