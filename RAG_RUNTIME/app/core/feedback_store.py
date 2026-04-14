@@ -207,30 +207,54 @@ class FeedbackStore:
 
 
 def build_feedback_context(feedback_store: "FeedbackStore",
-                           query_embedding: list[float],
+                           query_embedding: list[float] | None = None,
                            direction: str = "") -> str:
-    """Build feedback context string for injection into LLM prompt."""
-    blocks = []
+    """Build feedback context string for injection into LLM prompt.
 
-    # Tier 2: Curated rules (always first, most authoritative)
-    rules = feedback_store.get_active_rules(direction)
+    P10/A6: rules (Tier 2) и lessons (Tier 1) расцеплены. `query_embedding` может
+    быть None — тогда собираются только rules из БД (они не требуют эмбеддинга).
+    Подсчёт правил/уроков всегда логируется, чтобы silent-fail был наблюдаемым.
+    """
+    blocks = []
+    rules_count = 0
+    lessons_count = 0
+
+    # Tier 2: Curated rules (always first, most authoritative) — не требуют embedding.
+    try:
+        rules = feedback_store.get_active_rules(direction)
+    except Exception as e:
+        logger.warning("feedback_rules fetch failed", error=str(e))
+        rules = []
     if rules:
         rule_lines = [f"- {r['rule_text']}" for r in rules]
         blocks.append("ПРАВИЛА ОТВЕТА (обязательные):\n" + "\n".join(rule_lines))
+        rules_count = len(rules)
 
-    # Tier 1: Auto-matched lessons from past feedback
-    lessons = feedback_store.find_relevant(query_embedding, direction)
-    if lessons:
-        lesson_lines = []
-        for l in lessons:
-            prefix = "ОШИБКА В ПРОШЛОМ" if l["rating"] == -1 else "ХОРОШИЙ ПРИМЕР"
-            lesson_lines.append(
-                f"[{prefix}, сходство {l['similarity']:.0%}] "
-                f"Запрос «{l['user_query'][:80]}»: {l['lesson_text'][:300]}"
+    # Tier 1: Auto-matched lessons — только когда есть query_embedding.
+    if query_embedding is not None:
+        try:
+            lessons = feedback_store.find_relevant(query_embedding, direction)
+        except Exception as e:
+            logger.warning("feedback_lessons lookup failed", error=str(e))
+            lessons = []
+        if lessons:
+            lesson_lines = []
+            for l in lessons:
+                prefix = "ОШИБКА В ПРОШЛОМ" if l["rating"] == -1 else "ХОРОШИЙ ПРИМЕР"
+                lesson_lines.append(
+                    f"[{prefix}, сходство {l['similarity']:.0%}] "
+                    f"Запрос «{l['user_query'][:80]}»: {l['lesson_text'][:300]}"
+                )
+            blocks.append(
+                "ОПЫТ ПРОШЛЫХ ОТВЕТОВ (учти при формировании ответа):\n"
+                + "\n".join(lesson_lines)
             )
-        blocks.append(
-            "ОПЫТ ПРОШЛЫХ ОТВЕТОВ (учти при формировании ответа):\n"
-            + "\n".join(lesson_lines)
-        )
+            lessons_count = len(lessons)
+
+    logger.info("feedback_context_built",
+                rules_count=rules_count,
+                lessons_count=lessons_count,
+                direction=direction or "",
+                has_embedding=query_embedding is not None)
 
     return "\n\n".join(blocks)

@@ -338,6 +338,80 @@ class HybridRetriever:
             logger.error("Bundle retrieval failed", query=query[:60], error=str(e))
             return []
 
+    def retrieve_by_intent(self, query: str, intent_name: str, hints: dict | None = None, top_k: int | None = None) -> list[dict]:
+        """Intent-aware retrieval: select doc_type filter and top_k based on intent."""
+        from qdrant_client.models import Filter, FieldCondition, MatchAny, Range
+
+        top_k = top_k or self.settings.retrieval_top_k
+        hints = hints or {}
+
+        INTENT_STRATEGIES = {
+            "smeta_request":    (["bundle", "pricing_policy", "offer_profile", "product",
+                                  "service_pricing_bridge", "offer_composition"], 15),
+            "consultation":     (["knowledge", "pricing_policy", "service_composition", "faq", "roadmap",
+                                  "service_pricing_bridge"], 10),
+            "bundle_query":     (["bundle", "deal_profile", "offer_profile", "product", "pricing_policy",
+                                  "service_pricing_bridge", "offer_composition"], 12),
+            "product_query":    (["product", "bundle", "pricing_policy", "offer_profile",
+                                  "service_pricing_bridge"], 12),
+            "underspec":        (["service_pricing_bridge", "pricing_policy", "knowledge", "faq", "product"], 8),
+            "describe":         (["knowledge", "faq", "roadmap", "service_pricing_bridge"], 8),
+            "out_of_scope":     (["knowledge", "faq"], 5),
+        }
+
+        strategy = INTENT_STRATEGIES.get(intent_name)
+        if strategy is None:
+            return self.retrieve(query, top_k=top_k)
+
+        doc_types, intent_top_k = strategy
+        effective_k = min(intent_top_k, top_k) if top_k else intent_top_k
+
+        query_vec = self.embed_query(query)
+        sparse_vec = generate_sparse_vector(query)
+
+        must_conditions = []
+        if doc_types:
+            must_conditions.append(FieldCondition(key="doc_type", match=MatchAny(any=doc_types)))
+
+        height_cm = hints.get("height_cm")
+        if height_cm and intent_name == "smeta_request":
+            h = float(height_cm)
+            must_conditions.append(FieldCondition(
+                key="letter_height_cm",
+                range=Range(gte=h * 0.7, lte=h * 1.3),
+            ))
+
+        query_filter = Filter(must=must_conditions) if must_conditions else None
+
+        try:
+            results = self._standard_search(query_vec, sparse_vec, query_filter, effective_k * 2)
+        except Exception as e:
+            logger.warning("Intent-aware retrieval failed, falling back to standard",
+                           intent=intent_name, error=str(e))
+            return self.retrieve(query, top_k=top_k)
+
+        parsed = parse_query(query)
+        candidates = []
+        for p in results:
+            payload = p.payload
+            boost = self._direction_boost(payload, parsed.direction)
+            candidates.append({
+                "doc_id": payload.get("doc_id", f"id_{p.id}"),
+                "payload": payload,
+                "rrf_score": p.score + boost,
+                "parsed_query": parsed,
+                "qdrant_id": p.id,
+                "dense_rank": None,
+                "bm25_rank": None,
+                "bm25_score": 0.0,
+            })
+
+        candidates.sort(key=lambda x: x["rrf_score"], reverse=True)
+        logger.info("Intent-aware retrieval", intent=intent_name,
+                    doc_types=doc_types, hits=len(candidates[:effective_k]),
+                    query=query[:60])
+        return candidates[:effective_k]
+
     def multi_retrieve(self, components: list) -> dict[str, list[dict]]:
         """Run separate targeted retrieval for each ComponentSpec."""
         pools: dict[str, list[dict]] = {}

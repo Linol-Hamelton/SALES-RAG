@@ -84,6 +84,16 @@ _JUNK_CATEGORIES = {"Вывески"}
 # и предложит клиенту 2-3 пакета с диапазонами.
 _BRIDGE_CATEGORIES = {"Логотип", "Брендбук", "Фирменный стиль"}
 
+# P10/A3: SmetaEngine category → service name в service_pricing_bridge.
+# Используется `_force_inject_bridge`, чтобы гарантированно достать
+# bridge-документ, когда SmetaEngine уже был заблокирован, но семантический
+# retrieval может не дотянуть нужный чанк в top-k.
+_CATEGORY_TO_BRIDGE_SERVICE = {
+    "Логотип": "Дизайн логотипа",
+    "Фирменный стиль": "Дизайн фирменного стиля",
+    "Брендбук": "Дизайн брендбука",
+}
+
 # П7.1-hotfix: минимальная сумма шаблона, при которой его разрешено отдавать
 # под under-key-запрос. Шаблон меньше — скорее всего дефектный.
 _UNDERKEY_MIN_TEMPLATE_TOTAL = 15000
@@ -613,6 +623,123 @@ def _smeta_cache_put(key: tuple, value) -> None:
             _SMETA_CACHE.popitem(last=False)
 
 
+def _emit_request_trace(
+    *,
+    query: str,
+    intent: str,
+    intent_confidence: float,
+    intent_method: str,
+    reranked: list[dict],
+    smeta_pre=None,
+    smeta_blocked_by: str = "",
+    bridge_forced: bool = False,
+    feedback_prefix: str = "",
+    extra: dict | None = None,
+) -> None:
+    """P10/A7: единая телеметрия про каждый LLM-вызов.
+
+    Нужна чтобы диагностировать дефекты retrieval/intent/smeta/feedback без
+    повторной отладки кейса — каждая инъекция и каждый блокер виден в логах.
+    """
+    try:
+        from collections import Counter
+        doc_types = Counter(
+            (d.get("payload") or {}).get("doc_type", "?")
+            for d in reranked[:15]
+        )
+        smeta_info: dict = {}
+        if smeta_pre is not None:
+            smeta_info = {
+                "category": getattr(smeta_pre, "category_name", "") or "",
+                "total": int(round(getattr(smeta_pre, "total", 0) or 0)),
+                "confidence": getattr(smeta_pre, "confidence", "") or "",
+            }
+        if smeta_blocked_by:
+            smeta_info["blocked_by"] = smeta_blocked_by
+        rules_count = 0
+        lessons_count = 0
+        if feedback_prefix:
+            rules_count = 1 if "ПРАВИЛА ОТВЕТА" in feedback_prefix else 0
+            lessons_count = feedback_prefix.count("сходство ")
+        payload = {
+            "query_head": query[:80],
+            "intent": intent,
+            "intent_confidence": round(float(intent_confidence), 3),
+            "intent_method": intent_method,
+            "retrieved_doc_types": dict(doc_types),
+            "bridge_forced": bool(bridge_forced),
+            "smeta_pre": smeta_info,
+            "feedback_rules_block": rules_count,
+            "feedback_lessons_matched": lessons_count,
+        }
+        if extra:
+            payload.update(extra)
+        logger.info("request_trace", **payload)
+    except Exception as e:
+        logger.warning("request_trace emit failed", error=str(e))
+
+
+def _force_inject_bridge(retriever, reranked: list[dict], service_name: str) -> bool:
+    """P10/A3: гарантированная доставка service_pricing_bridge-документа в контекст LLM.
+
+    Вызывается сразу после того, как SmetaEngine заблокирован из-за
+    `_BRIDGE_CATEGORIES`. Semantic retrieval может не подтянуть bridge-документ
+    (особенно для intent=underspec/product_query с коротким запросом), поэтому
+    делаем direct point-lookup по Qdrant filter (doc_type=service_pricing_bridge
+    AND service=<name>) и кладём результат в index=0 `reranked` с синтетическим
+    rrf_score выше текущего топа.
+
+    Идемпотентна: если документ уже в reranked, просто поднимает его наверх.
+    Возвращает True при успешной инжекции.
+    """
+    if retriever is None or not getattr(retriever, "is_ready", False) or not service_name:
+        return False
+    # Idempotent: document already present — just promote to top.
+    for i, d in enumerate(reranked):
+        payload = d.get("payload") or {}
+        if payload.get("doc_type") == "service_pricing_bridge" \
+                and payload.get("service") == service_name:
+            if i > 0:
+                reranked.insert(0, reranked.pop(i))
+            return True
+    try:
+        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        flt = Filter(must=[
+            FieldCondition(key="doc_type", match=MatchValue(value="service_pricing_bridge")),
+            FieldCondition(key="service", match=MatchValue(value=service_name)),
+        ])
+        scroll_res, _ = retriever._client.scroll(
+            collection_name=retriever.settings.qdrant_collection,
+            scroll_filter=flt,
+            limit=1,
+            with_payload=True,
+            with_vectors=False,
+        )
+        if not scroll_res:
+            logger.warning("force_inject_bridge: no bridge doc found",
+                           service=service_name)
+            return False
+        pt = scroll_res[0]
+        top_score = (reranked[0].get("rrf_score") or reranked[0].get("final_score") or 1.0) \
+            if reranked else 1.0
+        synthetic_score = max(float(top_score) + 1.0, 1.0)
+        reranked.insert(0, {
+            "doc_id": pt.payload.get("doc_id", f"bridge_{service_name}"),
+            "score": synthetic_score,
+            "rrf_score": synthetic_score,
+            "final_score": synthetic_score,
+            "bm25_score": 0.0,
+            "payload": pt.payload,
+            "forced_bridge": True,
+        })
+        logger.info("bridge force-injected", service=service_name,
+                    doc_id=pt.payload.get("doc_id"))
+        return True
+    except Exception as e:
+        logger.warning("force_inject_bridge failed", service=service_name, error=str(e))
+        return False
+
+
 def _parse_deal_items(raw_json: dict) -> list[DealItem]:
     """Extract and validate deal_items from LLM JSON output."""
     raw_items = raw_json.get("deal_items")
@@ -1090,13 +1217,21 @@ async def query_human(req: QueryRequest, request: Request,
             if breakdown_ctx:
                 extra_ctx += breakdown_ctx + "\n\n"
 
-        # Inject feedback-based learning context (RLHF)
+        # Inject feedback-based learning context (RLHF).
+        # P10/A6: rules (Tier 2) собираются всегда, lessons (Tier 1) —
+        # только если retriever готов (нужен embedding запроса). Любой
+        # silent-fail embedding теперь не обнуляет обязательные правила.
         feedback_store = getattr(request.app.state, "feedback_store", None)
-        if feedback_store and retriever.is_ready:
+        if feedback_store is not None:
             try:
-                q_vec = retriever.embed_query(req.query)
+                q_vec_fb = None
+                if retriever.is_ready:
+                    try:
+                        q_vec_fb = retriever.embed_query(req.query)
+                    except Exception as _e_emb:
+                        logger.warning("Feedback embed_query failed", error=str(_e_emb))
                 direction = getattr(decomp, "direction", "") or ""
-                fb_ctx = build_feedback_context(feedback_store, q_vec, direction)
+                fb_ctx = build_feedback_context(feedback_store, q_vec_fb, direction)
                 if fb_ctx:
                     extra_ctx = fb_ctx + "\n\n" + extra_ctx
                     logger.info("Feedback context injected", lessons_matched=fb_ctx.count("["))
@@ -1191,16 +1326,25 @@ async def query_structured(req: QueryRequest, request: Request,
         estimate = None
         is_estimate = _is_deal_estimate_query(req.query)
 
-        # Feedback-based learning context (RLHF)
+        # Feedback-based learning context (RLHF).
+        # P10/A6: rules (Tier 2) всегда доступны из БД. Lessons (Tier 1) —
+        # только когда retriever готов (нужен BGE-M3 embedding запроса).
         feedback_prefix = ""
         feedback_store = getattr(request.app.state, "feedback_store", None)
-        if feedback_store and retriever.is_ready:
+        if feedback_store is not None:
             try:
-                q_vec = retriever.embed_query(req.query)
+                q_vec_fb = None
+                if retriever.is_ready:
+                    try:
+                        q_vec_fb = retriever.embed_query(req.query)
+                    except Exception as _e_emb:
+                        logger.warning("Feedback embed_query failed (structured)",
+                                       error=str(_e_emb))
                 direction = getattr(decomp, "direction", "") or ""
-                feedback_prefix = build_feedback_context(feedback_store, q_vec, direction)
+                feedback_prefix = build_feedback_context(feedback_store, q_vec_fb, direction)
                 if feedback_prefix:
-                    logger.info("Feedback context injected (structured)", lessons_matched=feedback_prefix.count("["))
+                    logger.info("Feedback context injected (structured)",
+                                lessons_matched=feedback_prefix.count("["))
             except Exception as e:
                 logger.warning("Feedback context failed", error=str(e))
 
@@ -1398,6 +1542,9 @@ async def query_structured(req: QueryRequest, request: Request,
             _force_llm = _is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query)
             if _force_llm:
                 logger.info("SmetaEngine skipped (describe/provided-smeta intent, std)")
+            # P10/A7: trace flags
+            _bridge_forced = False
+            _smeta_blocked_by = ""
             if is_estimate and not _force_llm:
                 # П7.1 #2: try SmetaEngine FIRST. If usable, skip the 60-90s LLM
                 # generate_deal_estimate call entirely — summary/items/prices are
@@ -1444,6 +1591,14 @@ async def query_structured(req: QueryRequest, request: Request,
                                 and _smeta_pre.category_name in _BRIDGE_CATEGORIES:
                             logger.info("SmetaEngine bridge-category blocked (std)",
                                         category=_smeta_pre.category_name)
+                            _smeta_blocked_by = f"bridge:{_smeta_pre.category_name}"
+                            _bridge_service = _CATEGORY_TO_BRIDGE_SERVICE.get(
+                                _smeta_pre.category_name
+                            )
+                            if _bridge_service:
+                                if _force_inject_bridge(retriever, reranked, _bridge_service):
+                                    _bridge_forced = True
+                                reranked_relevant = _filter_relevant_docs(reranked)
                             _smeta_pre = None
                         if _smeta_pre is not None and _smeta_pre.is_usable \
                                 and _is_underkey_intent(req.query) \
@@ -1507,12 +1662,37 @@ async def query_structured(req: QueryRequest, request: Request,
                     if real_names:
                         vision_extra += "НАЗВАНИЯ ТОВАРОВ (используй ТОЛЬКО эти названия в deal_items):\n"
                         vision_extra += "\n".join(f"- {n}" for n in real_names[:50]) + "\n\n"
+                    _emit_request_trace(
+                        query=req.query,
+                        intent=(intent_result.intent if intent_result else "general"),
+                        intent_confidence=(intent_result.confidence if intent_result else 0.0),
+                        intent_method=(intent_result.method if intent_result else "default"),
+                        reranked=reranked,
+                        smeta_pre=locals().get("_smeta_pre"),
+                        smeta_blocked_by=_smeta_blocked_by,
+                        bridge_forced=_bridge_forced,
+                        feedback_prefix=feedback_prefix,
+                        extra={"path": "std.deal_estimate",
+                               "smeta_pre_usable": _smeta_pre_usable},
+                    )
                     raw_json = await generator.generate_deal_estimate(
                         req.query, reranked_relevant, pr,
                         extra_context=vision_extra, history=req.history,
                         intent_instruction=intent_instruction,
                     )
             else:
+                _emit_request_trace(
+                    query=req.query,
+                    intent=(intent_result.intent if intent_result else "general"),
+                    intent_confidence=(intent_result.confidence if intent_result else 0.0),
+                    intent_method=(intent_result.method if intent_result else "default"),
+                    reranked=reranked,
+                    smeta_pre=None,
+                    smeta_blocked_by=_smeta_blocked_by,
+                    bridge_forced=_bridge_forced,
+                    feedback_prefix=feedback_prefix,
+                    extra={"path": "std.structured"},
+                )
                 raw_json = await generator.generate_structured(
                     req.query, reranked_relevant, pr,
                     extra_context=vision_extra, history=req.history,
@@ -1696,6 +1876,11 @@ async def query_structured(req: QueryRequest, request: Request,
                 elif smeta_result.category_name in _BRIDGE_CATEGORIES:
                     logger.info("SmetaEngine bridge-category blocked (downstream)",
                                 category=smeta_result.category_name)
+                    _bridge_service_ds = _CATEGORY_TO_BRIDGE_SERVICE.get(
+                        smeta_result.category_name
+                    )
+                    if _bridge_service_ds:
+                        _force_inject_bridge(retriever, reranked, _bridge_service_ds)
                     smeta_result = None
                 elif _is_underkey_intent(req.query) \
                         and smeta_result.category_name in _UNDERKEY_BLACKLIST_CATEGORIES:

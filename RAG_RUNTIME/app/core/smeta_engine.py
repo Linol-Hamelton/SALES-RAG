@@ -404,6 +404,24 @@ class SmetaEngine:
         else:
             overall_conf = "low"
 
+        # P10/A4: height-gate. Для «Световые вывески» / «Объёмные буквы»
+        # цена критически зависит от высоты буквы (разлёт 3–5× между 20 и 80 см).
+        # Если пользователь не указал ни высоту, ни кол-во букв — форсим medium
+        # и добавляем явный флаг-подсказку, чтобы LLM / менеджер собрали параметры.
+        _needs_height = cat.get("category_name", "") in {
+            "Световые вывески", "Объемные буквы", "Объёмные буквы",
+        }
+        if _needs_height:
+            _d = decomp or {}
+            _h = int(_d.get("height_cm", 0) or 0)
+            _lc = int(_d.get("letter_count", 0) or 0)
+            if _h == 0 and _lc == 0 and overall_conf == "high":
+                overall_conf = "medium"
+                flags.append(
+                    "Размер не указан — оценка по медиане категории; "
+                    "уточните высоту буквы и количество"
+                )
+
         # Price band: total ± aggregated std (at least ±10% for safety)
         agg_std = float(np.sqrt(total_std_sq)) if n_with_std > 0 else 0.0
         band_delta = max(agg_std, total * 0.10)
