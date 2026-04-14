@@ -3,6 +3,7 @@ LLM generation via Deepseek API (OpenAI-compatible).
 Handles both human-readable and structured JSON responses.
 """
 import json
+import re
 import yaml
 from pathlib import Path
 from typing import Any
@@ -107,7 +108,11 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
 
             section_name = payload.get("section_name", "")
             product_id = payload.get("product_id") or payload.get("product_key") or ""
-            art_tag = f" Арт.{product_id}" if product_id else ""
+            # P10.5: каталог (goods.csv) использует PRODUCT_ID как первичный ключ;
+            # GOOD_ID встречается только в offers/orders (транзакционные line-item id).
+            # Поэтому для product-документов показываем PRODUCT_ID — его LLM и должен
+            # класть в deal_items[].good_id структурированного ответа.
+            art_tag = f" PRODUCT_ID={product_id}" if product_id else ""
             lines = [f"[Продукт{art_tag}] {product_name}" + (f" ({direction})" if direction else "") + (f" [{section_name}]" if section_name else "")]
             if base_price:
                 lines.append(f"  Базовая цена: {base_price:.0f} руб")
@@ -243,9 +248,18 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             sample_products = payload.get("sample_products", "")
             materials = payload.get("materials", "")
 
-            offer_id = payload.get("deal_id") or ""
-            offer_tag = f" #{offer_id}" if offer_id else ""
-            lines = [f"[Шаблон КП{offer_tag}] {title}" + (f" ({direction})" if direction else "")]
+            # P10.5-II.5: отдельно показываем deal_id (первичный ключ offer_profile)
+            # и offer_id (если закодирован в title, напр. "КП #21208 для ...")
+            deal_id = payload.get("deal_id") or ""
+            offer_id_match = re.search(r"КП\s*#?(\d+)", title or "")
+            offer_id = offer_id_match.group(1) if offer_id_match else ""
+            ref_parts = []
+            if offer_id:
+                ref_parts.append(f"КП #{offer_id}")
+            if deal_id and str(deal_id) != offer_id:
+                ref_parts.append(f"сделка #{deal_id}")
+            ref_tag = (" " + " / ".join(ref_parts)) if ref_parts else ""
+            lines = [f"[Шаблон КП{ref_tag}] {title}" + (f" ({direction})" if direction else "")]
             if line_total:
                 lines.append(f"  Сумма КП: {line_total:.0f} руб")
             if component_summary:
@@ -320,6 +334,22 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                 products = pkg.get("products", [])
                 if products:
                     lines.append(f"    Состав: {', '.join(products[:6])}")
+                # P10.5-II.2: реальные offer_id с этим пакетом (G2)
+                offer_ids = pkg.get("offer_ids") or []
+                if offer_ids:
+                    ids_str = ", ".join(f"#{i}" for i in offer_ids[:10])
+                    lines.append(f"    Реальные КП: {ids_str}")
+                # P10.5-II.2: product_id'ы, если зарезолвлены на этапе ingest (G3).
+                # goods.csv использует PRODUCT_ID как первичный ключ каталога.
+                catalog_refs = pkg.get("product_catalog_refs") or []
+                if catalog_refs:
+                    resolved = [
+                        f"{p.get('name','?')}→PRODUCT_ID={p.get('product_id')}"
+                        f"{' ('+format(p.get('price',0),',')+' ₽)' if p.get('price') else ''}"
+                        for p in catalog_refs if p.get("product_id")
+                    ]
+                    if resolved:
+                        lines.append(f"    Каталог: {'; '.join(resolved[:6])}")
             if roi:
                 lines.append(f"  ROI: {roi}")
             if prepayment:
@@ -345,7 +375,9 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                 qty = p.get("qty", 1)
                 price = p.get("price", 0)
                 name = p.get("name", "?")
-                line = f"  • {name}"
+                pid = p.get("product_id") or p.get("good_id") or ""
+                id_prefix = f"[{pid}] " if pid else ""
+                line = f"  • {id_prefix}{name}"
                 if qty != 1:
                     line += f" × {qty:g}"
                 line += f" — {price:,.0f} ₽"
@@ -541,7 +573,6 @@ class DeepseekGenerator:
 
     def _extract_json_fallback(self, text: str) -> dict:
         """Try to extract JSON from malformed response."""
-        import re
         # Find first { ... } block
         match = re.search(r"\{.*\}", text, re.DOTALL)
         if match:

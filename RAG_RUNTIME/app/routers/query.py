@@ -740,6 +740,126 @@ def _force_inject_bridge(retriever, reranked: list[dict], service_name: str) -> 
         return False
 
 
+def _fetch_linked_offers(retriever, offer_ids: list[int], limit_per_type: int = 3) -> list[dict]:
+    """P10.5-IV: достать offer_composition / offer_profile по списку offer_id.
+
+    Вызывается после `_force_inject_bridge` для закрытия G2 (bridge.offer_ids
+    видят в prompt, но без самого состава КП LLM не может сослаться на реальные
+    позиции). Сначала ищем doc_type=offer_composition (там есть products[]),
+    если мало — добавляем offer_profile как fallback.
+
+    Returns: list of reranked-style dicts (same shape as reranked entries),
+    до 2*limit_per_type элементов. Пустой список — если retriever не готов.
+    """
+    if retriever is None or not getattr(retriever, "is_ready", False) or not offer_ids:
+        return []
+    try:
+        from qdrant_client.models import Filter, FieldCondition, MatchValue, MatchAny
+    except Exception:
+        return []
+
+    ids_as_str = [str(i) for i in offer_ids]
+    ids_as_int = [int(i) for i in offer_ids if str(i).isdigit()]
+
+    out: list[dict] = []
+    seen_offer_ids: set[str] = set()
+
+    def _scan(doc_type: str, match_values) -> list:
+        try:
+            flt = Filter(must=[
+                FieldCondition(key="doc_type", match=MatchValue(value=doc_type)),
+                FieldCondition(key="offer_id", match=MatchAny(any=match_values)),
+            ])
+            res, _ = retriever._client.scroll(
+                collection_name=retriever.settings.qdrant_collection,
+                scroll_filter=flt,
+                limit=limit_per_type,
+                with_payload=True, with_vectors=False,
+            )
+            return res or []
+        except Exception:
+            return []
+
+    # offer_composition — богатый источник (products[], total_price)
+    for match_set in (ids_as_int, ids_as_str):
+        if not match_set:
+            continue
+        hits = _scan("offer_composition", match_set)
+        for pt in hits:
+            oid = str(pt.payload.get("offer_id", ""))
+            if oid and oid not in seen_offer_ids:
+                seen_offer_ids.add(oid)
+                out.append({
+                    "doc_id": pt.payload.get("doc_id", f"oc_{oid}"),
+                    "score": 0.9, "rrf_score": 0.9, "final_score": 0.9,
+                    "bm25_score": 0.0,
+                    "payload": pt.payload,
+                    "linked_from_bridge": True,
+                })
+        if out:
+            break  # int/str — только одна схема хранения
+
+    # offer_profile — fallback (если offer_composition не нашёлся)
+    if len(out) < limit_per_type:
+        remaining = limit_per_type - len(out)
+        for match_set in (ids_as_int, ids_as_str):
+            if not match_set:
+                continue
+            hits = _scan("offer_profile", match_set)
+            # Cap по remaining
+            for pt in hits[:remaining]:
+                oid = str(pt.payload.get("offer_id", "")
+                          or pt.payload.get("deal_id", ""))
+                if oid and oid not in seen_offer_ids:
+                    seen_offer_ids.add(oid)
+                    out.append({
+                        "doc_id": pt.payload.get("doc_id", f"op_{oid}"),
+                        "score": 0.85, "rrf_score": 0.85, "final_score": 0.85,
+                        "bm25_score": 0.0,
+                        "payload": pt.payload,
+                        "linked_from_bridge": True,
+                    })
+            if len(out) >= limit_per_type:
+                break
+
+    return out
+
+
+def _inject_linked_offers_after_bridge(retriever, reranked: list[dict],
+                                        max_offers: int = 3) -> int:
+    """P10.5-IV: если reranked[0] — bridge, подмешивает в индекс 1..N связанные
+    offer_composition/offer_profile по offer_ids из packages. Возвращает число
+    добавленных docs (0 если bridge отсутствует наверху или нет связанных КП).
+    """
+    if not reranked:
+        return 0
+    top = reranked[0]
+    payload = top.get("payload") or {}
+    if payload.get("doc_type") != "service_pricing_bridge":
+        return 0
+    # Собираем offer_ids из всех packages
+    offer_ids: list[int] = []
+    for pkg in (payload.get("packages") or []):
+        for oid in (pkg.get("offer_ids") or []):
+            if oid not in offer_ids:
+                offer_ids.append(oid)
+    if not offer_ids:
+        return 0
+    linked = _fetch_linked_offers(retriever, offer_ids, limit_per_type=max_offers)
+    if not linked:
+        return 0
+    # Уже в reranked? — пропускаем дубликаты
+    existing_ids = {(d.get("payload") or {}).get("doc_id") for d in reranked}
+    new_linked = [d for d in linked if d["doc_id"] not in existing_ids]
+    # Вставляем сразу после bridge (index=1)
+    for i, d in enumerate(new_linked):
+        reranked.insert(1 + i, d)
+    logger.info("linked offers injected after bridge",
+                bridge_service=payload.get("service"),
+                offer_ids=offer_ids[:5], injected=len(new_linked))
+    return len(new_linked)
+
+
 def _parse_deal_items(raw_json: dict) -> list[DealItem]:
     """Extract and validate deal_items from LLM JSON output."""
     raw_items = raw_json.get("deal_items")
@@ -1598,6 +1718,8 @@ async def query_structured(req: QueryRequest, request: Request,
                             if _bridge_service:
                                 if _force_inject_bridge(retriever, reranked, _bridge_service):
                                     _bridge_forced = True
+                                    # P10.5-IV: подмешиваем реальные КП (G2)
+                                    _inject_linked_offers_after_bridge(retriever, reranked)
                                 reranked_relevant = _filter_relevant_docs(reranked)
                             _smeta_pre = None
                         if _smeta_pre is not None and _smeta_pre.is_usable \
@@ -1880,7 +2002,9 @@ async def query_structured(req: QueryRequest, request: Request,
                         smeta_result.category_name
                     )
                     if _bridge_service_ds:
-                        _force_inject_bridge(retriever, reranked, _bridge_service_ds)
+                        if _force_inject_bridge(retriever, reranked, _bridge_service_ds):
+                            # P10.5-IV: подмешиваем реальные КП (G2)
+                            _inject_linked_offers_after_bridge(retriever, reranked)
                     smeta_result = None
                 elif _is_underkey_intent(req.query) \
                         and smeta_result.category_name in _UNDERKEY_BLACKLIST_CATEGORIES:
