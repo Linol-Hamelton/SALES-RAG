@@ -414,12 +414,15 @@ class SmetaEngine:
         if _needs_height:
             _d = decomp or {}
             _h = int(_d.get("height_cm", 0) or 0)
-            _lc = int(_d.get("letter_count", 0) or 0)
-            if _h == 0 and _lc == 0 and overall_conf == "high":
+            # Высота буквы — единственный надёжный драйвер цены в этой категории
+            # (letter_count часто шумит: слово «буквы» даёт letter_count=3 в
+            # query_decomposer). Без height — форсим medium даже если smeta
+            # вытащила «high» из forced_strong / per-position stats.
+            if _h == 0 and overall_conf == "high":
                 overall_conf = "medium"
                 flags.append(
                     "Размер не указан — оценка по медиане категории; "
-                    "уточните высоту буквы и количество"
+                    "уточните высоту буквы"
                 )
 
         # Price band: total ± aggregated std (at least ±10% for safety)
