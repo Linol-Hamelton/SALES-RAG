@@ -170,10 +170,10 @@ Production RAG-система для labus.pro: подбор товаров/ус
 - Fix: SEED_DEALS canonical=`48137` («ЮД-0336», 6 чистых поз., 15K₽ vs avg 18K₽)
 - Positions: Титульная вывеска полиграфия + Композит + Оракал + Аппликация прорезка
 
-**P8.3 — Eval suite расширение под SmetaEngine**
-- Новые категории в `test_cases.json`: `smeta_seed`, `smeta_parametric`, `smeta_quality_threshold`
-- Метрики: category precision@1, total deviation от канонического
-- Regression guard: «Сколько стоит логотип?» → всегда «Логотип», никогда «Титульные вывески»
+**P8.3 — Eval suite расширение под SmetaEngine** ✅ ВЫПОЛНЕН (2026-04-15)
+- `eval/test_cases.json`: 5 кейсов категории `smeta_seed` (smeta_seed_01–05)
+- Regression guards: Логотип → никогда «Титульные вывески»; Брендбук → нет шоколада / не 2.5M₽
+- `eval.py`: `smeta_seed` добавлена в CATEGORIES
 
 ### P9 — Data quality
 

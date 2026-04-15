@@ -49,6 +49,7 @@ CATEGORIES = [
     "direction_ambiguous",
     "edge_case",
     "roadmap_process",  # P11-R3: roadmap trigger invariant cases
+    "smeta_seed",       # P8.3: SmetaEngine SEED canonical regression guards
 ]
 
 

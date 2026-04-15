@@ -755,5 +755,80 @@
     "must_contain_flags": [],
     "must_not_contain": [],
     "notes": "P11-R3: НЕТ roadmap trigger -> check должен пропускаться (skip), не блокировать прохождение"
+  },
+  {
+    "id": "smeta_seed_01",
+    "category": "smeta_seed",
+    "query": "Сколько стоит разработка логотипа?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [
+      "логотип"
+    ],
+    "must_not_contain": [
+      "Титульные вывески",
+      "Шоколад"
+    ],
+    "notes": "P8.3 regression guard: Логотип query -> Логотип category, never Титульные вывески"
+  },
+  {
+    "id": "smeta_seed_02",
+    "category": "smeta_seed",
+    "query": "Нужен брендбук для компании. Что входит и сколько стоит?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [
+      "брендбук"
+    ],
+    "must_not_contain": [
+      "Шоколад",
+      "2 000 000",
+      "2500000"
+    ],
+    "notes": "P8.2 regression guard: Брендбук -> canonical 66K (не event 2.5M), нет шоколада"
+  },
+  {
+    "id": "smeta_seed_03",
+    "category": "smeta_seed",
+    "query": "Сколько стоит разработка фирменного стиля под ключ?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [
+      "фирменный"
+    ],
+    "must_not_contain": [
+      "Титульные вывески"
+    ],
+    "notes": "P8.1 Фирменный стиль: canonical 51K из чистых шаблонов"
+  },
+  {
+    "id": "smeta_seed_04",
+    "category": "smeta_seed",
+    "query": "Сколько стоит изготовление титульной вывески?",
+    "expected_direction": "Цех",
+    "expected_confidence": "auto",
+    "must_contain_flags": [
+      "вывеск"
+    ],
+    "must_not_contain": [
+      "Шоколад",
+      "шоколад"
+    ],
+    "notes": "P8.2 Титульные вывески: canonical не должен содержать шоколад"
+  },
+  {
+    "id": "smeta_seed_05",
+    "category": "smeta_seed",
+    "query": "Логотип — стандартный пакет. Что включает и цена?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [
+      "логотип"
+    ],
+    "must_not_contain": [
+      "Титульные вывески",
+      "объёмные буквы"
+    ],
+    "notes": "P8.3: Логотип «стандарт» -> Логотип category, не вывески"
   }
 ]
