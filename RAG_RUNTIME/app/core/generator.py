@@ -303,14 +303,35 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             blocks.append("\n".join(lines))
 
         elif doc_type == "roadmap":
+            # P11-R2: структурированный формат — LLM понимает что это процесс, не товар
             roadmap_title = payload.get("roadmap_title", "")
             section = payload.get("section", "")
+            direction = payload.get("direction", "")
+            service = payload.get("service", "")
+            timelines = payload.get("timelines", [])
+            prices = payload.get("prices", [])
             content = payload.get("searchable_text", "")
+
+            header_parts = [f"[Регламент: {roadmap_title}"]
             if section:
-                header = f"[Дорожная карта: {roadmap_title} → {section}]"
-            else:
-                header = f"[Дорожная карта: {roadmap_title}]"
-            lines = [header, f"  {content[:2000]}"]
+                header_parts.append(f"| {section}")
+            header_parts.append("]")
+            header = " ".join(header_parts)
+
+            meta_parts = []
+            if direction:
+                meta_parts.append(f"Направление: {direction}")
+            if service:
+                meta_parts.append(f"Услуга: {service}")
+            if timelines:
+                meta_parts.append(f"Сроки: {', '.join(str(t) for t in timelines[:3])}")
+            if prices:
+                meta_parts.append(f"Ценовые ориентиры: {', '.join(str(p) for p in prices[:3])}")
+
+            lines = [header]
+            if meta_parts:
+                lines.append("  " + " | ".join(meta_parts))
+            lines.append(f"  {content[:2000]}")
             blocks.append("\n".join(lines))
 
         elif doc_type == "photo_analysis":

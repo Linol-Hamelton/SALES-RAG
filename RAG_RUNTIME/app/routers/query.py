@@ -740,6 +740,64 @@ def _force_inject_bridge(retriever, reranked: list[dict], service_name: str) -> 
         return False
 
 
+def _force_inject_roadmap(retriever, reranked: list[dict], query: str) -> bool:
+    """P11-R1: гарантированная доставка roadmap-документов при trigger-запросах.
+
+    Semantic retrieval не достаёт roadmap в top-K из-за embedding distance.
+    При обнаружении trigger-слов («этапы», «как делаете», «процесс» и т.д.)
+    делаем dedicated retrieval только по doc_type=roadmap и вставляем top-3
+    в начало reranked с синтетически высоким score.
+
+    Идемпотентна: если roadmap уже есть в reranked — поднимает их наверх.
+    """
+    if retriever is None or not getattr(retriever, "is_ready", False) or not query:
+        return False
+
+    q_lower = query.lower()
+    roadmap_trigger_words = (
+        "регламент", "этап", "как делаете", "как делается",
+        "процесс", "сроки", "схема работы", "порядок работ",
+        "как вы работаете", "как происходит", "расскажите про процесс",
+    )
+    if not any(w in q_lower for w in roadmap_trigger_words):
+        return False
+
+    # Идемпотентность: roadmap уже есть — просто поднимаем наверх
+    roadmap_idxs = [i for i, d in enumerate(reranked)
+                    if (d.get("payload") or {}).get("doc_type") == "roadmap"]
+    if roadmap_idxs:
+        roadmap_docs = [reranked.pop(i) for i in sorted(roadmap_idxs, reverse=True)]
+        for doc in reversed(roadmap_docs):
+            reranked.insert(0, doc)
+        logger.info("roadmap force-inject: promoted existing",
+                    count=len(roadmap_docs), query=query[:60])
+        return True
+
+    try:
+        roadmap_results = retriever.retrieve_roadmap(query, top_k=3)
+        if not roadmap_results:
+            logger.info("roadmap force-inject: no roadmap docs found", query=query[:60])
+            return False
+
+        top_score = (reranked[0].get("rrf_score") or reranked[0].get("final_score") or 1.0) \
+            if reranked else 1.0
+        synthetic_base = float(top_score) + 0.5
+
+        for i, doc in enumerate(roadmap_results):
+            doc["forced_roadmap"] = True
+            doc["rrf_score"] = synthetic_base - i * 0.05
+            doc["final_score"] = doc["rrf_score"]
+            reranked.insert(i, doc)
+
+        logger.info("roadmap force-injected",
+                    count=len(roadmap_results), query=query[:60])
+        return True
+
+    except Exception as e:
+        logger.warning("force_inject_roadmap failed", query=query[:60], error=str(e))
+        return False
+
+
 def _fetch_linked_offers(retriever, offer_ids: list[int], limit_per_type: int = 3) -> list[dict]:
     """P10.5-IV: достать offer_composition / offer_profile по списку offer_id.
 
@@ -1331,6 +1389,7 @@ async def query_human(req: QueryRequest, request: Request,
                 )
 
             reranked = reranker.rerank(req.query, candidates, top_n=req.top_k)
+            _force_inject_roadmap(retriever, reranked, req.query)  # P11-R1
             pricing_resolution = pricing.resolve(reranked, decomp=decomp)
 
             # Inject size context for queries with letter info
@@ -1647,6 +1706,7 @@ async def query_structured(req: QueryRequest, request: Request,
                 )
 
             reranked = reranker.rerank(req.query, candidates, top_n=req.top_k)
+            _force_inject_roadmap(retriever, reranked, req.query)  # P11-R1
             pr = pricing.resolve(reranked, decomp=decomp)
             # Filter noise: only pass relevant docs to generator for pricing context
             reranked_relevant = _filter_relevant_docs(reranked)

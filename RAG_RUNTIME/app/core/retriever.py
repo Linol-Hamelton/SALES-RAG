@@ -338,6 +338,63 @@ class HybridRetriever:
             logger.error("Bundle retrieval failed", query=query[:60], error=str(e))
             return []
 
+    def retrieve_roadmap(self, query: str, top_k: int = 3) -> list[dict]:
+        """P11: Dedicated retrieval filtered to doc_type=roadmap for roadmap-trigger queries.
+
+        Семантический поиск по общему индексу не достаёт roadmap-чанки в top-K
+        из-за низкого embedding similarity (процессные описания vs. пользовательские запросы).
+        Этот метод делает изолированный hybrid-запрос ТОЛЬКО в roadmap namespace,
+        чтобы получить лучшие roadmap-совпадения независимо от конкурирующих doc_types.
+        """
+        if not self._loaded:
+            self.load()
+
+        from qdrant_client.models import Filter, FieldCondition, MatchValue, Prefetch, FusionQuery, Fusion
+        query_vec = self.embed_query(query)
+        sparse_vec = generate_sparse_vector(query)
+        roadmap_filter = Filter(must=[FieldCondition(key="doc_type", match=MatchValue(value="roadmap"))])
+
+        try:
+            if sparse_vec is None:
+                results = self._client.query_points(
+                    collection_name=self.settings.qdrant_collection,
+                    query=query_vec,
+                    using="dense",
+                    limit=top_k,
+                    query_filter=roadmap_filter,
+                    with_payload=True,
+                ).points
+            else:
+                prefetch = [
+                    Prefetch(query=query_vec, using="dense", limit=top_k * 2, filter=roadmap_filter),
+                    Prefetch(query=sparse_vec, using="lexical", limit=top_k * 2, filter=roadmap_filter),
+                ]
+                results = self._client.query_points(
+                    collection_name=self.settings.qdrant_collection,
+                    prefetch=prefetch,
+                    query=FusionQuery(fusion=Fusion.RRF),
+                    limit=top_k,
+                    with_payload=True,
+                ).points
+
+            docs = []
+            for r in results:
+                docs.append({
+                    "doc_id": r.payload.get("doc_id", f"id_{r.id}"),
+                    "score": r.score,
+                    "payload": r.payload,
+                    "rrf_score": r.score,
+                    "final_score": r.score,
+                    "bm25_score": 0.0,
+                })
+            docs.sort(key=lambda x: x["final_score"], reverse=True)
+            logger.info("Roadmap retrieval", query=query[:60], hits=len(docs))
+            return docs
+
+        except Exception as e:
+            logger.error("Roadmap retrieval failed", query=query[:60], error=str(e))
+            return []
+
     def retrieve_by_intent(self, query: str, intent_name: str, hints: dict | None = None, top_k: int | None = None) -> list[dict]:
         """Intent-aware retrieval: select doc_type filter and top_k based on intent."""
         from qdrant_client.models import Filter, FieldCondition, MatchAny, Range
