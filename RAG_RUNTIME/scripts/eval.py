@@ -48,6 +48,7 @@ CATEGORIES = [
     "bundle_query",
     "direction_ambiguous",
     "edge_case",
+    "roadmap_process",  # P11-R3: roadmap trigger invariant cases
 ]
 
 
@@ -104,6 +105,17 @@ def check_bundle(result: dict, expected_bundle: bool) -> tuple[bool, str]:
     return False, "no bundle in response"
 
 
+def check_roadmap_trigger(result: dict, is_roadmap_trigger: bool) -> tuple[bool, str]:
+    """P11-R3: Check that roadmap-trigger queries return ≥1 roadmap doc in retrieved_doc_types."""
+    if not is_roadmap_trigger:
+        return True, "skip"
+    retrieved_doc_types = result.get("retrieved_doc_types") or {}
+    roadmap_count = retrieved_doc_types.get("roadmap", 0)
+    if roadmap_count >= 1:
+        return True, f"roadmap×{roadmap_count}"
+    return False, f"roadmap×{roadmap_count} (required ≥1)"
+
+
 async def run_query(
     client: httpx.AsyncClient,
     server: str,
@@ -148,8 +160,9 @@ def evaluate_case(case: dict, result: dict | None, error: str | None) -> dict:
         case.get("must_not_contain", []),
     )
     bundle_ok, bundle_detail = check_bundle(result, case.get("expected_bundle", False))
+    roadmap_ok, roadmap_detail = check_roadmap_trigger(result, case.get("roadmap_trigger", False))
 
-    all_passed = confidence_ok and direction_ok and flags_ok and bundle_ok
+    all_passed = confidence_ok and direction_ok and flags_ok and bundle_ok and roadmap_ok
 
     return {
         "id": case["id"],
@@ -162,6 +175,7 @@ def evaluate_case(case: dict, result: dict | None, error: str | None) -> dict:
             "direction": {"ok": direction_ok, "expected": case.get("expected_direction"), "actual": direction_actual},
             "flags": {"ok": flags_ok, "failures": flag_failures},
             "bundle": {"ok": bundle_ok, "detail": bundle_detail},
+            "roadmap": {"ok": roadmap_ok, "detail": roadmap_detail},
         },
         "notes": case.get("notes", ""),
     }
@@ -284,6 +298,11 @@ def aggregate_results(results: list[dict], latencies: list[float]) -> dict:
     flag_ok = sum(1 for r in flag_cases if r.get("checks", {}).get("flags", {}).get("ok", False))
     flag_acc = flag_ok / len(flag_cases) if flag_cases else None
 
+    # Roadmap trigger accuracy (P11-R3)
+    roadmap_cases = [r for r in results if r.get("checks", {}).get("roadmap", {}).get("detail") != "skip"]
+    roadmap_ok_count = sum(1 for r in roadmap_cases if r.get("checks", {}).get("roadmap", {}).get("ok", False))
+    roadmap_trigger_acc = roadmap_ok_count / len(roadmap_cases) if roadmap_cases else None
+
     summary = {
         "timestamp": datetime.now().isoformat(),
         "total_cases": total,
@@ -296,6 +315,7 @@ def aggregate_results(results: list[dict], latencies: list[float]) -> dict:
             "direction_accuracy": dir_acc,
             "bundle_recall": bundle_recall,
             "flag_accuracy": flag_acc,
+            "roadmap_trigger_accuracy": roadmap_trigger_acc,
         },
         "latency_ms": {
             "avg": round(avg_latency, 1),
@@ -329,6 +349,8 @@ def print_summary(summary: dict) -> None:
         console.print(f"  Bundle recall: {m['bundle_recall']*100:.1f}%")
     if m["flag_accuracy"] is not None:
         console.print(f"  Flag check accuracy: {m['flag_accuracy']*100:.1f}%")
+    if m.get("roadmap_trigger_accuracy") is not None:
+        console.print(f"  Roadmap trigger accuracy: {m['roadmap_trigger_accuracy']*100:.1f}%")
 
     lat = summary["latency_ms"]
     console.print(f"  Latency — avg: {lat['avg']}ms  p95: {lat['p95']}ms  max: {lat['max']}ms")
@@ -414,6 +436,7 @@ def write_results(summary: dict, output_dir: Path, reports_dir: Path) -> None:
         f"| Direction accuracy | {pct(m['direction_accuracy'])} |",
         f"| Bundle recall | {pct(m['bundle_recall'])} |",
         f"| Flag accuracy | {pct(m['flag_accuracy'])} |",
+        f"| Roadmap trigger accuracy | {pct(m.get('roadmap_trigger_accuracy'))} |",
         "",
         "## Latency",
         "",

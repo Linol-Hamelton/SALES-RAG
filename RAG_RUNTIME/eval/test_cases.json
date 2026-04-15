@@ -1,0 +1,759 @@
+[
+  {
+    "id": "auto_01",
+    "category": "auto_priced",
+    "query": "Сколько стоит почасовая работа с дизайнером?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "финансовый модификатор"
+    ],
+    "notes": "Hourly design work - should have stable pricing"
+  },
+  {
+    "id": "auto_02",
+    "category": "auto_priced",
+    "query": "Цена на мобильную съемку 1 час",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "ручная проверка"
+    ],
+    "notes": "Mobile photography - auto priced product"
+  },
+  {
+    "id": "auto_03",
+    "category": "auto_priced",
+    "query": "Стоимость создания анимационного ролика",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "insufficient_history"
+    ],
+    "notes": "Animation - stable auto pricing"
+  },
+  {
+    "id": "auto_04",
+    "category": "auto_priced",
+    "query": "Адаптация слайда презентации цена",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Slide adaptation - auto priced"
+  },
+  {
+    "id": "auto_05",
+    "category": "auto_priced",
+    "query": "Стоимость размещения рекламы на щите",
+    "expected_direction": "РИК",
+    "expected_confidence": "auto",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "финансовый модификатор"
+    ],
+    "notes": "RIK placement - auto priced"
+  },
+  {
+    "id": "guided_01",
+    "category": "guided_priced",
+    "query": "Стоимость монтажа наружной конструкции",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [
+      "Ориентировочная цена"
+    ],
+    "must_not_contain": [],
+    "notes": "Mounting service - guided pricing"
+  },
+  {
+    "id": "guided_02",
+    "category": "guided_priced",
+    "query": "Цена баннера 3 на 6 метров",
+    "expected_direction": "Сольвент",
+    "expected_confidence": "guided",
+    "must_contain_flags": [
+      "уточнение",
+      "менеджер"
+    ],
+    "must_not_contain": [],
+    "notes": "Large banner - guided pricing"
+  },
+  {
+    "id": "guided_03",
+    "category": "guided_priced",
+    "query": "Сколько стоит сольвентная печать на ткани?",
+    "expected_direction": "Сольвент",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Solvent print on fabric"
+  },
+  {
+    "id": "guided_04",
+    "category": "guided_priced",
+    "query": "Ориентировочная стоимость дизайна логотипа",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Logo design - guided"
+  },
+  {
+    "id": "guided_05",
+    "category": "guided_priced",
+    "query": "Стоимость изготовления световой буквы",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Lit letter fabrication - guided"
+  },
+  {
+    "id": "guided_06",
+    "category": "guided_priced",
+    "query": "Цена листовки А4",
+    "expected_direction": "Печатная",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "A4 flyer - guided pricing"
+  },
+  {
+    "id": "guided_07",
+    "category": "guided_priced",
+    "query": "Стоимость печати наклеек",
+    "expected_direction": "Печатная",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Sticker printing"
+  },
+  {
+    "id": "guided_08",
+    "category": "guided_priced",
+    "query": "Диапазон цен на оклейку пленкой",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Film wrapping - guided"
+  },
+  {
+    "id": "manual_01",
+    "category": "manual_priced",
+    "query": "Цена на безнал 10%",
+    "expected_direction": "Безнал",
+    "expected_confidence": "manual",
+    "must_contain_flags": [
+      "Финансовый модификатор"
+    ],
+    "must_not_contain": [
+      "estimated_price"
+    ],
+    "notes": "Financial modifier - should flag, no price"
+  },
+  {
+    "id": "manual_02",
+    "category": "manual_priced",
+    "query": "Скидка 15% стоимость",
+    "expected_direction": null,
+    "expected_confidence": "manual",
+    "must_contain_flags": [
+      "модификатор"
+    ],
+    "must_not_contain": [],
+    "notes": "Discount modifier"
+  },
+  {
+    "id": "manual_03",
+    "category": "manual_priced",
+    "query": "Стоимость нестандартной вывески из нержавейки",
+    "expected_direction": "Цех",
+    "expected_confidence": "manual",
+    "must_contain_flags": [
+      "ручной",
+      "расчёт"
+    ],
+    "must_not_contain": [],
+    "notes": "Custom non-catalog product"
+  },
+  {
+    "id": "manual_04",
+    "category": "manual_priced",
+    "query": "Изготовление уникального стенда выставочного",
+    "expected_direction": "Цех",
+    "expected_confidence": "manual",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Custom exhibition stand"
+  },
+  {
+    "id": "manual_05",
+    "category": "manual_priced",
+    "query": "Ремонт световой вывески цена",
+    "expected_direction": "Цех",
+    "expected_confidence": "manual",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Repair service - likely manual"
+  },
+  {
+    "id": "manual_06",
+    "category": "manual_priced",
+    "query": "Стоимость срочного заказа с доплатой",
+    "expected_direction": null,
+    "expected_confidence": "manual",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Rush order with premium"
+  },
+  {
+    "id": "manual_07",
+    "category": "manual_priced",
+    "query": "Индивидуальный дизайн рекламной кампании",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "manual",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Custom campaign design"
+  },
+  {
+    "id": "manual_08",
+    "category": "manual_priced",
+    "query": "Монтаж на высоте более 10 метров",
+    "expected_direction": "Цех",
+    "expected_confidence": "manual",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "High-altitude mounting - manual"
+  },
+  {
+    "id": "bundle_01",
+    "category": "bundle_query",
+    "query": "Световая вывеска под ключ — что входит и сколько стоит?",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Illuminated sign bundle - should return bundle doc",
+    "expected_bundle": true
+  },
+  {
+    "id": "bundle_02",
+    "category": "bundle_query",
+    "query": "Комплект для световых объёмных букв",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Lit volumetric letters bundle",
+    "expected_bundle": true
+  },
+  {
+    "id": "bundle_03",
+    "category": "bundle_query",
+    "query": "Весь пакет для фасадной вывески кофейни",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Coffeehouse facade sign full package",
+    "expected_bundle": true
+  },
+  {
+    "id": "bundle_04",
+    "category": "bundle_query",
+    "query": "Полный набор для монтажа баннерной конструкции",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Banner frame installation bundle",
+    "expected_bundle": true
+  },
+  {
+    "id": "bundle_05",
+    "category": "bundle_query",
+    "query": "Что входит в стандартную световую вывеску стоматологии?",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Dentistry sign bundle",
+    "expected_bundle": true
+  },
+  {
+    "id": "bundle_06",
+    "category": "bundle_query",
+    "query": "Комплексная печатная кампания: листовки + баннер + стенд",
+    "expected_direction": null,
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Multi-direction campaign bundle",
+    "expected_bundle": true
+  },
+  {
+    "id": "bundle_07",
+    "category": "bundle_query",
+    "query": "Набор рекламных материалов для открытия аптеки",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Pharmacy opening bundle",
+    "expected_bundle": true
+  },
+  {
+    "id": "bundle_08",
+    "category": "bundle_query",
+    "query": "Световая вывеска для ресторана под ключ",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Restaurant sign bundle",
+    "expected_bundle": true
+  },
+  {
+    "id": "bundle_09",
+    "category": "bundle_query",
+    "query": "Полный комплект монтажников для установки вывески",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Full installation team bundle",
+    "expected_bundle": true
+  },
+  {
+    "id": "bundle_10",
+    "category": "bundle_query",
+    "query": "Пакет услуг для брендирования торговой точки",
+    "expected_direction": null,
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Retail branding package",
+    "expected_bundle": true
+  },
+  {
+    "id": "ambig_01",
+    "category": "direction_ambiguous",
+    "query": "Цена на наклейки",
+    "expected_direction": "Печатная",
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Stickers - could be print or solvent"
+  },
+  {
+    "id": "ambig_02",
+    "category": "direction_ambiguous",
+    "query": "Стоимость дизайн-макета",
+    "expected_direction": "Дизайн",
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Design layout"
+  },
+  {
+    "id": "ambig_03",
+    "category": "direction_ambiguous",
+    "query": "Печать банера",
+    "expected_direction": "Сольвент",
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Banner print - typo in Russian"
+  },
+  {
+    "id": "ambig_04",
+    "category": "direction_ambiguous",
+    "query": "Реклама для бизнеса",
+    "expected_direction": null,
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "придуман"
+    ],
+    "notes": "Very vague - should ask for clarification"
+  },
+  {
+    "id": "ambig_05",
+    "category": "direction_ambiguous",
+    "query": "Цена на монтаж",
+    "expected_direction": "Цех",
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Mounting - could be workshop or RIK"
+  },
+  {
+    "id": "ambig_06",
+    "category": "direction_ambiguous",
+    "query": "Изготовление и размещение вывески",
+    "expected_direction": "Цех",
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Mixed: fabrication (Цех) + placement (РИК)"
+  },
+  {
+    "id": "ambig_07",
+    "category": "direction_ambiguous",
+    "query": "Сколько стоит реклама?",
+    "expected_direction": null,
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "придуман"
+    ],
+    "notes": "Too vague - should provide options"
+  },
+  {
+    "id": "edge_01",
+    "category": "edge_case",
+    "query": "Какой у вас режим работы?",
+    "expected_direction": null,
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "придуман",
+      "1000 руб"
+    ],
+    "notes": "Out of scope - working hours"
+  },
+  {
+    "id": "edge_02",
+    "category": "edge_case",
+    "query": "Нужен счёт на оплату заказа 12345",
+    "expected_direction": null,
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Invoice request - not product query"
+  },
+  {
+    "id": "edge_03",
+    "category": "edge_case",
+    "query": "What is the price for a banner 3x6 meters?",
+    "expected_direction": "Сольвент",
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "English language query"
+  },
+  {
+    "id": "edge_04",
+    "category": "edge_case",
+    "query": "У меня бюджет 50000 рублей, что можно сделать для рекламы?",
+    "expected_direction": null,
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "придуман"
+    ],
+    "notes": "Budget-specified query"
+  },
+  {
+    "id": "edge_05",
+    "category": "edge_case",
+    "query": "xyz123 абракадабра",
+    "expected_direction": null,
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Nonsense query - should degrade gracefully"
+  },
+  {
+    "id": "edge_06",
+    "category": "edge_case",
+    "query": "Цена",
+    "expected_direction": null,
+    "expected_confidence": null,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Single word query"
+  },
+  {
+    "id": "edge_07",
+    "category": "edge_case",
+    "query": "Световая вывеска аптека состав и стоимость с монтажом под ключ в Москве срочно",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "Long detailed query - pharmacy sign bundle"
+  },
+  {
+    "id": "logo_01",
+    "category": "auto_priced",
+    "query": "Стоимость разработки логотипа",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "Титульные",
+      "Световая вывеска"
+    ],
+    "notes": "P7.7 SEED_DEALS Логотип — должен попасть в Логотип, не в Титульные"
+  },
+  {
+    "id": "logo_02",
+    "category": "auto_priced",
+    "query": "Сделать логотип для компании",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "guided",
+    "must_contain_flags": [
+      "логотип"
+    ],
+    "must_not_contain": [
+      "Титульные"
+    ],
+    "notes": "P7.7-A keyword override safety net [P9: auto→guided, bridge-пакеты 27.5K-75K]"
+  },
+  {
+    "id": "logo_03",
+    "category": "auto_priced",
+    "query": "Дизайн логотипа цена",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "Титульные"
+    ],
+    "notes": "Logo design — должен резолвить SEED_DEALS Логотип"
+  },
+  {
+    "id": "logo_04",
+    "category": "auto_priced",
+    "query": "Создание фирменного логотипа",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "Титульные"
+    ],
+    "notes": "Branded logo — Логотип"
+  },
+  {
+    "id": "logo_05",
+    "category": "auto_priced",
+    "query": "Отрисовка логотипа в векторе",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "Титульные"
+    ],
+    "notes": "Vector logo redraw — Логотип SEED [P9: auto→guided, bridge-пакеты 27.5K-75K]"
+  },
+  {
+    "id": "logo_06",
+    "category": "auto_priced",
+    "query": "Нужен новый логотип",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "Титульные"
+    ],
+    "notes": "Short logo intent — keyword override should fire [P9: auto→guided, bridge-пакеты 27.5K-75K]"
+  },
+  {
+    "id": "logo_07",
+    "category": "auto_priced",
+    "query": "Лого для кофейни",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "Титульные"
+    ],
+    "notes": "Slang 'лого' — keyword override should still match"
+  },
+  {
+    "id": "logo_08",
+    "category": "auto_priced",
+    "query": "Разработка логотипа и фирменного знака",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [
+      "Титульные",
+      "Световая вывеска"
+    ],
+    "notes": "Logo + mark — Логотип SEED, NOT Титульные [P9: auto→guided, bridge-пакеты 27.5K-75K]"
+  },
+  {
+    "id": "bridge_01",
+    "category": "bridge_pricing",
+    "query": "Сколько стоит разработка логотипа?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "guided",
+    "must_contain_flags": [
+      "service_pricing_bridge",
+      "offer_composition"
+    ],
+    "must_not_contain": [
+      "2 570 000",
+      "2570000",
+      "Титульные"
+    ],
+    "notes": "P9 bridge: should offer 2-3 packages (Стандарт/Базовый/Креативная), NOT a single flat price [P9: auto→guided, bridge-пакеты 27.5K-75K] | P10.5 graph-invariant: bridge + linked offer_composition"
+  },
+  {
+    "id": "bridge_02",
+    "category": "bridge_pricing",
+    "query": "Нужен брендбук для компании, сколько это стоит?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "guided",
+    "must_contain_flags": [
+      "service_pricing_bridge",
+      "offer_composition"
+    ],
+    "must_not_contain": [
+      "2 570 000",
+      "2570000",
+      "1 000 000"
+    ],
+    "notes": "P9 bridge: brandbook 66K-300K, NOT millions. Should mention packages | P10.5 graph-invariant: bridge + linked offer_composition"
+  },
+  {
+    "id": "bridge_03",
+    "category": "bridge_pricing",
+    "query": "Хочу заказать фирменный стиль",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "guided",
+    "must_contain_flags": [
+      "service_pricing_bridge",
+      "offer_composition"
+    ],
+    "must_not_contain": [],
+    "notes": "P9 bridge: brand identity 39.5K-100K with packages | P10.5 graph-invariant: bridge + linked offer_composition"
+  },
+  {
+    "id": "bridge_04",
+    "category": "consultation",
+    "query": "Вы делаете вывески?",
+    "expected_direction": null,
+    "expected_confidence": "manual",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P9: consultation intent — should present services, NOT calculate price"
+  },
+  {
+    "id": "bridge_05",
+    "category": "consultation",
+    "query": "Какие услуги по дизайну вы предлагаете?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "manual",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P9: consultation — list design services, don't calculate"
+  },
+  {
+    "id": "bridge_06",
+    "category": "bridge_pricing",
+    "query": "Объёмные буквы высотой 40 см, 8 штук, с подсветкой",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P9: letters with height specified — should give differentiated pricing"
+  },
+  {
+    "id": "bridge_07",
+    "category": "bridge_pricing",
+    "query": "Объёмные буквы высотой 80 см, 5 штук",
+    "expected_direction": "Цех",
+    "expected_confidence": "guided",
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P9: larger letters — should give higher per-letter price than 40cm"
+  },
+  {
+    "id": "bridge_08",
+    "category": "bridge_pricing",
+    "query": "В чём разница между логотипом и брендбуком?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "manual",
+    "must_contain_flags": [
+      "service_pricing_bridge",
+      "offer_composition"
+    ],
+    "must_not_contain": [],
+    "notes": "P9: disambiguation query — should explain difference with price ranges | P10.5 graph-invariant: bridge + linked offer_composition"
+  },
+  {
+    "id": "roadmap_01",
+    "category": "roadmap_process",
+    "query": "Как вы делаете брендбук? Какие этапы?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "manual",
+    "roadmap_trigger": true,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P11-R3: trigger-слова \"как делаете\" + \"этапы\" -> должен инджектить roadmap_docs >= 1"
+  },
+  {
+    "id": "roadmap_02",
+    "category": "roadmap_process",
+    "query": "Расскажите про процесс изготовления вывески. Какие сроки?",
+    "expected_direction": "Цех",
+    "expected_confidence": "manual",
+    "roadmap_trigger": true,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P11-R3: trigger-слова \"процесс\" + \"сроки\" -> roadmap injection"
+  },
+  {
+    "id": "roadmap_03",
+    "category": "roadmap_process",
+    "query": "Как происходит разработка логотипа? Регламент работы?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "manual",
+    "roadmap_trigger": true,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P11-R3: trigger \"как происходит\" + \"регламент\" -> should fetch roadmap"
+  },
+  {
+    "id": "roadmap_04",
+    "category": "roadmap_process",
+    "query": "Схема работы по сольвентной печати — как вы работаете?",
+    "expected_direction": "Сольвент",
+    "expected_confidence": "manual",
+    "roadmap_trigger": true,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P11-R3: trigger \"схема работы\" + \"как вы работаете\" -> roadmap docs"
+  },
+  {
+    "id": "roadmap_05",
+    "category": "roadmap_process",
+    "query": "Порядок работ при заказе световых букв?",
+    "expected_direction": "Цех",
+    "expected_confidence": "manual",
+    "roadmap_trigger": true,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P11-R3: trigger \"порядок работ\" -> should inject roadmap docs"
+  },
+  {
+    "id": "roadmap_06_no_trigger",
+    "category": "roadmap_process",
+    "query": "Сколько стоит логотип?",
+    "expected_direction": "Дизайн",
+    "expected_confidence": "auto",
+    "roadmap_trigger": false,
+    "must_contain_flags": [],
+    "must_not_contain": [],
+    "notes": "P11-R3: НЕТ roadmap trigger -> check должен пропускаться (skip), не блокировать прохождение"
+  }
+]

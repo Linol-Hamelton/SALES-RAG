@@ -45,6 +45,7 @@ CRITIQUE_TYPES = [
     ("workflow_guidance",   r"брифы\s+и\s+скрипты|дорожн\w+\s+карт|менеджер\w+\s+скрипт"),
     ("brand_voice",         r"рыночн\w+\s+данн\w+\s+по\s+дагестан|по\s+рынку\s+дагестан"),
     ("regression",          r"деградаци|было\s+лучше|предыдущие\s+ответы\s+были\s+точн"),
+    ("cites_roadmap",       r"регламент|этап\w*\s+работ|процесс\s+создани|как\s+(вы\s+)?делает|порядок\s+работ"),
 ]
 
 
@@ -125,6 +126,14 @@ def addresses(critique: str, new: dict, comment: str) -> str:
 
     if critique == "regression":
         return "n/a"
+
+    if critique == "cites_roadmap":
+        # P11-R4: check if new response mentions roadmap keywords (регламент/этап/сроки/процесс)
+        cited = bool(re.search(
+            r"регламент|этапы?|сроки?|занимает\s+\d|в\s+течение|порядок\s+работ|процесс\s+(создани|разработ|производ)",
+            full_text,
+        ))
+        return "yes" if cited else "no"
 
     return "n/a"
 

@@ -145,13 +145,17 @@ Production RAG-система для labus.pro: подбор товаров/ус
 - `elif doc_type == "roadmap"` блок в `_format_context_block`: структурированный формат `[Регламент: …] Этапы: …`
 - LLM видит чёткую структуру «это процесс, не товар»
 
-**P11-R3 — Eval roadmap invariant** ❌ не выполнен
-- Добавить в `eval.py` граф-инвариант: при trigger-запросах `retrieved_doc_types.roadmap ≥ 1`
-- Regression guard
+**P11-R3 — Eval roadmap invariant** ✅ ВЫПОЛНЕН (2026-04-15)
+- `eval.py`: `check_roadmap_trigger()` — при `"roadmap_trigger": true` в кейсе ассертирует `retrieved_doc_types.roadmap ≥ 1`
+- `eval.py`: новая метрика `roadmap_trigger_accuracy` в отчёте
+- `eval/test_cases.json`: 6 новых кейсов категории `roadmap_process` (roadmap_01–05 с trigger, roadmap_06 negative)
 
-**P11-R4 — Feedback-replay 27 пар** ❌ не запускался
-- Прогнать `_dbdump/feedback_dump.*` до и после P11
-- Метрика: cite-rate слов «регламент/этап/сроки» в ответах
+**P11-R4 — Feedback-replay 23 пары** ✅ ВЫПОЛНЕН (2026-04-15)
+- `eval/feedback_replay/prepare_r4_pairs.py`: отбор 23 пар из feedback_pairs.json (6 roadmap-релевантных по expert comment + 17 baseline)
+- `eval/feedback_replay/measure_cite_rate.py`: новый скрипт замера cite-rate регламент/этап/сроки
+- `eval/feedback_replay/analyze.py`: добавлена критика `cites_roadmap`
+- **Результат R4**: cite-rate 0% → 18.2% (+18.2%), 4 improved, 0 regressed — P11 работает
+- Verdict по 23 парам: 5 improved, 9 same, 5 regressed (регрессии по wrong_catalog/wrong_math, не по роадмапу)
 
 ### P8 — SmetaEngine расширение
 
