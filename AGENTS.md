@@ -1,5 +1,41 @@
 # AGENTS.md
 
+## Project: Labus Sales RAG
+
+Production RAG-система для labus.pro: подбор товаров/услуг, детерминированная оценка смет, КП-генерация на базе истории Bitrix24.
+
+**Stack:** Python 3.11 · FastAPI · Qdrant · BGE-M3 · BGE-Reranker-v2-m3 · Deepseek API · Node.js (analytics) · Docker · SQLite (чаты+feedback) · Gemini/Ollama Vision
+
+**Key entry points:**
+- API: [RAG_RUNTIME/app/main.py](RAG_RUNTIME/app/main.py) — FastAPI factory, lifespan загружает retriever/reranker/generator/pricing/vision/feedback/deal_lookup/photo_index/smeta_engine
+- Routers: [app/routers/](RAG_RUNTIME/app/routers/) — `health`, `auth_router`, `chats`, `query`, `admin`, `eval`
+- Core: [app/core/](RAG_RUNTIME/app/core/) — `retriever`, `reranker`, `generator`, `pricing_resolver`, `smeta_engine`, `query_parser`, `query_decomposer`, `deal_lookup`, `parametric_calculator`, `photo_index`, `feedback_store`, `vision`
+- Analytics (Node, build-host only): [RAG_ANALYTICS/](RAG_ANALYTICS/) — `buildSmetaTemplates.mjs`, `buildFacts.mjs`, `buildPricing.mjs`, `runAll.mjs`
+- Ingest/index: [RAG_RUNTIME/scripts/](RAG_RUNTIME/scripts/) — `ingest.py`, `ingest_knowledge.py`, `ingest_roadmaps.py`, `build_index.py`, `embed_smeta_categories.py`, `vision_analysis_local.py`
+
+**Data layout:**
+- `RAG_DATA/` — сырые CSV из Bitrix24 (`goods.csv`, `offers.csv`, `orders.csv`) — НЕ в git
+- `RAG_ANALYTICS/output/` — fact tables, pricing recs, smeta_templates.json, category embeddings
+- `RAG_RUNTIME/data/processed/` — JSONL knowledge docs для индекса
+- `RAG_RUNTIME/models/` — BGE-M3 + Reranker (артефакты, НЕ в git)
+
+**Prod:** `root@62.217.178.117` → Docker `labus_api` (image `rag-api`) → `https://ai.labus.pro`. Deploy через git pull + docker cp. Детали: [reference_prod_deploy_paths.md](../../.claude/projects/d--SALES-RAG/memory/reference_prod_deploy_paths.md) в memory, процедуры в [README.md](README.md) §3.
+
+**Docs:**
+- [README.md](README.md) — структура репо, процедуры деплоя
+- [ARCHITECTURE.md](ARCHITECTURE.md) — компоненты, data flow, деградация
+- [PLAN.MD](PLAN.MD) — roadmap и статус этапов
+- [RUNBOOK.md](RUNBOOK.md) — операционные процедуры локальной разработки
+
+**Code conventions:**
+- `workers=1` для uvicorn (BGE-M3 ~2.2GB в процессе)
+- `PYTHONIOENCODING=utf-8` для Windows скриптов
+- Прод-артефакты smeta живут по абсолютному пути `/RAG_ANALYTICS/output/` в контейнере (НЕ под `/app/`)
+- Тяжёлые артефакты идут через scp в `/opt/rag/artifacts/`, компактные (smeta_templates.json ~1.5MB) — коммитятся в git
+- SEED_DEALS + keyword override в SmetaEngine — пре-семантический safety net для коротких запросов (см. [smeta_engine.py](RAG_RUNTIME/app/core/smeta_engine.py))
+
+---
+
 ## Codex MCP Policy
 
 This machine has a preinstalled unified Codex MCP stack under `%USERPROFILE%\.codex\mcp-memory-stack`.

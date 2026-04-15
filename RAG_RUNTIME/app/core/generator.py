@@ -248,15 +248,17 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             sample_products = payload.get("sample_products", "")
             materials = payload.get("materials", "")
 
-            # P10.5-II.5: отдельно показываем deal_id (первичный ключ offer_profile)
-            # и offer_id (если закодирован в title, напр. "КП #21208 для ...")
+            # P10.6 D2: offer_id читается напрямую из payload (B4 добавил это поле).
+            # Регекс-хак из P10.5-II.5 удалён — title-парсинг возвращал кривые ID,
+            # если КП # не был в начале строки. deal_id остаётся для совместимости
+            # с регексом в legacy docs и если offer_id ещё не проиндексирован.
             deal_id = payload.get("deal_id") or ""
-            offer_id_match = re.search(r"КП\s*#?(\d+)", title or "")
-            offer_id = offer_id_match.group(1) if offer_id_match else ""
+            offer_id = payload.get("offer_id")
+            offer_id_str = str(offer_id) if offer_id else ""
             ref_parts = []
-            if offer_id:
-                ref_parts.append(f"КП #{offer_id}")
-            if deal_id and str(deal_id) != offer_id:
+            if offer_id_str:
+                ref_parts.append(f"КП #{offer_id_str}")
+            if deal_id and str(deal_id) != offer_id_str:
                 ref_parts.append(f"сделка #{deal_id}")
             ref_tag = (" " + " / ".join(ref_parts)) if ref_parts else ""
             lines = [f"[Шаблон КП{ref_tag}] {title}" + (f" ({direction})" if direction else "")]

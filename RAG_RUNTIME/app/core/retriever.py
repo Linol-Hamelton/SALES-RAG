@@ -391,10 +391,35 @@ class HybridRetriever:
             return self.retrieve(query, top_k=top_k)
 
         parsed = parse_query(query)
+
+        # P10.6 D3 + P11 R1: roadmap boost parameters
+        q_lower = query.lower()
+        roadmap_trigger_words = (
+            "регламент", "этап", "как делаете", "как делается",
+            "процесс", "сроки", "схема работы", "порядок работ",
+        )
+        has_roadmap_trigger = any(w in q_lower for w in roadmap_trigger_words)
+        hint_category_ids = set(hints.get("smeta_category_ids", []) or [])
+        hint_product_ids = set(str(pid) for pid in (hints.get("product_ids", []) or []))
+
         candidates = []
         for p in results:
             payload = p.payload
             boost = self._direction_boost(payload, parsed.direction)
+
+            # P10.6 D3 / P11 R1: бустим roadmap по двум сигналам
+            if payload.get("doc_type") == "roadmap":
+                if has_roadmap_trigger:
+                    boost += 0.25
+                # linked_smeta_category_ids ∩ hint_category_ids → +0.15
+                linked_cats = set(payload.get("linked_smeta_category_ids") or [])
+                if hint_category_ids and (linked_cats & hint_category_ids):
+                    boost += 0.15
+                # linked_product_ids ∩ hint_product_ids → +0.15
+                linked_prods = set(str(x) for x in (payload.get("linked_product_ids") or []))
+                if hint_product_ids and (linked_prods & hint_product_ids):
+                    boost += 0.15
+
             candidates.append({
                 "doc_id": payload.get("doc_id", f"id_{p.id}"),
                 "payload": payload,

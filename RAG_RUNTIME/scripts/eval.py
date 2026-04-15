@@ -25,6 +25,13 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+# Local workaround: Python314 rich install is missing _emoji_codes.py source.
+# Inject an empty stub into sys.modules before rich imports touch it.
+import types as _types
+if "rich._emoji_codes" not in sys.modules:
+    _stub = _types.ModuleType("rich._emoji_codes")
+    _stub.EMOJI = {}
+    sys.modules["rich._emoji_codes"] = _stub
 from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn
@@ -101,7 +108,7 @@ async def run_query(
     client: httpx.AsyncClient,
     server: str,
     query: str,
-    timeout: float = 30.0,
+    timeout: float = 60.0,
 ) -> tuple[dict | None, float, str | None]:
     """Call /query_structured and return (result, latency_ms, error)."""
     start = time.perf_counter()
@@ -166,6 +173,8 @@ async def run_eval(
     categories: list[str] | None,
     verbose: bool,
     concurrency: int,
+    host_header: str | None = None,
+    verify_ssl: bool = True,
 ) -> dict:
     """Run all test cases and return aggregated results."""
     cases = load_test_cases(cases_path)
@@ -177,7 +186,13 @@ async def run_eval(
     results = []
     latencies = []
 
-    async with httpx.AsyncClient() as client:
+    client_kwargs: dict = {}
+    if not verify_ssl:
+        client_kwargs["verify"] = False
+    if host_header:
+        client_kwargs["headers"] = {"Host": host_header}
+
+    async with httpx.AsyncClient(**client_kwargs) as client:
         # First check health
         try:
             health = await client.get(f"{server}/health", timeout=5)
@@ -202,7 +217,7 @@ async def run_eval(
                     if not eval_result["passed"] and eval_result.get("checks"):
                         for check_name, check in eval_result["checks"].items():
                             if not check.get("ok"):
-                                console.print(f"       ↳ {check_name}: {check}")
+                                console.print(f"       -> {check_name}: {check}")
                 return eval_result
 
         with Progress(
@@ -443,6 +458,61 @@ def write_results(summary: dict, output_dir: Path, reports_dir: Path) -> None:
     console.print(f"Report written to {report_md_path}")
 
 
+def diff_against_baseline(summary: dict, baseline_path: Path) -> dict:
+    """Compare current run vs a previous results.json. Return per-case deltas."""
+    if not baseline_path.exists():
+        return {"error": f"baseline not found: {baseline_path}"}
+    with open(baseline_path, encoding="utf-8") as f:
+        baseline = json.load(f)
+    base_by_id = {c["id"]: c for c in baseline.get("cases", [])}
+    cur_by_id = {c["id"]: c for c in summary.get("cases", [])}
+    regressions = []   # was passing, now failing
+    fixes = []         # was failing, now passing
+    new_cases = []     # not in baseline
+    for cid, cur in cur_by_id.items():
+        prev = base_by_id.get(cid)
+        if prev is None:
+            new_cases.append(cid)
+            continue
+        if prev["passed"] and not cur["passed"]:
+            regressions.append({"id": cid, "query": cur["query"], "checks": cur.get("checks")})
+        elif not prev["passed"] and cur["passed"]:
+            fixes.append({"id": cid, "query": cur["query"]})
+    return {
+        "baseline_path": str(baseline_path),
+        "baseline_pass_rate": baseline.get("pass_rate"),
+        "current_pass_rate": summary.get("pass_rate"),
+        "delta_pass_rate": (summary.get("pass_rate") or 0) - (baseline.get("pass_rate") or 0),
+        "regressions": regressions,
+        "fixes": fixes,
+        "new_cases": new_cases,
+    }
+
+
+def print_diff(diff: dict) -> None:
+    console.print()
+    console.rule("[bold]Baseline Diff[/bold]")
+    if "error" in diff:
+        console.print(f"[yellow]{diff['error']}[/yellow]")
+        return
+    delta = diff["delta_pass_rate"] * 100
+    color = "green" if delta >= 0 else "red"
+    console.print(
+        f"  Pass rate: {diff['baseline_pass_rate']*100:.1f}% → "
+        f"{diff['current_pass_rate']*100:.1f}% ([{color}]{delta:+.1f}pp[/{color}])"
+    )
+    if diff["regressions"]:
+        console.print(f"[red]Regressions ({len(diff['regressions'])}):[/red]")
+        for r in diff["regressions"]:
+            console.print(f"  [red]X[/red] [{r['id']}] {r['query'][:70]}")
+    if diff["fixes"]:
+        console.print(f"[green]Fixed ({len(diff['fixes'])}):[/green]")
+        for r in diff["fixes"]:
+            console.print(f"  [green]+[/green] [{r['id']}] {r['query'][:70]}")
+    if diff["new_cases"]:
+        console.print(f"[cyan]New cases ({len(diff['new_cases'])}):[/cyan] {', '.join(diff['new_cases'][:10])}")
+
+
 def main():
     parser = argparse.ArgumentParser(description="Eval runner for Labus Sales RAG")
     parser.add_argument("--server", default="http://localhost:8000", help="FastAPI server URL")
@@ -452,6 +522,9 @@ def main():
     parser.add_argument("--reports-dir", default=str(PROJECT_ROOT / "reports"), help="Directory for report files")
     parser.add_argument("--concurrency", type=int, default=3, help="Max concurrent requests")
     parser.add_argument("--verbose", action="store_true", help="Print per-case results")
+    parser.add_argument("--baseline", default=None, help="Path to previous results.json for regression diff")
+    parser.add_argument("--host-header", default=None, help="Override Host header (for IP-based access behind vhost)")
+    parser.add_argument("--no-verify-ssl", action="store_true", help="Disable SSL certificate verification")
     args = parser.parse_args()
 
     console.print(f"[bold]Labus Sales RAG — Eval Runner[/bold]")
@@ -466,22 +539,33 @@ def main():
             categories=args.categories,
             verbose=args.verbose,
             concurrency=args.concurrency,
+            host_header=args.host_header,
+            verify_ssl=not args.no_verify_ssl,
         )
     )
 
     print_summary(summary)
+
+    if args.baseline:
+        diff = diff_against_baseline(summary, Path(args.baseline))
+        print_diff(diff)
+        summary["baseline_diff"] = diff
+
     write_results(
         summary,
         output_dir=Path(args.output_dir),
         reports_dir=Path(args.reports_dir),
     )
 
-    # Exit with code 1 if pass rate < 50%
+    # Exit with code 1 if pass rate < 50% OR regressions vs baseline
+    regressions = (summary.get("baseline_diff") or {}).get("regressions") or []
     if summary["pass_rate"] < 0.5:
         console.print("[red]Pass rate below 50% — model is NOT ready.[/red]")
         sys.exit(1)
-    else:
-        console.print(f"[green]Eval complete.[/green]")
+    if regressions:
+        console.print(f"[red]{len(regressions)} regression(s) vs baseline.[/red]")
+        sys.exit(2)
+    console.print(f"[green]Eval complete.[/green]")
 
 
 if __name__ == "__main__":

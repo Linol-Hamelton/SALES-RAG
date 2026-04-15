@@ -40,6 +40,9 @@ class Settings(BaseSettings):
         alias="ANALYTICS_OUTPUT_DIR",
     )
 
+    # Feature flags
+    use_intent_classifier: bool = Field(default=True, alias="USE_INTENT_CLASSIFIER")
+
     # Retrieval
     retrieval_top_k: int = Field(default=20, alias="RETRIEVAL_TOP_K")
     rerank_top_n: int = Field(default=8, alias="RERANK_TOP_N")

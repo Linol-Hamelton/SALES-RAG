@@ -57,3 +57,11 @@ logs/
 
 # ─── Misc ────────────────────────────────────────────────────────────────────
 search_test.html
+
+# ─── Local dev artifacts / experimental / tooling (не кодовая база) ─────────
+# MCP документация из /d/mcp-stack/ — машинно-специфично
+top_mcp/
+# Старые vision эксперименты — заменены на RAG_RUNTIME/scripts/vision_analysis*.py
+RAG_RUNTIME/bad_experiment/
+# Временные выходы verifySalesRag.mjs
+validate_output*.json

@@ -211,9 +211,9 @@ KNOWLEDGE_SOURCES = [
      "briefs_guide", "Брифы по продуктам"),
     ("warranty-card (1).docx",
      "warranty", "Гарантийная карта"),
-    # Расширенная версия (63 КБ MD вместо 35 КБ TXT)
-    ("ROADMAPS/Сбор данных конверсии и ROI labus.pro.md",
-     "roi_benchmarks", "Конверсия и ROI labus.pro"),
+    # NOTE: ROADMAPS/* файлы индексируются отдельно через ingest_roadmaps.py
+    # (doc_type=roadmap, cross-link linked_product_ids/linked_smeta_category_ids).
+    # Дублирование сюда удалено в P10.6 B2.
 ]
 
 

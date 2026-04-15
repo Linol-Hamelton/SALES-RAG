@@ -1,12 +1,12 @@
 {
-  "generatedAt": "2026-03-24T00:07:52.094Z",
+  "generatedAt": "2026-04-15T00:56:37.097Z",
   "repairInfo": {
     "repairedOrdersDirectionRows": 0
   },
   "datasets": {
     "goods": {
       "name": "goods",
-      "rowCount": 9095,
+      "rowCount": 9996,
       "headers": [
         "DATASET",
         "ID",
@@ -44,16 +44,16 @@
       ],
       "schemaMatchesExpected": false,
       "uniqueIds": 0,
-      "uniqueProducts": 9095,
-      "coveredByGoods": 9095,
+      "uniqueProducts": 9096,
+      "coveredByGoods": 9096,
       "missingFromGoods": 0,
       "directionMissingCatalogRows": 0,
-      "placeholderClientRows": 9095,
+      "placeholderClientRows": 9996,
       "lineGapStats": null
     },
     "offers": {
       "name": "offers",
-      "rowCount": 11674,
+      "rowCount": 11803,
       "headers": [
         "DATASET",
         "ID",
@@ -90,22 +90,22 @@
         "EXECUTOR"
       ],
       "schemaMatchesExpected": false,
-      "uniqueIds": 5520,
-      "uniqueProducts": 3686,
-      "coveredByGoods": 3686,
+      "uniqueIds": 5541,
+      "uniqueProducts": 3699,
+      "coveredByGoods": 3699,
       "missingFromGoods": 0,
       "directionMissingCatalogRows": 0,
       "placeholderClientRows": 11609,
       "lineGapStats": {
-        "comparableDeals": 5520,
+        "comparableDeals": 5541,
         "medianGapRatio": 0,
         "p95GapRatio": 0,
-        "dealsWithin5Pct": 5519
+        "dealsWithin5Pct": 5540
       }
     },
     "orders": {
       "name": "orders",
-      "rowCount": 50454,
+      "rowCount": 50634,
       "headers": [
         "DATASET",
         "ID",
@@ -142,14 +142,14 @@
         "EXECUTOR"
       ],
       "schemaMatchesExpected": false,
-      "uniqueIds": 12649,
-      "uniqueProducts": 2756,
-      "coveredByGoods": 2734,
-      "missingFromGoods": 22,
+      "uniqueIds": 12648,
+      "uniqueProducts": 2760,
+      "coveredByGoods": 2739,
+      "missingFromGoods": 21,
       "directionMissingCatalogRows": 0,
-      "placeholderClientRows": 816,
+      "placeholderClientRows": 811,
       "lineGapStats": {
-        "comparableDeals": 12646,
+        "comparableDeals": 12645,
         "medianGapRatio": 0,
         "p95GapRatio": 0,
         "dealsWithin5Pct": 12641
@@ -157,12 +157,12 @@
     }
   },
   "crossDataset": {
-    "goodsProducts": 9095,
-    "offerProducts": 3686,
-    "orderProducts": 2756,
-    "sharedOfferOrderProducts": 1024,
-    "offersCoveredByGoods": 3686,
-    "ordersCoveredByGoods": 2734
+    "goodsProducts": 9096,
+    "offerProducts": 3699,
+    "orderProducts": 2760,
+    "sharedOfferOrderProducts": 1033,
+    "offersCoveredByGoods": 3699,
+    "ordersCoveredByGoods": 2739
   },
   "issues": [
     {
@@ -188,7 +188,7 @@
     {
       "severity": "warning",
       "code": "orders_missing_catalog_links",
-      "message": "orders has 22 catalog product ids not present in goods."
+      "message": "orders has 21 catalog product ids not present in goods."
     }
   ]
 }

@@ -1,13 +1,13 @@
 {
-  "generatedAt": "2026-03-24T00:08:07.693Z",
-  "orderDeals": 12649,
-  "offerDeals": 5520,
-  "knownOrderClients": 3171,
-  "repeatOrderClients": 1465,
-  "repeatOrderClientShare": 0.462,
+  "generatedAt": "2026-04-15T00:56:54.437Z",
+  "orderDeals": 12648,
+  "offerDeals": 5541,
+  "knownOrderClients": 3155,
+  "repeatOrderClients": 1452,
+  "repeatOrderClientShare": 0.4602,
   "autoProducts": 23,
-  "guidedProducts": 472,
-  "manualProducts": 12137,
+  "guidedProducts": 482,
+  "manualProducts": 12069,
   "exactTemplateMatches": 290,
-  "containedTemplateMatches": 856
+  "containedTemplateMatches": 858
 }

@@ -813,6 +813,22 @@ async function main() {
   // Sort categories by deals_count desc
   categories.sort((a, b) => b.deals_count - a.deals_count);
 
+  // Reverse index: PRODUCT_ID → [category_id, ...] (P10.6 A2)
+  // Позволяет ingest.py и retriever.py быстро резолвить product ↔ smeta category.
+  // Ключ — good_id из all_goods_in_category (фактически PRODUCT_ID, naming inconsistency
+  // в goods.csv vs offers/orders.csv — см. комментарий у goodsByProductId).
+  const productToCategoryMap = {};
+  for (const cat of categories) {
+    for (const g of cat.all_goods_in_category || []) {
+      const pid = String(g.good_id || "").trim();
+      if (!pid) continue;
+      if (!productToCategoryMap[pid]) productToCategoryMap[pid] = [];
+      if (!productToCategoryMap[pid].includes(cat.category_id)) {
+        productToCategoryMap[pid].push(cat.category_id);
+      }
+    }
+  }
+
   const output = {
     built_at: new Date().toISOString(),
     total_categories: categories.length,
@@ -820,6 +836,7 @@ async function main() {
     min_category_deals: MIN_CATEGORY_DEALS,
     freshness_half_life_days: FRESHNESS_HALF_LIFE_DAYS,
     categories,
+    product_to_category_map: productToCategoryMap,
   };
 
   const outPath = join(OUTPUT_DIR, "smeta_templates.json");

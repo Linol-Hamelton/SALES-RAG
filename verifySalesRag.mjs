@@ -1,16 +1,17 @@
-﻿import { access } from "fs/promises";
+﻿import { access, readFile } from "fs/promises";
 import { dirname, resolve } from "path";
 import { fileURLToPath } from "url";
 import { readCsv } from "./RAG_ANALYTICS/lib/io.mjs";
 
 const ROOT_DIR = dirname(fileURLToPath(import.meta.url));
+// Minimum thresholds — data grows over time, so we check >= not ===
 const expected = {
   raw: {
-    goods: 9095,
-    offers: 11674,
-    orders: 50404,
+    goods: 9996,
+    offers: 11803,
+    orders: 50634,
   },
-  ordersDirectionFilledRows: 44742,
+  ordersDirectionFilledRows: 45067,
 };
 
 const criticalFiles = [
@@ -84,11 +85,43 @@ const checks = {
 };
 
 const failures = [];
-if (checks.goodsRows !== expected.raw.goods) failures.push(`goods row count mismatch: ${checks.goodsRows}`);
-if (checks.offersRows !== expected.raw.offers) failures.push(`offers row count mismatch: ${checks.offersRows}`);
-if (checks.ordersRows !== expected.raw.orders) failures.push(`orders row count mismatch: ${checks.ordersRows}`);
+if (checks.goodsRows < expected.raw.goods) failures.push(`goods row count too low: ${checks.goodsRows} (expected ≥${expected.raw.goods})`);
+if (checks.offersRows < expected.raw.offers) failures.push(`offers row count too low: ${checks.offersRows} (expected ≥${expected.raw.offers})`);
+if (checks.ordersRows < expected.raw.orders) failures.push(`orders row count too low: ${checks.ordersRows} (expected ≥${expected.raw.orders})`);
 if (!checks.ordersHasDirectionColumn) failures.push("orders.csv missing direction column");
-if (checks.ordersDirectionFilledRows !== expected.ordersDirectionFilledRows) failures.push(`orders direction filled rows mismatch: ${checks.ordersDirectionFilledRows}`);
+if (checks.ordersDirectionFilledRows < expected.ordersDirectionFilledRows) failures.push(`orders direction filled rows too low: ${checks.ordersDirectionFilledRows} (expected ≥${expected.ordersDirectionFilledRows})`);
+
+// P10.6 E2: после ingest обязаны существовать и иметь минимальный объём.
+// Запускается только если папка data/ не пуста (--skip-index отключает ingest).
+const jsonlThresholds = {
+  "RAG_RUNTIME/data/faq_docs.jsonl": 300,
+  "RAG_RUNTIME/data/offer_composition_docs.jsonl": 500,
+  "RAG_RUNTIME/data/roadmap_docs.jsonl": 500,
+  "RAG_RUNTIME/data/bridge_docs.jsonl": 4,
+  "RAG_RUNTIME/data/product_docs.jsonl": 5000,
+};
+
+async function countJsonlLines(path) {
+  try {
+    const content = await readFile(resolve(ROOT_DIR, path), "utf-8");
+    return content.split("\n").filter((l) => l.trim()).length;
+  } catch {
+    return null; // file missing
+  }
+}
+
+const jsonlCounts = {};
+let indexPipelineDidRun = false;
+for (const [path, threshold] of Object.entries(jsonlThresholds)) {
+  const count = await countJsonlLines(path);
+  jsonlCounts[path] = count;
+  if (count !== null) indexPipelineDidRun = true;
+  if (indexPipelineDidRun && (count === null || count < threshold)) {
+    failures.push(`${path}: ${count ?? "MISSING"} lines (expected ≥${threshold}); ingest likely failed silently`);
+  }
+}
+checks.jsonlCounts = jsonlCounts;
+checks.indexPipelineDidRun = indexPipelineDidRun;
 
 if (failures.length) {
   console.error("SALES_RAG bundle verification failed.");

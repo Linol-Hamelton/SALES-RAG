@@ -68,6 +68,57 @@ def now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+# ─── Cross-link lookups (P10.6) ─────────────────────────────────────────────
+# Кэшируются через @functools lru_cache, чтобы не перечитывать при каждом вызове.
+
+import functools
+
+
+@functools.lru_cache(maxsize=1)
+def load_product_to_category_map() -> dict[str, list[str]]:
+    """P10.6 A2/B3: PRODUCT_ID → [smeta_category_id, ...] из smeta_templates.json."""
+    smeta_path = ANALYTICS_ROOT / "smeta_templates.json"
+    if not smeta_path.exists():
+        click.echo(f"  [WARN] {smeta_path} not found — product.linked_smeta_category_ids будут пусты")
+        return {}
+    with open(smeta_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    raw = data.get("product_to_category_map", {})
+    # Ensure string keys and list values
+    return {str(k): list(v) for k, v in raw.items()}
+
+
+@functools.lru_cache(maxsize=1)
+def load_product_to_roadmap_map() -> dict[str, list[str]]:
+    """P10.6 B6: PRODUCT_ID → [roadmap_slug, ...] из уже построенного roadmap_docs.jsonl.
+
+    Требует чтобы ingest_roadmaps.py отработал РАНЬШЕ ingest.py (см. E1 — порядок
+    в refreshSalesRagData.mjs). Если файла ещё нет, возвращаем пустой map.
+    """
+    roadmap_path = OUTPUT_DIR / "roadmap_docs.jsonl"
+    if not roadmap_path.exists():
+        return {}
+    result: dict[str, list[str]] = {}
+    with open(roadmap_path, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            doc = json.loads(line)
+            meta = doc.get("metadata", {})
+            linked_pids = meta.get("linked_product_ids") or []
+            slug = meta.get("roadmap_slug") or meta.get("source_file") or ""
+            if not slug:
+                continue
+            for pid in linked_pids:
+                key = str(pid)
+                if key not in result:
+                    result[key] = []
+                if slug not in result[key]:
+                    result[key].append(slug)
+    return result
+
+
 # ─── Document Type A: product_docs ──────────────────────────────────────────
 
 def build_product_docs() -> list[dict]:
@@ -82,6 +133,14 @@ def build_product_docs() -> list[dict]:
     merged = pf.merge(pr[["PRODUCT_KEY", "RECOMMENDED_PRICE", "SUGGESTED_MIN_PRICE",
                            "SUGGESTED_MAX_PRICE", "NEAREST_ANALOG_1", "NEAREST_ANALOG_2",
                            "NEAREST_ANALOG_3"]], on="PRODUCT_KEY", how="left")
+
+    # P10.6 B3/B6: cross-link lookups
+    product_to_category = load_product_to_category_map()
+    product_to_roadmap = load_product_to_roadmap_map()
+    if product_to_category:
+        click.echo(f"  Loaded product_to_category_map: {len(product_to_category)} products → smeta categories")
+    if product_to_roadmap:
+        click.echo(f"  Loaded product_to_roadmap_map: {len(product_to_roadmap)} products → roadmap slugs")
 
     docs = []
     for _, row in merged.iterrows():
@@ -176,9 +235,12 @@ def build_product_docs() -> list[dict]:
                 "parent_section": parent_section,
                 "cost_price": cost_price,
                 "markup_ratio": markup_ratio,
+                # P10.6 B3/B6: cross-link fields
+                "linked_smeta_category_ids": product_to_category.get(product_id, []),
+                "related_roadmap_slugs": product_to_roadmap.get(product_id, []),
             },
             "provenance": {
-                "sources": ["product_facts.csv", "pricing_recommendations.csv"],
+                "sources": ["product_facts.csv", "pricing_recommendations.csv", "smeta_templates.json", "roadmap_docs.jsonl"],
                 "generated_at": now_iso(),
             }
         }
@@ -688,12 +750,23 @@ def _build_profile_docs_from_csv(csv_filename: str, doc_type: str, dataset_label
             parts.append(f"комментарий: {comments[:300]}")
         searchable_text = ", ".join(parts)
 
+        # P10.6 B4: для offer_profile CSV-колонка DEAL_ID фактически содержит
+        # OFFER_ID (row.ID из offers.csv). Кладём offer_id как int-поле, чтобы
+        # link-following в query.py мог фильтровать через Filter(offer_id IN [...]).
+        offer_id_int: int | None = None
+        if doc_type == "offer_profile":
+            try:
+                offer_id_int = int(deal_id) if deal_id else None
+            except (TypeError, ValueError):
+                offer_id_int = None
+
         doc = {
             "doc_id": f"{doc_type}_{deal_id}",
             "doc_type": doc_type,
             "searchable_text": searchable_text,
             "metadata": {
                 "deal_id": deal_id,
+                "offer_id": offer_id_int,
                 "dataset_type": dataset_label,
                 "title": title,
                 "direction": direction,
@@ -1036,8 +1109,22 @@ def build_photo_analysis_docs() -> list[dict]:
             chunked_count += 1
         docs.extend(chunks)
 
+    # P10.6 B7: резолвим good_ids из searchable_text в структурированное payload-поле.
+    # Раньше они были только в тексте ("good_id=1234" / "GOOD_ID: 1234") — не пригодны
+    # для Qdrant-фильтров. Вытаскиваем ВСЕ такие числа, дедуплицируем.
+    good_id_pattern = re.compile(r"(?i)good[_\s]?id[:\s=]*([0-9]+)")
+    enriched_count = 0
+    for doc in docs:
+        text = doc.get("searchable_text", "")
+        good_ids_raw = good_id_pattern.findall(text)
+        if good_ids_raw:
+            unique_ids = sorted({int(x) for x in good_ids_raw})
+            doc.setdefault("metadata", {})["good_ids"] = unique_ids
+            enriched_count += 1
+
     click.echo(f"  Loaded {len(raw_docs)} raw, filtered {skipped} empty, "
-               f"chunked {chunked_count} long, {len(docs)} final docs")
+               f"chunked {chunked_count} long, {len(docs)} final docs; "
+               f"good_ids extracted for {enriched_count} docs")
     return docs
 
 

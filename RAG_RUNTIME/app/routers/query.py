@@ -748,6 +748,12 @@ def _fetch_linked_offers(retriever, offer_ids: list[int], limit_per_type: int = 
     позиции). Сначала ищем doc_type=offer_composition (там есть products[]),
     если мало — добавляем offer_profile как fallback.
 
+    P10.6 B1+B4: fallback через offer_profile теперь работает — после ingest
+    offer_profile.payload содержит `offer_id: int` (раньше там был только
+    `deal_id`, и фильтр offer_id IN [...] возвращал пусто). offer_composition
+    теперь тоже эмитится по умолчанию на все offers с ≥2 line-items (раньше
+    был whitelist 22 KEY_OFFER_IDS).
+
     Returns: list of reranked-style dicts (same shape as reranked entries),
     до 2*limit_per_type элементов. Пустой список — если retriever не готов.
     """

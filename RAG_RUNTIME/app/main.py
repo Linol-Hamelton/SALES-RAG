@@ -31,6 +31,7 @@ from app.core.feedback_store import FeedbackStore
 from app.core.deal_lookup import DealLookup
 from app.core.photo_index import PhotoIndex
 from app.core.smeta_engine import SmetaEngine
+from app.core.intent_classifier import init_classifier
 from app.database import init_db
 from app.routers import health, query, admin, eval as eval_router
 from app.routers import auth_router, chats
@@ -119,6 +120,19 @@ async def lifespan(app: FastAPI):
         logger.error("Smeta engine load failed", error=str(e))
         smeta_engine = None
     app.state.smeta_engine = smeta_engine
+
+    # Initialize intent classifier (uses retriever's BGE-M3 for prototype embeddings)
+    try:
+        if retriever.is_ready:
+            intent_clf = init_classifier(retriever.embed_query)
+            app.state.intent_classifier = intent_clf
+            logger.info("Intent classifier ready", is_ready=intent_clf.is_ready)
+        else:
+            app.state.intent_classifier = None
+            logger.warning("Intent classifier skipped — retriever not ready")
+    except Exception as e:
+        logger.error("Intent classifier load failed", error=str(e))
+        app.state.intent_classifier = None
 
     logger.info("Application ready")
     yield

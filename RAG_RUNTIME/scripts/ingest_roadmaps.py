@@ -9,6 +9,7 @@ and writes data/roadmap_docs.jsonl.
 Usage:
     python scripts/ingest_roadmaps.py [--verbose]
 """
+import csv
 import json
 import re
 import click
@@ -18,6 +19,8 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent
 RAG_DATA = PROJECT_ROOT.parent / "RAG_DATA"
 ROADMAPS_DIR = RAG_DATA / "ROADMAPS"
+GOODS_CSV = RAG_DATA / "goods.csv"
+SMETA_TEMPLATES = PROJECT_ROOT.parent / "RAG_ANALYTICS" / "output" / "smeta_templates.json"
 OUTPUT_PATH = PROJECT_ROOT / "data" / "roadmap_docs.jsonl"
 
 GENERATED_AT = datetime.now(timezone.utc).isoformat()
@@ -321,6 +324,105 @@ def chunk_roadmap(text: str, filename: str) -> tuple[list[dict], dict]:
     return chunks, {**doc_meta, "roadmap_title": roadmap_title}
 
 
+# ─── P10.6 B5: fuzzy-link roadmap → PRODUCT_ID / smeta_category_id ────────────
+
+FUZZY_THRESHOLD = 76  # token_set_ratio 0..100; 76 captures "разработка логотипа и логобука" (77.6) vs noise (≤70)
+
+
+def load_goods_catalog() -> list[dict]:
+    """Load goods.csv → list of {product_id, product_name, section_name} for matching.
+
+    Catalog ключ в goods.csv: PRODUCT_ID (совпадает с GOOD_ID в offers/orders).
+    """
+    if not GOODS_CSV.exists():
+        print(f"  [WARN] {GOODS_CSV} not found — linked_product_ids будут пусты")
+        return []
+    rows = []
+    with open(GOODS_CSV, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f, delimiter=";")
+        for row in reader:
+            pid = (row.get("PRODUCT_ID") or "").strip()
+            name = (row.get("PRODUCT_NAME") or row.get("NAME") or "").strip()
+            section = (row.get("SECTION_NAME") or "").strip()
+            if pid and name:
+                rows.append({
+                    "product_id": pid,
+                    "product_name": name,
+                    "section_name": section,
+                    "match_text": f"{name} {section}".lower(),
+                })
+    return rows
+
+
+def load_smeta_categories() -> list[dict]:
+    """Load smeta_templates.json → list of {category_id, category_name, keywords} for matching."""
+    if not SMETA_TEMPLATES.exists():
+        print(f"  [WARN] {SMETA_TEMPLATES} not found — linked_smeta_category_ids будут пусты")
+        return []
+    with open(SMETA_TEMPLATES, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    out = []
+    for cat in data.get("categories", []):
+        name = cat.get("category_name", "")
+        kws = cat.get("keywords") or []
+        out.append({
+            "category_id": cat.get("category_id", ""),
+            "category_name": name,
+            "match_text": (name + " " + " ".join(kws)).lower(),
+        })
+    return out
+
+
+def resolve_linked_ids(roadmap_title: str, service: str, category: str,
+                       goods_catalog: list[dict], smeta_cats: list[dict],
+                       top_k_products: int = 10) -> tuple[list[str], list[str]]:
+    """Fuzzy-match roadmap signals vs catalog & smeta categories.
+
+    Возвращает (linked_product_ids, linked_smeta_category_ids).
+    Использует rapidfuzz.token_set_ratio ≥ FUZZY_THRESHOLD для product matching.
+    """
+    try:
+        from rapidfuzz import fuzz
+    except ImportError:
+        print("  [WARN] rapidfuzz not installed — linking disabled")
+        return [], []
+
+    # Build multiple focused signal strings — combining all fields into one long query
+    # dilutes token_set_ratio below the threshold. Score each signal separately and take max.
+    signals = [s.lower().strip() for s in [roadmap_title, service, category] if s and s.strip()]
+    if not signals:
+        return [], []
+
+    # Products: for each good, take max score across all signal strings
+    product_scores = []
+    for good in goods_catalog:
+        best = max(fuzz.token_set_ratio(sig, good["match_text"]) for sig in signals)
+        if best >= FUZZY_THRESHOLD:
+            product_scores.append((best, good["product_id"]))
+    product_scores.sort(reverse=True)
+    # Dedup pids preserving order
+    seen_pid = set()
+    linked_pids = []
+    for _, pid in product_scores[:top_k_products * 3]:
+        if pid not in seen_pid:
+            linked_pids.append(pid)
+            seen_pid.add(pid)
+        if len(linked_pids) >= top_k_products:
+            break
+
+    # Smeta categories: shorter names → slightly lower threshold (65) still reliable
+    CAT_THRESHOLD = 65
+    cat_scores = []
+    for cat in smeta_cats:
+        best = max(fuzz.token_set_ratio(sig, cat["match_text"]) for sig in signals)
+        if best >= CAT_THRESHOLD:
+            cat_scores.append((best, cat["category_id"]))
+    cat_scores.sort(reverse=True)
+    linked_cats = [cid for _, cid in cat_scores[:3]]
+
+    return linked_pids, linked_cats
+
+
 @click.command()
 @click.option("--verbose", is_flag=True, default=False)
 def main(verbose: bool):
@@ -332,8 +434,14 @@ def main(verbose: bool):
     md_files = sorted(ROADMAPS_DIR.glob("*.md"))
     print(f"Found {len(md_files)} roadmap files in {ROADMAPS_DIR}")
 
+    # P10.6 B5: prep fuzzy-link lookups
+    goods_catalog = load_goods_catalog()
+    smeta_cats = load_smeta_categories()
+    print(f"  Linking corpus: {len(goods_catalog)} goods, {len(smeta_cats)} smeta categories")
+
     docs = []
-    stats = {"total_chunks": 0, "with_prices": 0, "with_timelines": 0, "with_roi": 0}
+    stats = {"total_chunks": 0, "with_prices": 0, "with_timelines": 0, "with_roi": 0,
+             "files_with_linked_products": 0, "files_with_linked_categories": 0}
 
     for md_path in md_files:
         text = md_path.read_text(encoding="utf-8")
@@ -344,6 +452,17 @@ def main(verbose: bool):
         service = file_meta.get("service", "")
         roadmap_title = file_meta.get("roadmap_title", md_path.stem)
         direction = detect_direction(roadmap_title, category)
+
+        # P10.6 B5: один резолв на файл (все chunks унаследуют linked_* метки)
+        linked_pids, linked_cats = resolve_linked_ids(
+            roadmap_title, service, category, goods_catalog, smeta_cats
+        )
+        if linked_pids:
+            stats["files_with_linked_products"] += 1
+        if linked_cats:
+            stats["files_with_linked_categories"] += 1
+        if verbose and (linked_pids or linked_cats):
+            print(f"    → linked: {len(linked_pids)} products, {len(linked_cats)} categories")
 
         # Extract file-level prices, timelines, ROI from full text
         file_prices = extract_prices(text)
@@ -369,11 +488,15 @@ def main(verbose: bool):
             metadata = {
                 "source": "roadmap",
                 "source_file": md_path.name,
+                "roadmap_slug": slug,
                 "roadmap_title": roadmap_title,
                 "section": chunk["section"],
                 "direction": direction,
                 "category": category,
                 "service": service,
+                # P10.6 B5: cross-link to catalog + smeta
+                "linked_product_ids": linked_pids,
+                "linked_smeta_category_ids": linked_cats,
             }
 
             if chunk_prices:
@@ -430,6 +553,8 @@ def main(verbose: bool):
     print(f"  Chunks with timelines: {stats['with_timelines']}")
     print(f"  Chunks with ROI: {stats['with_roi']}")
     print(f"  Directions mapped: {sum(1 for d in docs if d['metadata'].get('direction'))}/{len(docs)}")
+    print(f"  Files with linked products: {stats['files_with_linked_products']}/{len(md_files)}")
+    print(f"  Files with linked smeta categories: {stats['files_with_linked_categories']}/{len(md_files)}")
 
 
 if __name__ == "__main__":
