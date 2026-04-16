@@ -830,5 +830,44 @@
       "объёмные буквы"
     ],
     "notes": "P8.3: Логотип «стандарт» -> Логотип category, не вывески"
+  },
+  {
+    "id": "bridge_merch_01",
+    "category": "bridge_pricing",
+    "query": "Футболки 50 шт с печатью логотипа",
+    "expected_direction": "Мерч",
+    "must_contain_flags": [
+      "футболк"
+    ],
+    "must_not_contain": [
+      "Титульные вывески"
+    ],
+    "notes": "P12.3.D: Футболки bridge — средний тираж bucket (50 шт)"
+  },
+  {
+    "id": "bridge_merch_02",
+    "category": "bridge_pricing",
+    "query": "Кружки 100 шт с сублимационной печатью",
+    "expected_direction": "Мерч",
+    "must_contain_flags": [
+      "кружк"
+    ],
+    "must_not_contain": [
+      "вывеск"
+    ],
+    "notes": "P12.3.D: Кружки bridge — средний тираж bucket (100 шт)"
+  },
+  {
+    "id": "bridge_merch_03",
+    "category": "bridge_pricing",
+    "query": "Бейсболки 30 шт с вышивкой",
+    "expected_direction": "Мерч",
+    "must_contain_flags": [
+      "бейсбол"
+    ],
+    "must_not_contain": [
+      "вывеск"
+    ],
+    "notes": "P12.3.D: Бейсболки bridge — малый тираж bucket (30 шт)"
   }
 ]
