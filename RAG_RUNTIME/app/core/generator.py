@@ -113,7 +113,9 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             # Поэтому для product-документов показываем PRODUCT_ID — его LLM и должен
             # класть в deal_items[].good_id структурированного ответа.
             art_tag = f" PRODUCT_ID={product_id}" if product_id else ""
-            lines = [f"[Продукт{art_tag}] {product_name}" + (f" ({direction})" if direction else "") + (f" [{section_name}]" if section_name else "")]
+            labus_url = payload.get("labus_url") or ""
+            url_tag = f" | {labus_url}" if labus_url else ""
+            lines = [f"[Продукт{art_tag}{url_tag}] {product_name}" + (f" ({direction})" if direction else "") + (f" [{section_name}]" if section_name else "")]
             if base_price:
                 lines.append(f"  Базовая цена: {base_price:.0f} руб")
             if recommended:
@@ -298,7 +300,17 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
             source_label = payload.get("source_label", "")
             section = payload.get("section", "")
             content = payload.get("content", payload.get("searchable_text", ""))
-            header = f"[{source_label}: {section}]" if section and section != source_label else f"[{source_label}]"
+            # P12.3.C — surface manager-script macro type in the header so the
+            # LLM treats these blocks as a canonical script, not trivia.
+            is_macro = payload.get("is_macro") is True
+            macro_type = payload.get("macro_type", "") or ""
+            macro_tag = ""
+            if is_macro:
+                if macro_type:
+                    macro_tag = f"Макро-скрипт: {macro_type} — "
+                else:
+                    macro_tag = "Макро-скрипт — "
+            header = f"[{macro_tag}{source_label}: {section}]" if section and section != source_label else f"[{macro_tag}{source_label}]"
             lines = [header, f"  {content[:2000]}"]
             blocks.append("\n".join(lines))
 

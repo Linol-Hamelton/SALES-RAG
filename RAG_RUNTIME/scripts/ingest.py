@@ -238,6 +238,8 @@ def build_product_docs() -> list[dict]:
                 # P10.6 B3/B6: cross-link fields
                 "linked_smeta_category_ids": product_to_category.get(product_id, []),
                 "related_roadmap_slugs": product_to_roadmap.get(product_id, []),
+                # P12.3.A1: catalog URL for citation in responses
+                "labus_url": f"https://labus.pro/product/{product_id}" if product_id else "",
             },
             "provenance": {
                 "sources": ["product_facts.csv", "pricing_recommendations.csv", "smeta_templates.json", "roadmap_docs.jsonl"],

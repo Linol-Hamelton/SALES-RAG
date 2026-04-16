@@ -322,6 +322,8 @@ class SmetaEngine:
         # decomp={'letter_count': 7, 'height_cm': 40, ...}. Per-letter позиции
         # (сборка/покраска/монтаж буквы) скейлятся на letter_count, прочие — нет.
         letter_count = 0
+        tiraж_qty = 0       # P12.3.B1: шт для merch/печатной
+        area_m2 = 0.0       # P12.3.B1: кв.м для баннеров/коробов
         if decomp:
             for k in ("letter_count", "letters", "char_count", "n_letters"):
                 v = decomp.get(k) if isinstance(decomp, dict) else None
@@ -331,22 +333,56 @@ class SmetaEngine:
                         break
                     except (TypeError, ValueError):
                         pass
+            # P12.3.B1: quantity (тираж) и area_m2
+            for k in ("quantity", "tiraж", "tiraj", "count"):
+                v = decomp.get(k) if isinstance(decomp, dict) else None
+                if v:
+                    try:
+                        tiraж_qty = int(v)
+                        break
+                    except (TypeError, ValueError):
+                        pass
+            v = decomp.get("area_m2") if isinstance(decomp, dict) else None
+            if v:
+                try:
+                    area_m2 = float(v)
+                except (TypeError, ValueError):
+                    pass
 
         def _scale_quantity(p: dict, base_q: float) -> tuple[float, bool]:
-            """Return (effective_quantity, was_scaled)."""
-            if letter_count <= 0:
-                return base_q, False
+            """Return (effective_quantity, was_scaled).
+
+            Priority: letter_count (sign per-letter) → tiraж (merch/print шт) →
+            area_m2 (банер/короб кв.м).
+            """
             unit = (p.get("unit") or "").lower()
             section = (p.get("b24_section") or "").lower()
             name = (p.get("product_name") or "").lower()
-            per_letter_unit = unit in ("шт", "буква", "буквы", "symbol", "символ")
-            per_letter_hint = any(
-                kw in name or kw in section
-                for kw in ("буква", "символ", "элемент", "сборк", "покраск",
-                           "монтаж букв", "лицев", "торц", "контражур")
-            )
-            if per_letter_unit and per_letter_hint and base_q <= letter_count:
-                return float(letter_count), True
+
+            # 1) Per-letter scaling (existing behaviour)
+            if letter_count > 0:
+                per_letter_unit = unit in ("шт", "буква", "буквы", "symbol", "символ")
+                per_letter_hint = any(
+                    kw in name or kw in section
+                    for kw in ("буква", "символ", "элемент", "сборк", "покраск",
+                               "монтаж букв", "лицев", "торц", "контражур")
+                )
+                if per_letter_unit and per_letter_hint and base_q <= letter_count:
+                    return float(letter_count), True
+
+            # 2) P12.3.B1 — tiraж scaling (merch + печатная)
+            # Сигнал: unit=шт и продукт НЕ буква/элемент знака
+            if tiraж_qty > 0 and unit in ("шт", "компл", "экз"):
+                sign_hint = any(
+                    kw in name for kw in ("буква", "элемент", "знак", "подсветк", "каркас")
+                )
+                if not sign_hint:
+                    return float(tiraж_qty), True
+
+            # 3) P12.3.B1 — area_m2 scaling (баннеры, короба)
+            if area_m2 > 0 and unit in ("кв.м", "м2", "м²", "sqm"):
+                return float(area_m2), True
+
             return base_q, False
 
         # Convert positions to DealItems

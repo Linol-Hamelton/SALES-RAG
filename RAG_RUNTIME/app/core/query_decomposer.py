@@ -153,6 +153,12 @@ class QueryDecomposition:
     workers: int = 0
     technology: str = ""        # "контражур", "лицевая", "неон", "без_подсветки", "нержавейка", ""
 
+    # P12.3.B2 — parametric pricing fields (tiraж/merch/printing)
+    quantity: int = 0           # тираж / шт (листовки, визитки, футболки)
+    format: str = ""            # "A4", "A3", "SRA3", "70x100"
+    material: str = ""          # "композит", "оргстекло", "пвх", "баннер", "хб" ...
+    area_m2: float = 0.0        # площадь баннера / короба
+
     components: list[ComponentSpec] = field(default_factory=list)
 
 
@@ -200,6 +206,81 @@ def _extract_workers(text: str) -> int:
     if m:
         return int(m.group(1))
     return 0
+
+
+# ---------------------------------------------------------------------------
+# P12.3.B2 — tiraж / format / material extractors for parametric pricing
+# ---------------------------------------------------------------------------
+
+def _extract_quantity(text: str) -> int:
+    """Extract tiraж / quantity from text (printing/merch queries).
+
+    Matches: "1000 шт", "тираж 500", "5000 экземпляров", "100 штук".
+    Returns 0 if no tiraж found.
+    """
+    patterns = [
+        r"тираж\w*\s*(\d+)",
+        r"(\d+)\s*(?:шт\b|штук|штуки|экземпляр|экз\b|листов|флаер|визитк|кружк|футболок|бейсбол)",
+        r"(\d+)\s*шт\.?",
+    ]
+    for pat in patterns:
+        m = re.search(pat, text, re.IGNORECASE)
+        if m:
+            val = int(m.group(1))
+            if 1 <= val <= 1_000_000:
+                return val
+    return 0
+
+
+def _extract_format(text: str) -> str:
+    """Extract paper/print format. Returns normalized like 'A4', 'A3', 'SRA3', '70x100' or ''."""
+    m = re.search(r"\b(A\d|А\d|SRA\d)\b", text, re.IGNORECASE)
+    if m:
+        return m.group(1).upper().replace("А", "A")
+    m = re.search(r"(\d{2,3})\s*[xх×]\s*(\d{2,3})\s*(?:см|мм)?", text)
+    if m:
+        return f"{m.group(1)}x{m.group(2)}"
+    return ""
+
+
+# Material keyword → normalized label
+_MATERIAL_PATTERNS: list[tuple[str, list[str]]] = [
+    ("композит",   ["композит", "алюкобонд", "dibond"]),
+    ("оргстекло",  ["оргстекло", "акрил", "plexiglas"]),
+    ("пвх",        ["пвх", "pvc"]),
+    ("пластик",    ["пластик", "plastic"]),
+    ("нержавейка", ["нержавейк", "нержавеющ", "inox"]),
+    ("металл",     ["металл", "сталь", "латунь", "бронза"]),
+    ("баннер",     ["баннерная ткань", "баннерная", "banner"]),
+    ("картон",     ["картон", "крафт"]),
+    ("мелован",    ["мелован", "coated"]),
+    ("хб",         ["хлопок", "хб ", "cotton"]),
+]
+
+
+def _extract_material(text: str) -> str:
+    """Detect primary material keyword in query. Returns empty string if none."""
+    text_lower = text.lower()
+    for mat, keywords in _MATERIAL_PATTERNS:
+        if any(kw in text_lower for kw in keywords):
+            return mat
+    return ""
+
+
+def _extract_area_m2(text: str) -> float:
+    """Extract banner/sign area in m². Matches '3x6', '1.5x2.5 метра', '6 кв.м'."""
+    m = re.search(r"(\d+(?:[.,]\d+)?)\s*[xх×]\s*(\d+(?:[.,]\d+)?)\s*(?:м\b|метр)", text, re.IGNORECASE)
+    if m:
+        w = float(m.group(1).replace(",", "."))
+        h = float(m.group(2).replace(",", "."))
+        if 0.3 <= w <= 30 and 0.3 <= h <= 30:
+            return round(w * h, 2)
+    m = re.search(r"(\d+(?:[.,]\d+)?)\s*кв\.?\s*м", text, re.IGNORECASE)
+    if m:
+        val = float(m.group(1).replace(",", "."))
+        if 0.3 <= val <= 500:
+            return val
+    return 0.0
 
 
 def _extract_letter_text(text: str) -> str:
@@ -418,6 +499,11 @@ def decompose(query: str) -> QueryDecomposition:
     letter_count = len(letter_text.replace(" ", "")) if letter_text else 0
     linear_meters = _estimate_linear_meters(letter_count, height_cm)
     technology = _detect_technology(query)
+    # P12.3.B2 — parametric params
+    quantity = _extract_quantity(query)
+    fmt = _extract_format(query)
+    material = _extract_material(query)
+    area_m2 = _extract_area_m2(query)
 
     if not is_complex:
         return QueryDecomposition(
@@ -429,6 +515,10 @@ def decompose(query: str) -> QueryDecomposition:
             linear_meters=linear_meters,
             hours=hours,
             technology=technology,
+            quantity=quantity,
+            format=fmt,
+            material=material,
+            area_m2=area_m2,
         )
 
     components = _detect_components(query, linear_meters, hours, workers)
@@ -443,5 +533,9 @@ def decompose(query: str) -> QueryDecomposition:
         hours=hours,
         workers=workers,
         technology=technology,
+        quantity=quantity,
+        format=fmt,
+        material=material,
+        area_m2=area_m2,
         components=components,
     )

@@ -740,6 +740,110 @@ def _force_inject_bridge(retriever, reranked: list[dict], service_name: str) -> 
         return False
 
 
+# P12.3.C — manager-script intent regex. Triggers force-retrieval of
+# is_macro=True knowledge docs (brief/objection/persuasion/sales_script).
+_MACRO_INTENT_RE = re.compile(
+    r"как\s+(?:мне\s+)?ответить"
+    r"|что\s+(?:мне|ему)?\s*ответить"
+    r"|скрипт\s+(?:для|ответ|переговор)"
+    r"|ответ(?:ить)?\s+клиент"
+    r"|клиент\s+(?:спрашивает|говорит|сомневается|возражает)"
+    r"|как\s+возразить"
+    r"|работ(?:а|ать)\s+с\s+возражен"
+    r"|(?:возражен\w+)\s+(?:слишком\s+дорого|дорого|подумаю|у\s+конкурент)"
+    r"|как\s+убедить|как\s+продать\s+клиент"
+    r"|что\s+сказать\s+клиент",
+    re.IGNORECASE,
+)
+
+
+def _detect_macro_intent(query: str) -> bool:
+    """Return True if query looks like a manager-script request."""
+    if not query:
+        return False
+    return bool(_MACRO_INTENT_RE.search(query))
+
+
+def _force_inject_macro(retriever, reranked: list[dict], query: str) -> bool:
+    """P12.3.C: force-inject manager-script knowledge docs when intent matches.
+
+    Filters knowledge collection on `is_macro=True`. Promotes existing macros
+    if already in reranked, else scrolls Qdrant for top-3 macros by text
+    similarity to the query via retriever.retrieve (broad text search) и
+    отфильтровывает по is_macro.
+    """
+    if retriever is None or not getattr(retriever, "is_ready", False) or not query:
+        return False
+    if not _detect_macro_intent(query):
+        return False
+
+    # Idempotent: promote existing macros to top.
+    macro_idxs = [
+        i for i, d in enumerate(reranked)
+        if (d.get("payload") or {}).get("is_macro") is True
+    ]
+    if macro_idxs:
+        macros = [reranked.pop(i) for i in sorted(macro_idxs, reverse=True)]
+        for doc in reversed(macros[:3]):
+            reranked.insert(0, doc)
+        logger.info("macro force-inject: promoted existing",
+                    count=len(macros), query=query[:60])
+        return True
+
+    try:
+        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        flt = Filter(must=[
+            FieldCondition(key="doc_type", match=MatchValue(value="knowledge")),
+            FieldCondition(key="is_macro", match=MatchValue(value=True)),
+        ])
+        # P12.3.C: rank macros by semantic similarity to the query within the
+        # is_macro=True sub-collection. Uses retriever.embedder for the query
+        # vector, then Qdrant's dense query with filter.
+        try:
+            q_vec = retriever.embedder.encode([query], normalize_embeddings=True)[0].tolist()
+            search_res = retriever._client.search(
+                collection_name=retriever.settings.qdrant_collection,
+                query_vector=("dense", q_vec),
+                query_filter=flt,
+                limit=3,
+                with_payload=True,
+            )
+        except Exception:
+            # Fallback: bare scroll (no ranking).
+            scroll_res, _ = retriever._client.scroll(
+                collection_name=retriever.settings.qdrant_collection,
+                scroll_filter=flt,
+                limit=3,
+                with_payload=True,
+                with_vectors=False,
+            )
+            search_res = scroll_res
+
+        if not search_res:
+            logger.info("force_inject_macro: no macro docs found", query=query[:60])
+            return False
+
+        top_score = (reranked[0].get("rrf_score") or reranked[0].get("final_score") or 1.0) \
+            if reranked else 1.0
+        synthetic_base = float(top_score) + 0.5
+        for i, pt in enumerate(search_res[:3]):
+            reranked.insert(i, {
+                "doc_id": pt.payload.get("doc_id", ""),
+                "score": synthetic_base - i * 0.05,
+                "rrf_score": synthetic_base - i * 0.05,
+                "final_score": synthetic_base - i * 0.05,
+                "bm25_score": 0.0,
+                "payload": pt.payload,
+                "forced_macro": True,
+            })
+        logger.info("macro force-injected",
+                    count=min(3, len(search_res)), query=query[:60])
+        return True
+    except Exception as e:
+        logger.warning("force_inject_macro failed", query=query[:60], error=str(e))
+        return False
+
+
 def _force_inject_roadmap(retriever, reranked: list[dict], query: str) -> bool:
     """P11-R1: гарантированная доставка roadmap-документов при trigger-запросах.
 
@@ -954,31 +1058,89 @@ def _parse_deal_items(raw_json: dict) -> list[DealItem]:
 
 
 def _build_size_context(decomp: "QueryDecomposition") -> str:
-    """Build size-aware pricing context when query has letter/height info."""
-    if decomp.letter_count == 0:
+    """Build size-aware pricing context when query has letter/height/tiraж/area info."""
+    # P12.3.B3: tiraж / area / material — параметры для печати, мерча, баннеров
+    parametric_present = (
+        decomp.letter_count > 0
+        or getattr(decomp, "quantity", 0) > 0
+        or getattr(decomp, "area_m2", 0.0) > 0
+        or getattr(decomp, "format", "")
+        or getattr(decomp, "material", "")
+    )
+    if not parametric_present:
         return ""
-    lines = [
-        f"ПАРАМЕТРЫ ЗАПРОСА: надпись '{decomp.letter_text}' "
-        f"({decomp.letter_count} букв)",
-    ]
-    if decomp.technology:
-        lines.append(f"Технология: {decomp.technology}")
-    if decomp.height_cm > 0:
-        lines.append(f"Высота: {decomp.height_cm:.0f} см")
-        # Use pricing_resolver's rate tables for consistency
-        from app.core.pricing_resolver import PricingResolver
-        rate_min, rate_max = PricingResolver._get_letter_rate(decomp.height_cm, decomp.technology)
-        low = rate_min * decomp.letter_count
-        high = rate_max * decomp.letter_count
+
+    lines: list[str] = ["ПАРАМЕТРЫ ЗАПРОСА:"]
+
+    if decomp.letter_count > 0:
         lines.append(
-            f"Рыночный ориентир по размеру: "
-            f"{low:,} – {high:,} руб (только буквы, без монтажа/каркаса)"
+            f"  надпись '{decomp.letter_text}' ({decomp.letter_count} букв)"
         )
-    else:
-        lines.append("Высота НЕ указана — уточни у клиента для точного расчёта")
-    if decomp.linear_meters > 0:
-        lines.append(f"Расчётные погонные метры: {decomp.linear_meters:.1f} мп")
+        if decomp.technology:
+            lines.append(f"  Технология: {decomp.technology}")
+        if decomp.height_cm > 0:
+            lines.append(f"  Высота: {decomp.height_cm:.0f} см")
+            from app.core.pricing_resolver import PricingResolver
+            rate_min, rate_max = PricingResolver._get_letter_rate(decomp.height_cm, decomp.technology)
+            low = rate_min * decomp.letter_count
+            high = rate_max * decomp.letter_count
+            lines.append(
+                f"  Рыночный ориентир по размеру: "
+                f"{low:,} – {high:,} руб (только буквы, без монтажа/каркаса)"
+            )
+        else:
+            lines.append("  Высота НЕ указана — уточни у клиента для точного расчёта")
+        if decomp.linear_meters > 0:
+            lines.append(f"  Расчётные погонные метры: {decomp.linear_meters:.1f} мп")
+
+    # P12.3.B3 — tiraж (листовки, визитки, футболки, кружки)
+    if getattr(decomp, "quantity", 0) > 0:
+        lines.append(f"  Тираж: {decomp.quantity} шт")
+    if getattr(decomp, "format", ""):
+        lines.append(f"  Формат: {decomp.format}")
+    if getattr(decomp, "material", ""):
+        lines.append(f"  Материал: {decomp.material}")
+    if getattr(decomp, "area_m2", 0.0) > 0:
+        lines.append(f"  Площадь: {decomp.area_m2} кв.м")
+
     return "\n".join(lines)
+
+
+def _needs_parametrization(query: str, decomp: "QueryDecomposition") -> tuple[bool, str]:
+    """P12.3.B3: detect tiraж-dependent запрос without quantity → need_parametrization.
+
+    Returns (needs_flag, hint_question) for queries про печатную/мерч/баннеры
+    где цена зависит от тиража/размера, но decomp их не извлёк.
+    """
+    q = (query or "").lower()
+    # Printing tiraж triggers
+    print_keywords = [
+        "листовк", "флаер", "буклет", "визитк", "брошюр",
+        "этикетк", "наклейк", "каталог", "плакат",
+    ]
+    # Merch tiraж triggers
+    merch_keywords = [
+        "футболк", "кружк", "бейсбол", "худи", "толстовк",
+        "шоппер", "магнит", "ручк фирменн", "значок", "брелок",
+    ]
+    # Banner area triggers
+    banner_keywords = ["баннер", "перетяжк", "билборд"]
+
+    is_print = any(kw in q for kw in print_keywords)
+    is_merch = any(kw in q for kw in merch_keywords)
+    is_banner = any(kw in q for kw in banner_keywords)
+
+    if not (is_print or is_merch or is_banner):
+        return False, ""
+
+    has_qty = getattr(decomp, "quantity", 0) > 0
+    has_area = getattr(decomp, "area_m2", 0.0) > 0
+
+    if (is_print or is_merch) and not has_qty:
+        return True, "На какой тираж рассчитать смету? (укажите количество экземпляров/штук)"
+    if is_banner and not has_area and not has_qty:
+        return True, "Какой размер баннера? (ширина × высота, м)"
+    return False, ""
 
 
 def _format_pricing_breakdown(pr) -> str:
@@ -1390,6 +1552,7 @@ async def query_human(req: QueryRequest, request: Request,
 
             reranked = reranker.rerank(req.query, candidates, top_n=req.top_k)
             _force_inject_roadmap(retriever, reranked, req.query)  # P11-R1
+            _force_inject_macro(retriever, reranked, req.query)    # P12.3.C
             pricing_resolution = pricing.resolve(reranked, decomp=decomp)
 
             # Inject size context for queries with letter info
@@ -1504,6 +1667,21 @@ async def query_structured(req: QueryRequest, request: Request,
                             confidence=round(intent_result.confidence, 3),
                             method=intent_result.method,
                             query=req.query[:80])
+
+        # P12.3.C: manager-script intent — инжектим доп. инструкцию для LLM,
+        # чтобы он использовал макро-скрипт как готовый ответ клиенту, а не
+        # уходил в ценовую оценку.
+        if _detect_macro_intent(req.query):
+            macro_hint = (
+                "ИНТЕНТ: менеджер просит готовый скрипт/ответ клиенту. "
+                "В контексте будут блоки [Макро-скрипт ...]. Используй их "
+                "как основу — верни клиентский ответ в summary (2–5 предложений), "
+                "без цены если она не запрошена явно. "
+                "estimated_price=null, confidence=manual. "
+                "В reasoning ссылайся на раздел макро-скрипта."
+            )
+            intent_instruction = (intent_instruction + "\n\n" + macro_hint).strip() \
+                if intent_instruction else macro_hint
 
         # --- Decompose query: detect complex multi-component requests ---
         decomp = decompose(req.query)
@@ -1707,6 +1885,7 @@ async def query_structured(req: QueryRequest, request: Request,
 
             reranked = reranker.rerank(req.query, candidates, top_n=req.top_k)
             _force_inject_roadmap(retriever, reranked, req.query)  # P11-R1
+            _force_inject_macro(retriever, reranked, req.query)    # P12.3.C
             pr = pricing.resolve(reranked, decomp=decomp)
             # Filter noise: only pass relevant docs to generator for pricing context
             reranked_relevant = _filter_relevant_docs(reranked)
@@ -2327,6 +2506,20 @@ async def query_structured(req: QueryRequest, request: Request,
                 )
                 if _expl_flag not in all_flags:
                     all_flags = [_expl_flag] + all_flags
+
+        # P12.3.B3: need_parametrization — tiraж/площадь не извлечены, но
+        # запрос про печатный/мерч/баннер. Добавляем флаг + вопрос в summary.
+        try:
+            _np_need, _np_hint = _needs_parametrization(req.query, decomp)
+        except Exception:
+            _np_need, _np_hint = False, ""
+        if _np_need and _np_hint:
+            _np_flag = f"need_parametrization: {_np_hint}"
+            if _np_flag not in all_flags:
+                all_flags = [_np_flag] + all_flags
+            if _np_hint not in (summary or ""):
+                summary = (summary or "").rstrip()
+                summary = (summary + " " if summary else "") + _np_hint
 
         # П8.7-D1: out-of-scope queries (рабочие часы, адрес, контакты).
         # Force manual confidence + nullify price + inject clear scope flag.

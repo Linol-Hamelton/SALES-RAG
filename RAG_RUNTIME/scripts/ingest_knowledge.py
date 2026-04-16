@@ -197,20 +197,23 @@ def ingest_faqs(verbose: bool) -> list[dict]:
 # Knowledge base ingestion (MD, DOCX, PDF)
 # ---------------------------------------------------------------------------
 
+# P12.3.C: macro flag classifies sources whose primary function is a
+# manager-script (бриф, возражения, скрипт переговоров), not a data/fact
+# reference. These get force-retrieved when the intent-detector fires.
 KNOWLEDGE_SOURCES = [
-    # (filename, source_label, doc_kind)
+    # (filename, source_label, doc_kind, is_macro, macro_type)
     ("Консультирование по продвижению бизнеса и рекламе для менеджеров рекламной компании.md",
-     "consulting_guide", "Консультирование по продвижению бизнеса"),
+     "consulting_guide", "Консультирование по продвижению бизнеса", True, "consulting"),
     ("Часто задаваемые вопросы.md",
-     "business_faq", "Часто задаваемые вопросы"),
+     "business_faq", "Часто задаваемые вопросы", False, ""),
     ("Продажа дизайна и сопровождение сделки.md",
-     "design_sales_guide", "Продажа дизайна"),
+     "design_sales_guide", "Продажа дизайна", True, "sales_script"),
     ("Использование приемов убеждения.md",
-     "persuasion_guide", "Приёмы убеждения"),
+     "persuasion_guide", "Приёмы убеждения", True, "persuasion"),
     ("Брифы.md",
-     "briefs_guide", "Брифы по продуктам"),
+     "briefs_guide", "Брифы по продуктам", True, "brief"),
     ("warranty-card (1).docx",
-     "warranty", "Гарантийная карта"),
+     "warranty", "Гарантийная карта", False, ""),
     # NOTE: ROADMAPS/* файлы индексируются отдельно через ingest_roadmaps.py
     # (doc_type=roadmap, cross-link linked_product_ids/linked_smeta_category_ids).
     # Дублирование сюда удалено в P10.6 B2.
@@ -222,7 +225,7 @@ def ingest_knowledge(verbose: bool) -> list[dict]:
     docs = []
     doc_counter = 0
 
-    for filename, source_label, display_label in KNOWLEDGE_SOURCES:
+    for filename, source_label, display_label, is_macro, macro_type in KNOWLEDGE_SOURCES:
         path = RAG_DATA / filename
         if not path.exists():
             print(f"  [SKIP] Not found: {filename}")
@@ -311,6 +314,9 @@ def ingest_knowledge(verbose: bool) -> list[dict]:
                     "parent_section": parent,
                     "content": body,
                     "searchable_text": searchable,
+                    # P12.3.C: manager-script routing metadata
+                    "is_macro": is_macro,
+                    "macro_type": macro_type,
                 },
                 "provenance": {"source": filename, "generated_at": GENERATED_AT},
             }
@@ -333,6 +339,8 @@ ANCHOR_DOCS = [
         "source": "warranty_anchor",
         "source_label": "Гарантийная карта Labus.pro",
         "section": "Гарантия на рекламные конструкции",
+        "is_macro": False,
+        "macro_type": "",
         "body": (
             "Гарантия на рекламные вывески Labus.pro: 12 месяцев с момента приёмки.\n\n"
             "Что покрывается гарантией: световые короба, объёмные буквы, сборные элементы наружной рекламы — 12 месяцев.\n\n"
@@ -350,6 +358,8 @@ ANCHOR_DOCS = [
         "source": "briefs_anchor",
         "source_label": "Брифы по продуктам — Мерч",
         "section": "Что нужно согласовать для мерча (кружки, ручки, футболки и др.)",
+        "is_macro": True,
+        "macro_type": "brief",
         "body": (
             "Для производства мерча необходимо согласовать с клиентом следующее (бриф):\n\n"
             "РУЧКИ: модель ручки, цвет корпуса, количество, способ нанесения логотипа (тампопечать/гравировка/шелкография), "
@@ -369,6 +379,8 @@ ANCHOR_DOCS = [
         "source": "briefs_anchor",
         "source_label": "Брифы по продуктам — Полиграфия",
         "section": "Что нужно согласовать для полиграфии (визитки, листовки, буклеты)",
+        "is_macro": True,
+        "macro_type": "brief",
         "body": (
             "Для производства полиграфии необходимо согласовать с клиентом (бриф):\n\n"
             "ВИЗИТКИ: размер (стандарт 90×50 мм / евро 85×55 мм), тираж, бумага (мелованная 300/350 г, "
@@ -388,6 +400,8 @@ ANCHOR_DOCS = [
         "source": "briefs_anchor",
         "source_label": "Брифы по продуктам — Вывески и наружная реклама",
         "section": "Что нужно согласовать для вывески и наружной рекламы",
+        "is_macro": True,
+        "macro_type": "brief",
         "body": (
             "Для производства и монтажа вывесок / наружной рекламы необходимо согласовать (бриф):\n\n"
             "СВЕТОВЫЕ КОРОБА / ЛАЙТБОКСЫ: размер (ШxВ в мм), толщина короба, вид подсветки (LED/неон), "
@@ -407,6 +421,8 @@ ANCHOR_DOCS = [
         "source": "roi_anchor",
         "source_label": "Конверсия и ROI labus.pro — ключевые показатели",
         "section": "ROMI и конверсия по направлениям Labus.pro",
+        "is_macro": False,
+        "macro_type": "",
         "body": (
             "Ключевые показатели эффективности рекламных услуг Labus.pro (2024-2026):\n\n"
             "БРЕНДИНГ И АЙДЕНТИКА (ROMI):\n"
@@ -436,6 +452,8 @@ ANCHOR_DOCS = [
         "source": "sales_anchor",
         "source_label": "Работа с возражениями клиентов",
         "section": "Скрипты ответов на ключевые возражения клиентов",
+        "is_macro": True,
+        "macro_type": "objection",
         "body": (
             "Ключевые возражения клиентов и как на них отвечать:\n\n"
             "ВОЗРАЖЕНИЕ 'СЛИШКОМ ДОРОГО':\n"
@@ -480,6 +498,9 @@ def build_anchor_docs() -> list[dict]:
                 "parent_section": anchor["source_label"],
                 "content": anchor["body"],
                 "searchable_text": searchable,
+                # P12.3.C: manager-script routing metadata
+                "is_macro": anchor.get("is_macro", False),
+                "macro_type": anchor.get("macro_type", ""),
             },
             "provenance": {"source": "anchor_knowledge", "generated_at": GENERATED_AT},
         })
