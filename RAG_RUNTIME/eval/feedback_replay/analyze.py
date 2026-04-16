@@ -37,15 +37,21 @@ TOPICS = {
 
 # Critique taxonomy — each entry: name, trigger regex (in expert comment), check fn
 CRITIQUE_TYPES = [
-    ("needs_clarification", r"уточни|уточнить|необходимо\s+уточн"),
-    ("wrong_catalog",       r"goods\.csv|offers\.csv|orders\.csv|артикул\s*\d+|labus\.pro"),
-    ("wrong_math",          r"сумма\s+(невероятно\s+)?завышен|реальная\s+стоимост|медиана\s+(услуг|сделок)|ориентир"),
-    ("missing_refs",        r"примеров\s+из\s+реальных\s+сделок|ссылк\w+\s+на\s+страниц|3[-–]5\s+примеров"),
-    ("forbidden_phrase",    r"перестань\s+использовать|не\s+использовать|форбидден"),
-    ("workflow_guidance",   r"брифы\s+и\s+скрипты|дорожн\w+\s+карт|менеджер\w+\s+скрипт"),
-    ("brand_voice",         r"рыночн\w+\s+данн\w+\s+по\s+дагестан|по\s+рынку\s+дагестан"),
-    ("regression",          r"деградаци|было\s+лучше|предыдущие\s+ответы\s+были\s+точн"),
-    ("cites_roadmap",       r"регламент|этап\w*\s+работ|процесс\s+создани|как\s+(вы\s+)?делает|порядок\s+работ"),
+    ("needs_clarification",    r"уточни|уточнить|необходимо\s+уточн"),
+    ("wrong_catalog",          r"goods\.csv|offers\.csv|orders\.csv|артикул\s*\d+|labus\.pro"),
+    ("wrong_math",             r"сумма\s+(невероятно\s+)?завышен|реальная\s+стоимост|медиана\s+(услуг|сделок)|ориентир"),
+    ("missing_refs",           r"примеров\s+из\s+реальных\s+сделок|ссылк\w+\s+на\s+страниц|3[-–]5\s+примеров"),
+    ("forbidden_phrase",       r"перестань\s+использовать|не\s+использовать|форбидден"),
+    ("workflow_guidance",      r"брифы\s+и\s+скрипты|дорожн\w+\s+карт|менеджер\w+\s+скрипт"),
+    ("brand_voice",            r"рыночн\w+\s+данн\w+\s+по\s+дагестан|по\s+рынку\s+дагестан"),
+    ("regression",             r"деградаци|было\s+лучше|предыдущие\s+ответы\s+были\s+точн"),
+    ("cites_roadmap",          r"регламент|этап\w*\s+работ|процесс\s+создани|как\s+(вы\s+)?делает|порядок\s+работ"),
+    # P12.2.1 — new critique types (from prior cluster-analysis)
+    ("parametric_mismatch",    r"тираж|экземпляр|\d+\s*(м|см)\s*[xх×]\s*\d+|высот[ае]\s+\d|формат\s*a\d|размер\s+\d"),
+    ("manager_script_intent",  r"как\s+(мне\s+)?ответить|что\s+(мне|ему)\s+ответить|скрипт\s+(для|переговор)|ответ(ить)?\s+клиент|клиент\s+спрашивает|клиент\s+говорит|возражен"),
+    ("brand_tier_miscalc",     r"логотип\s+(за|стоит|должен)\s+\d|брендбук\s+(должен|стоит|за)\s+\d|тир\s+(логотип|бренд)|калибров\w+\s+(цен|тир)"),
+    ("missing_article_link",   r"goods\.csv.*id|артикул\s+\d|labus\.pro/product|ссылк\w+\s+на\s+товар|url\s+товара"),
+    ("missing_deal_example",   r"пример\w*\s+сделок|показать\s+заказ|реальн\w+\s+сделок\w*|id\s+сделк|примеры\s+\d"),
 ]
 
 
@@ -134,6 +140,59 @@ def addresses(critique: str, new: dict, comment: str) -> str:
             full_text,
         ))
         return "yes" if cited else "no"
+
+    if critique == "parametric_mismatch":
+        # P12.2: tiraж/формат/площадь были в запросе — ответ должен их учесть (упомянуть в reasoning,
+        # разбивке либо запросить параметр явно).
+        has_param = bool(re.search(
+            r"тираж\s*\d|\d+\s*шт|формат\s*a\d|\d+\s*(м|см)\s*[xх×]\s*\d|высот[аые]\s+\d|площад\w+\s+\d",
+            full_text,
+        ))
+        asks_param = bool(re.search(
+            r"уточните\s+тираж|на\s+какой\s+тираж|какой\s+формат|какой\s+размер|какая\s+высот",
+            full_text,
+        ))
+        if has_param:
+            return "yes"
+        if asks_param:
+            return "partial"
+        return "no"
+
+    if critique == "manager_script_intent":
+        # P12.2: intent = скрипт/макро, ответ должен быть не ценой а репликой/сценарием.
+        has_script = bool(re.search(
+            r"скрипт|макро|ответ(ьте|ить)?\s+так|реплик\w+|сценари\w+\s+переговор|возражен\w+\s+клиент"
+            r"|предложите\s+клиенту|скажите\s+клиенту|используйте\s+формулировк",
+            full_text,
+        ))
+        return "yes" if has_script else "no"
+
+    if critique == "brand_tier_miscalc":
+        # P12.2: tier-aware ответ — цена должна быть в диапазоне, упомянут уровень (эконом/стандарт/премиум).
+        has_tier = bool(re.search(
+            r"эконом|стандарт|премиум|тир\s+\d|уровень\s+(разработ|оформ)|пакет\s+(базов|расширен)",
+            full_text,
+        ))
+        return "yes" if has_tier else "no"
+
+    if critique == "missing_article_link":
+        # P12.2: ответ должен содержать артикул и URL labus.pro.
+        has_article = bool(re.search(r"артикул\s*\d+|арт\.\s*\d+|id\s*\d{4,}", full_text))
+        has_url = bool(re.search(r"labus\.pro/product|labus\.pro/\w", full_text))
+        if has_article and has_url:
+            return "yes"
+        if has_article or has_url:
+            return "partial"
+        return "no"
+
+    if critique == "missing_deal_example":
+        # P12.2: ≥2 конкретных deal_id цитируется в reasoning/summary.
+        deal_refs = len(re.findall(r"сделк\w*\s*(?:#|№|id)?\s*\d{4,}|#\s*\d{4,}\s*[:\-]", full_text))
+        if deal_refs >= 2:
+            return "yes"
+        if deal_refs == 1:
+            return "partial"
+        return "no"
 
     return "n/a"
 
@@ -263,20 +322,78 @@ def build_report(replays: list[dict]) -> tuple[str, dict]:
     }
 
 
+def build_cluster_report(replays: list[dict]) -> str:
+    """P12.2.2: group pairs by (topic, critique), rank by count × severity.
+
+    Severity: unaddressed critique = 2, partial = 1, addressed = 0. A cluster's
+    score is sum of severities across its pairs. Top-10 clusters become the
+    prioritized backlog for the current cycle.
+    """
+    clusters: dict[tuple[str, str], list[dict]] = defaultdict(list)
+    for r in replays:
+        topic = r.get("topic", "other")
+        for c, status in r.get("critique_status", {}).items():
+            clusters[(topic, c)].append({
+                "fb_id": r["feedback_id"],
+                "rating": r["rating"],
+                "verdict": r["verdict"],
+                "status": status,
+                "query": r["user_query"][:80],
+                "comment": r["expert_comment"][:200],
+            })
+
+    severity_map = {"no": 2, "partial": 1, "yes": 0, "n/a": 0}
+    ranked = []
+    for (topic, critique), pairs in clusters.items():
+        score = sum(severity_map.get(p["status"], 0) for p in pairs)
+        ranked.append((score, topic, critique, pairs))
+    ranked.sort(key=lambda x: (-x[0], -len(x[3])))
+
+    lines = ["# Cluster Report — (topic × critique) prioritization", ""]
+    lines.append(f"**Total pairs:** {len(replays)}")
+    lines.append(f"**Distinct clusters:** {len(ranked)}")
+    lines.append("")
+    lines.append("## Top-10 by severity × count")
+    lines.append("")
+    lines.append("| Rank | Topic | Critique | Pairs | Severity | Unaddressed |")
+    lines.append("|---|---|---|---|---|---|")
+    for i, (score, topic, critique, pairs) in enumerate(ranked[:10], 1):
+        unaddressed = sum(1 for p in pairs if p["status"] == "no")
+        lines.append(f"| {i} | {topic} | {critique} | {len(pairs)} | {score} | {unaddressed} |")
+    lines.append("")
+
+    lines.append("## Detail")
+    lines.append("")
+    for i, (score, topic, critique, pairs) in enumerate(ranked[:15], 1):
+        lines.append(f"### {i}. {topic} × {critique}  (severity={score}, pairs={len(pairs)})")
+        lines.append("")
+        for p in pairs:
+            lines.append(f"- **fb#{p['fb_id']:02d}** rating={p['rating']:+d} verdict={p['verdict']} status={p['status']}")
+            lines.append(f"  - Q: {p['query']}")
+            if p["comment"].strip():
+                lines.append(f"  - Expert: {p['comment']}")
+        lines.append("")
+    return "\n".join(lines)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--input", default=str(ROOT / "replays.json"))
     ap.add_argument("--report", default=str(ROOT / "report.md"))
     ap.add_argument("--analysis", default=str(ROOT / "analysis.json"))
+    ap.add_argument("--cluster-report", default=str(ROOT / "cluster_report.md"))
     args = ap.parse_args()
 
     replays = json.loads(Path(args.input).read_text(encoding="utf-8"))
     report, analysis = build_report(replays)
+    cluster_report = build_cluster_report(analysis["replays"])
 
     Path(args.report).write_text(report, encoding="utf-8")
     Path(args.analysis).write_text(json.dumps(analysis, ensure_ascii=False, indent=2), encoding="utf-8")
+    Path(args.cluster_report).write_text(cluster_report, encoding="utf-8")
     print(f"Wrote {args.report}")
     print(f"Wrote {args.analysis}")
+    print(f"Wrote {args.cluster_report}")
 
 
 if __name__ == "__main__":

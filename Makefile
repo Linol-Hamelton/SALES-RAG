@@ -10,9 +10,10 @@
 # Configuration: edit VPS_HOST and VPS_DIR below
 
 # === Configuration ===
-VPS_HOST    ?= user@your-vps-ip
+VPS_HOST    ?= root@62.217.178.117
 VPS_DIR     ?= /opt/rag
 COMPOSE     = docker compose -f docker-compose.prod.yml
+DUMP_DIR    = ./_dbdump/$(shell date +%Y-%m-%d)
 
 # === WORKFLOW 1: Deploy Code (local -> VPS) ===
 # Run after code changes. Pushes to GitHub, pulls on VPS, rebuilds container.
@@ -38,10 +39,14 @@ sync-indexes:
 
 # === WORKFLOW 3: Fetch Feedback (VPS -> local) ===
 # Download chat history + feedback for local RLHF retraining.
+# DB lives inside container labus_api:/app/data/labus_rag.db — docker cp to host tmp first.
 .PHONY: fetch-feedback
 fetch-feedback:
-	scp $(VPS_HOST):$(VPS_DIR)/data/labus_rag.db ./feedback_from_vps.db
-	@echo "Feedback DB saved to ./feedback_from_vps.db"
+	mkdir -p $(DUMP_DIR)
+	ssh $(VPS_HOST) "docker cp labus_api:/app/data/labus_rag.db /tmp/labus_rag.db"
+	scp $(VPS_HOST):/tmp/labus_rag.db $(DUMP_DIR)/labus_rag.db
+	ssh $(VPS_HOST) "rm -f /tmp/labus_rag.db"
+	@echo "Feedback DB saved to $(DUMP_DIR)/labus_rag.db"
 
 # === WORKFLOW 4: Full Retrain Cycle ===
 # 1. Fetch feedback from VPS
