@@ -29,6 +29,7 @@ from typing import Literal, Optional
 import numpy as np
 
 from app.schemas.pricing import DealItem
+from app.utils.bitrix import build_deal_url
 from app.utils.logging import get_logger
 
 logger = get_logger("smeta_engine")
@@ -410,6 +411,11 @@ class SmetaEngine:
                 f"частота в категории {freq:.0%}" if freq else "",
                 f"уверенность: {confidence}",
             ]
+            _src_id = (
+                p.get("source_deal_id")
+                or canonical.get("source_deal_id", "")
+            )
+            _src_id_str = str(_src_id).strip() if _src_id else ""
             deal_items.append(DealItem(
                 product_name=p.get("product_name", ""),
                 quantity=quantity,
@@ -417,6 +423,8 @@ class SmetaEngine:
                 unit_price=round(unit_price, 2),
                 total=item_total,
                 b24_section=p.get("b24_section", "") or "",
+                source_deal_id=_src_id_str or None,
+                source_deal_url=build_deal_url(_src_id_str) if _src_id_str else None,
                 notes=" · ".join(n for n in notes_parts if n),
             ))
 

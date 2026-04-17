@@ -54,12 +54,14 @@ class Reference(BaseModel):
     article_id: str | None = None
     product_name: str | None = None
     direction: str | None = None
+    bitrix_url: str | None = None   # Clickable link to the deal/offer in Bitrix24
 
 
 class SourceSegment(BaseModel):
     """A single enriched source card shown in segmented references UI."""
     kind: Literal["order", "offer", "product_visual"] = "order"
     deal_id: str | None = None
+    deal_url: str | None = None           # Clickable link to the deal in Bitrix24
     title: str = ""
     subtitle: str | None = None           # product_type + dimensions
     direction: str | None = None
@@ -96,3 +98,5 @@ class DealItem(BaseModel):
     total: float = 0.0
     b24_section: str = ""   # Цех | Дизайн | Печатная | РИК | Мерч | Сольвент
     notes: str = ""         # hint for the manager
+    source_deal_id: str | None = None   # Bitrix deal where this line item came from
+    source_deal_url: str | None = None  # Clickable link to source deal in Bitrix24

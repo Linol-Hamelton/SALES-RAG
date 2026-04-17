@@ -17,10 +17,17 @@ from app.core.feedback_store import build_feedback_context
 from app.core.deal_lookup import DealLookup
 from app.core.smeta_engine import has_strong_keyword_override
 from app.core.intent_classifier import IntentResult, get_classifier
+from app.core.dialog_state import (
+    DialogState,
+    build_system_context_block,
+    extract as extract_dialog_state,
+    smeta_category_to_product,
+)
 from app.config import settings as app_settings
 from app.auth import get_optional_user
 from app.routers.chats import save_message, get_chat_history
 from app.utils.logging import get_logger
+from app.utils.bitrix import build_deal_url, enrich_text_with_deal_links
 
 logger = get_logger(__name__)
 router = APIRouter(tags=["Query"])
@@ -179,6 +186,52 @@ _UNDERSPEC_LEAFLET_SUMMARY = (
     "(дороже, но быстрее — 1–2 дня). Цена при тираже 1 000 шт может отличаться в 2–3 раза "
     "в зависимости от направления."
 )
+
+
+# B8: detect price drift between LLM-written summary and computed estimated_price.
+# Managers/clients read the prose; if the prose quotes 5 030–6 030 ₽ but the
+# structured block says 14 030 ₽, we flag the discrepancy (don't rewrite prose —
+# that produced weird appendings in prod). Dashes: hyphen, en-dash, em-dash, minus.
+_PRICE_NUM_RX = r"(\d{1,3}(?:[\s \u00a0]\d{3})+|\d{3,7})"
+_PRICE_UNIT_RX = r"(?:₽|руб(?:л\w+)?|р\.)"
+_PRICE_RANGE_RX = re.compile(
+    rf"{_PRICE_NUM_RX}\s*[-–—−]\s*{_PRICE_NUM_RX}\s*{_PRICE_UNIT_RX}",
+    re.IGNORECASE,
+)
+_PRICE_SINGLE_RX = re.compile(
+    rf"{_PRICE_NUM_RX}\s*{_PRICE_UNIT_RX}",
+    re.IGNORECASE,
+)
+
+
+def _parse_price_token(tok: str) -> float | None:
+    if not tok:
+        return None
+    digits = re.sub(r"[\s\u00a0]+", "", tok)
+    if not digits.isdigit():
+        return None
+    try:
+        return float(digits)
+    except ValueError:
+        return None
+
+
+def _extract_price_range(text: str) -> tuple[float | None, float | None]:
+    """Return (lo, hi) of the first price or price-range in text (both set for single)."""
+    if not text:
+        return (None, None)
+    m = _PRICE_RANGE_RX.search(text)
+    if m:
+        lo = _parse_price_token(m.group(1))
+        hi = _parse_price_token(m.group(2))
+        if lo is not None and hi is not None and lo <= hi:
+            return (lo, hi)
+    m = _PRICE_SINGLE_RX.search(text)
+    if m:
+        v = _parse_price_token(m.group(1))
+        if v is not None:
+            return (v, v)
+    return (None, None)
 
 
 # П9.1-B: height-based signage pricing — deterministic override когда
@@ -1043,6 +1096,13 @@ def _parse_deal_items(raw_json: dict) -> list[DealItem]:
             total = float(item.get("total", 0) or 0)
             if total == 0 and unit_price > 0:
                 total = round(qty * unit_price, 2)
+            raw_src_id = (
+                item.get("source_deal_id")
+                or item.get("source_offer_id")
+                or item.get("deal_id")
+                or item.get("offer_id")
+            )
+            src_id_str = str(raw_src_id).strip() if raw_src_id else ""
             result.append(DealItem(
                 product_name=str(item.get("product_name", "")),
                 quantity=qty,
@@ -1051,6 +1111,8 @@ def _parse_deal_items(raw_json: dict) -> list[DealItem]:
                 total=total,
                 b24_section=str(item.get("b24_section", "")),
                 notes=str(item.get("notes", "")),
+                source_deal_id=src_id_str or None,
+                source_deal_url=build_deal_url(src_id_str) if src_id_str else None,
             ))
         except (ValueError, TypeError):
             continue
@@ -1170,10 +1232,18 @@ def _build_references(docs: list[dict]) -> list[Reference]:
         searchable_text = payload.get("searchable_text", "")
         doc_type = payload.get("doc_type", "")
         article_id = None
+        bitrix_url = None
         if doc_type == "product":
             article_id = str(payload.get("product_id") or payload.get("product_key") or "") or None
         elif doc_type in ("deal_profile", "offer_profile"):
             article_id = str(payload.get("deal_id") or "") or None
+            # offer_profile may carry a separate offer_id (B4 ingest); prefer it
+            # for the Bitrix link since that's the CRM deal exposed to the manager.
+            link_id = payload.get("offer_id") or payload.get("deal_id")
+            bitrix_url = build_deal_url(link_id)
+        elif doc_type == "offer_composition":
+            article_id = str(payload.get("offer_id") or "") or None
+            bitrix_url = build_deal_url(payload.get("offer_id"))
         refs.append(Reference(
             doc_id=payload.get("doc_id", ""),
             doc_type=doc_type,
@@ -1182,6 +1252,7 @@ def _build_references(docs: list[dict]) -> list[Reference]:
             article_id=article_id,
             product_name=payload.get("product_name") or payload.get("title") or None,
             direction=payload.get("direction") or None,
+            bitrix_url=bitrix_url,
         ))
     return refs
 
@@ -1202,6 +1273,10 @@ def _seg_from_doc(doc: dict, kind: str, photo_enrich: dict | None = None) -> Sou
     score = round(doc.get("final_score", doc.get("rrf_score", 0.0)), 4)
     text = p.get("searchable_text", "")
     deal_id = str(p.get("deal_id") or "") or None
+    # For offer segments prefer offer_id as the Bitrix link target (it's the
+    # actual CRM deal for the КП, while deal_id may point at a parent order).
+    link_id = p.get("offer_id") if kind == "offer" else None
+    deal_url = build_deal_url(link_id) or build_deal_url(deal_id)
 
     title = (p.get("title") or p.get("sample_title") or p.get("deal_title")
              or p.get("sample_order_title") or "").strip() or (text[:60] if text else "")
@@ -1232,6 +1307,7 @@ def _seg_from_doc(doc: dict, kind: str, photo_enrich: dict | None = None) -> Sou
     return SourceSegment(
         kind=kind,
         deal_id=deal_id,
+        deal_url=deal_url,
         title=title[:140],
         subtitle=subtitle,
         direction=direction,
@@ -1505,6 +1581,18 @@ async def query_human(req: QueryRequest, request: Request,
         if db_history and not req.history:
             req.history = [ChatMessage(role=m["role"], content=m["content"]) for m in db_history]
 
+    # P13.1: extract dialog state from history + current query BEFORE pipeline.
+    # Used for (a) first-touch / rejection / context-switch awareness in the
+    # LLM system prompt, (b) gating SmetaEngine override in /query_structured.
+    dialog_state: DialogState = extract_dialog_state(req.history or [], req.query)
+    dialog_ctx = build_system_context_block(dialog_state)
+    if dialog_ctx:
+        logger.info("Dialog state extracted",
+                    first_touch=dialog_state.is_first_touch,
+                    confirmed=dialog_state.confirmed_product,
+                    rejected=sorted(dialog_state.rejected_products),
+                    turn_count=dialog_state.turn_count)
+
     try:
         # Vision analysis (if image provided)
         vision_context = ""
@@ -1513,7 +1601,9 @@ async def query_human(req: QueryRequest, request: Request,
             if vision_context:
                 logger.info("Vision analysis prepended to query context")
 
-        extra_ctx = f"АНАЛИЗ ИЗОБРАЖЕНИЯ:\n{vision_context}\n\n" if vision_context else ""
+        extra_ctx = dialog_ctx
+        if vision_context:
+            extra_ctx += f"АНАЛИЗ ИЗОБРАЖЕНИЯ:\n{vision_context}\n\n"
 
         # --- Parse query for clarification needs ---
         parsed = parse_query(req.query)
@@ -1592,6 +1682,9 @@ async def query_human(req: QueryRequest, request: Request,
             history=req.history, extra_context=extra_ctx,
         )
 
+        # Turn deal/offer mentions into clickable Bitrix24 links for the manager.
+        summary = enrich_text_with_deal_links(summary)
+
         latency_ms = int((time.monotonic() - t0) * 1000)
         logger.info("Query completed", latency_ms=latency_ms, sources=len(reranked))
 
@@ -1637,6 +1730,16 @@ async def query_structured(req: QueryRequest, request: Request,
         db_history = get_chat_history(req.chat_id, user["id"], limit=12)
         if db_history and not req.history:
             req.history = [ChatMessage(role=m["role"], content=m["content"]) for m in db_history]
+
+    # P13.1: extract dialog state for gating + prompt injection.
+    dialog_state: DialogState = extract_dialog_state(req.history or [], req.query)
+    dialog_ctx = build_system_context_block(dialog_state)
+    if dialog_ctx:
+        logger.info("Dialog state extracted (structured)",
+                    first_touch=dialog_state.is_first_touch,
+                    confirmed=dialog_state.confirmed_product,
+                    rejected=sorted(dialog_state.rejected_products),
+                    turn_count=dialog_state.turn_count)
 
     try:
         # Vision analysis (if image provided)
@@ -1737,6 +1840,9 @@ async def query_structured(req: QueryRequest, request: Request,
                 full_extra = feedback_prefix + "\n\n" + full_extra
             if vision_context:
                 full_extra = f"АНАЛИЗ ИЗОБРАЖЕНИЯ:\n{vision_context}\n\n---\n{full_extra}"
+            # P13.1: dialog-state block goes FIRST (highest priority constraints).
+            if dialog_ctx:
+                full_extra = dialog_ctx + "\n" + full_extra
             pr_obj = type("PR", (), {
                 "confidence": estimate.confidence,
                 "estimated_value": estimate.total_estimate,
@@ -1751,9 +1857,16 @@ async def query_structured(req: QueryRequest, request: Request,
                 "is_financial_modifier": False,
             })()
             # П7.1-hotfix: describe-intent / user-provided-smeta → SmetaEngine не нужен
-            _force_llm = _is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query)
+            # P13.1: first-touch → always skip SmetaEngine (discovery mode).
+            _force_llm = (
+                _is_describe_intent(req.query)
+                or _looks_like_user_provided_smeta(req.query)
+                or dialog_state.is_first_touch
+            )
             if _force_llm:
-                logger.info("SmetaEngine skipped (describe/provided-smeta intent)")
+                logger.info("SmetaEngine skipped (complex)",
+                            reason=("first-touch" if dialog_state.is_first_touch
+                                    else "describe/provided-smeta intent"))
             if is_estimate and not _force_llm:
                 # П7.1 #2: pre-LLM SmetaEngine gating (complex/parametric path).
                 _smeta_engine_pre_c = getattr(request.app.state, "smeta_engine", None)
@@ -1890,6 +2003,10 @@ async def query_structured(req: QueryRequest, request: Request,
             # Filter noise: only pass relevant docs to generator for pricing context
             reranked_relevant = _filter_relevant_docs(reranked)
             vision_extra = ""
+            # P13.1: dialog-state block goes FIRST so LLM reads constraints
+            # before any retrieval / clarification / pricing text.
+            if dialog_ctx:
+                vision_extra += dialog_ctx + "\n"
             if clarification_prefix:
                 vision_extra += clarification_prefix
             if feedback_prefix:
@@ -1904,9 +2021,16 @@ async def query_structured(req: QueryRequest, request: Request,
             breakdown_ctx = _format_pricing_breakdown(pr)
             if breakdown_ctx:
                 vision_extra += breakdown_ctx + "\n\n"
-            _force_llm = _is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query)
+            # P13.1: first-touch disables SmetaEngine (discovery mode).
+            _force_llm = (
+                _is_describe_intent(req.query)
+                or _looks_like_user_provided_smeta(req.query)
+                or dialog_state.is_first_touch
+            )
             if _force_llm:
-                logger.info("SmetaEngine skipped (describe/provided-smeta intent, std)")
+                logger.info("SmetaEngine skipped (std)",
+                            reason=("first-touch" if dialog_state.is_first_touch
+                                    else "describe/provided-smeta intent"))
             # P10/A7: trace flags
             _bridge_forced = False
             _smeta_blocked_by = ""
@@ -2197,10 +2321,14 @@ async def query_structured(req: QueryRequest, request: Request,
         smeta_result = None
         # П7.1-hotfix: respect pre-LLM decision to skip SmetaEngine entirely.
         # П8.8-A: empty-context smeta queries also block SmetaEngine (no product noun).
+        # P13.1: first-touch → block the summary override (discovery mode);
+        #        the LLM already owns the first response.
         if _is_empty_context_smeta_query(req.query):
             _smeta_blocked_reason = "empty-context smeta query"
         elif _is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query):
             _smeta_blocked_reason = "describe/provided-smeta intent"
+        elif dialog_state.is_first_touch:
+            _smeta_blocked_reason = "first-touch (discovery mode)"
         else:
             _smeta_blocked_reason = None
         if is_estimate and _smeta_blocked_reason:
@@ -2259,6 +2387,36 @@ async def query_structured(req: QueryRequest, request: Request,
                         and (smeta_result.total or 0) < _UNDERKEY_MIN_TEMPLATE_TOTAL:
                     logger.info("SmetaEngine under min total (downstream)",
                                 total=smeta_result.total)
+                    smeta_result = None
+
+            # P13.1: dialog-state gate — reject on
+            #   (a) SmetaEngine category mapped to a product the customer
+            #       already rejected in history
+            #   (b) context-switch: category != confirmed_product and the
+            #       current turn has no «ещё/также/плюс» switch marker
+            # Both cases add a flag to the response so the LLM-fallback path
+            # picks up the reason and the manager UI can show it.
+            if smeta_result is not None and smeta_result.is_usable:
+                _smeta_prod = smeta_category_to_product(smeta_result.category_name)
+                if _smeta_prod and dialog_state.is_rejected(_smeta_prod):
+                    logger.info("SmetaEngine blocked by dialog_state rejection",
+                                category=smeta_result.category_name,
+                                product=_smeta_prod)
+                    all_flags = [
+                        f"Шаблон «{smeta_result.category_name}» подавлен: "
+                        f"клиент отклонил этот продукт в диалоге."
+                    ] + all_flags
+                    smeta_result = None
+                elif _smeta_prod and dialog_state.product_context_switch(_smeta_prod):
+                    logger.info("SmetaEngine blocked by context-switch guard",
+                                category=smeta_result.category_name,
+                                candidate=_smeta_prod,
+                                confirmed=dialog_state.confirmed_product)
+                    all_flags = [
+                        f"Шаблон «{smeta_result.category_name}» подавлен: "
+                        f"активный продукт — "
+                        f"{dialog_state.confirmed_product or 'другой'}."
+                    ] + all_flags
                     smeta_result = None
 
             if smeta_result is not None:
@@ -2700,6 +2858,42 @@ async def query_structured(req: QueryRequest, request: Request,
                 deal_items = []
         except Exception as _e_fp:
             logger.warning("Forbidden-promise filter failed", error=str(_e_fp))
+
+        # Enrich free-text fields with clickable Bitrix24 links. The manager
+        # needs to jump from an ID mention ("КП #68312" / "сделка #68312") to
+        # the actual CRM deal in one click. Post-processing is idempotent and
+        # leaves already-linked mentions untouched.
+        summary = enrich_text_with_deal_links(summary)
+        reasoning = enrich_text_with_deal_links(reasoning)
+
+        # B8: flag when the price in the LLM-written summary diverges >30%
+        # from the computed estimated_price. Transparency over rewriting —
+        # touching LLM prose produced weird appendings in prod. Root cause
+        # belongs in the gate (B7); this catches silent drift.
+        try:
+            if (
+                summary
+                and estimated_price is not None
+                and getattr(estimated_price, "value", None)
+            ):
+                s_lo, s_hi = _extract_price_range(summary)
+                if s_lo is not None and s_hi is not None:
+                    s_mid = (s_lo + s_hi) / 2.0
+                    est_val = float(estimated_price.value)
+                    drift = abs(s_mid - est_val) / max(est_val, 1.0)
+                    if drift > 0.30:
+                        all_flags = [
+                            f"⚠ Цена в тексте (~{int(s_mid):,} ₽) расходится с итоговой сметой "
+                            f"(~{int(est_val):,} ₽, отклонение {int(drift * 100)}%)."
+                        ] + all_flags
+                        logger.warning(
+                            "Price drift detected",
+                            summary_mid=int(s_mid),
+                            estimated=int(est_val),
+                            drift_pct=int(drift * 100),
+                        )
+        except Exception as _e_drift:
+            logger.debug("Price-drift check skipped", error=str(_e_drift))
 
         response = StructuredResponse(
             summary=summary,

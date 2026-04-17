@@ -8,6 +8,7 @@ import yaml
 from pathlib import Path
 from typing import Any
 from app.utils.logging import get_logger
+from app.utils.bitrix import format_deal_link_line
 
 logger = get_logger(__name__)
 
@@ -162,6 +163,12 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                 lines.append(f"  Встречался в реальных заказах: {contained} раз")
             if sample_products:
                 lines.append(f"  Состав: {sample_products[:400]}")
+            if bundle_ids:
+                from app.utils.bitrix import collect_deal_urls
+                _ids = [x.strip() for x in str(bundle_ids).replace(";", ",").split(",") if x.strip()]
+                urls = collect_deal_urls(_ids)
+                if urls:
+                    lines.append(f"  Bitrix-ссылки: {', '.join(urls[:5])}")
             blocks.append("\n".join(lines))
 
         elif doc_type == "pricing_policy":
@@ -240,6 +247,9 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                 lines.append(f"  Анализ по фото (Gemini): {vision_analysis}")
             if image_urls:
                 lines.append(f"  Прямые ссылки на фото проекта: {', '.join(image_urls)}")
+            bitrix_line = format_deal_link_line(deal_id, label="Bitrix")
+            if bitrix_line:
+                lines.append(bitrix_line)
             blocks.append("\n".join(lines))
 
         elif doc_type == "offer_profile":
@@ -272,6 +282,10 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                 lines.append(f"  Позиции КП: {sample_products[:600]}")
             if materials:
                 lines.append(f"  Материалы: {materials}")
+            bitrix_link_id = offer_id_str or deal_id
+            bitrix_line = format_deal_link_line(bitrix_link_id, label="Bitrix")
+            if bitrix_line:
+                lines.append(bitrix_line)
             blocks.append("\n".join(lines))
 
         elif doc_type == "timeline_fact":
@@ -374,6 +388,10 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                 if offer_ids:
                     ids_str = ", ".join(f"#{i}" for i in offer_ids[:10])
                     lines.append(f"    Реальные КП: {ids_str}")
+                    from app.utils.bitrix import collect_deal_urls
+                    _urls = collect_deal_urls(offer_ids[:5])
+                    if _urls:
+                        lines.append(f"    Bitrix-ссылки: {', '.join(_urls)}")
                 # P10.5-II.2: product_id'ы, если зарезолвлены на этапе ingest (G3).
                 # goods.csv использует PRODUCT_ID как первичный ключ каталога.
                 catalog_refs = pkg.get("product_catalog_refs") or []
@@ -417,6 +435,9 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                     line += f" × {qty:g}"
                 line += f" — {price:,.0f} ₽"
                 lines.append(line)
+            bitrix_line = format_deal_link_line(offer_id, label="Bitrix")
+            if bitrix_line:
+                lines.append(bitrix_line)
             blocks.append("\n".join(lines))
 
     return "\n---\n".join(blocks)

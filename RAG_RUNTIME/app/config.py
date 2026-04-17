@@ -43,6 +43,13 @@ class Settings(BaseSettings):
     # Feature flags
     use_intent_classifier: bool = Field(default=True, alias="USE_INTENT_CLASSIFIER")
 
+    # Bitrix24 — URL template used to link deals/offers back to the CRM.
+    # {id} is the offers.csv/goods.csv ID (== Bitrix deal ID).
+    bitrix_deal_url_template: str = Field(
+        default="https://labus.bitrix24.ru/crm/deal/details/{id}/",
+        alias="BITRIX_DEAL_URL_TEMPLATE",
+    )
+
     # Retrieval
     retrieval_top_k: int = Field(default=20, alias="RETRIEVAL_TOP_K")
     rerank_top_n: int = Field(default=8, alias="RERANK_TOP_N")
