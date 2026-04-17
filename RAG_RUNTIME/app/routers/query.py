@@ -1857,15 +1857,16 @@ async def query_structured(req: QueryRequest, request: Request,
                 "is_financial_modifier": False,
             })()
             # П7.1-hotfix: describe-intent / user-provided-smeta → SmetaEngine не нужен
-            # P13.1: first-touch → always skip SmetaEngine (discovery mode).
+            # P13.2: discovery turn → skip SmetaEngine (vague first-touch only,
+            # not every single-turn query — otherwise auto-priced eval cases regress).
             _force_llm = (
                 _is_describe_intent(req.query)
                 or _looks_like_user_provided_smeta(req.query)
-                or dialog_state.is_first_touch
+                or dialog_state.needs_discovery_turn
             )
             if _force_llm:
                 logger.info("SmetaEngine skipped (complex)",
-                            reason=("first-touch" if dialog_state.is_first_touch
+                            reason=("discovery-turn" if dialog_state.needs_discovery_turn
                                     else "describe/provided-smeta intent"))
             if is_estimate and not _force_llm:
                 # П7.1 #2: pre-LLM SmetaEngine gating (complex/parametric path).
@@ -2021,15 +2022,15 @@ async def query_structured(req: QueryRequest, request: Request,
             breakdown_ctx = _format_pricing_breakdown(pr)
             if breakdown_ctx:
                 vision_extra += breakdown_ctx + "\n\n"
-            # P13.1: first-touch disables SmetaEngine (discovery mode).
+            # P13.2: discovery-turn only (not every single-turn query).
             _force_llm = (
                 _is_describe_intent(req.query)
                 or _looks_like_user_provided_smeta(req.query)
-                or dialog_state.is_first_touch
+                or dialog_state.needs_discovery_turn
             )
             if _force_llm:
                 logger.info("SmetaEngine skipped (std)",
-                            reason=("first-touch" if dialog_state.is_first_touch
+                            reason=("discovery-turn" if dialog_state.needs_discovery_turn
                                     else "describe/provided-smeta intent"))
             # P10/A7: trace flags
             _bridge_forced = False
@@ -2327,8 +2328,8 @@ async def query_structured(req: QueryRequest, request: Request,
             _smeta_blocked_reason = "empty-context smeta query"
         elif _is_describe_intent(req.query) or _looks_like_user_provided_smeta(req.query):
             _smeta_blocked_reason = "describe/provided-smeta intent"
-        elif dialog_state.is_first_touch:
-            _smeta_blocked_reason = "first-touch (discovery mode)"
+        elif dialog_state.needs_discovery_turn:
+            _smeta_blocked_reason = "discovery turn (vague first touch)"
         else:
             _smeta_blocked_reason = None
         if is_estimate and _smeta_blocked_reason:

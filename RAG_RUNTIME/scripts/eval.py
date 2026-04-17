@@ -48,8 +48,11 @@ CATEGORIES = [
     "bundle_query",
     "direction_ambiguous",
     "edge_case",
-    "roadmap_process",  # P11-R3: roadmap trigger invariant cases
-    "smeta_seed",       # P8.3: SmetaEngine SEED canonical regression guards
+    "roadmap_process",      # P11-R3: roadmap trigger invariant cases
+    "smeta_seed",           # P8.3: SmetaEngine SEED canonical regression guards
+    "bridge_pricing",       # P12.3.D: bridge_merch bucket regression
+    "consultation",         # general consulting flow
+    "industry_knowledge",   # P13.1: industry briefs + commercial offers
 ]
 
 
@@ -568,18 +571,25 @@ def main():
         )
     )
 
-    print_summary(summary)
-
     if args.baseline:
         diff = diff_against_baseline(summary, Path(args.baseline))
-        print_diff(diff)
         summary["baseline_diff"] = diff
 
+    # Save results BEFORE printing — rich.console on Windows cp1251 can crash
+    # on non-ASCII characters in failure details, which used to lose the whole run.
     write_results(
         summary,
         output_dir=Path(args.output_dir),
         reports_dir=Path(args.reports_dir),
     )
+
+    try:
+        print_summary(summary)
+        if args.baseline:
+            print_diff(summary["baseline_diff"])
+    except UnicodeEncodeError as _e:
+        console.print(f"[yellow]Skipped pretty-print: {_e.__class__.__name__}. "
+                      f"Full data in results.json.[/yellow]")
 
     # Exit with code 1 if pass rate < 50% OR regressions vs baseline
     regressions = (summary.get("baseline_diff") or {}).get("regressions") or []

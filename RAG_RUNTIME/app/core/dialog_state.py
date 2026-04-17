@@ -198,6 +198,23 @@ class DialogState:
             return False
         return candidate_product != self.confirmed_product
 
+    @property
+    def needs_discovery_turn(self) -> bool:
+        """True when the bot should run a discovery/qualifier turn instead of
+        quoting a template price. This is narrower than ``is_first_touch``:
+        if the very first user message already carries specifics
+        (explicit price ask, тираж/размер/quantity), the client wants a
+        number — not a sales-funnel intro. Blocking SmetaEngine on those
+        would regress auto-pricing against single-turn eval cases.
+        """
+        if not self.is_first_touch:
+            return False
+        if self.has_explicit_price_ask:
+            return False
+        if self.size_params:
+            return False
+        return True
+
 
 # ---------------------------------------------------------------------------
 # Extractor
@@ -406,7 +423,7 @@ def build_system_context_block(
     """
     lines: list[str] = []
 
-    if state.is_first_touch:
+    if state.needs_discovery_turn:
         lines.append(
             "РЕЖИМ: первое касание клиента. НЕ называй конкретную цену до "
             "того как выяснишь потребность. Задай 1-2 уточняющих вопроса "
