@@ -1221,16 +1221,24 @@ def _format_pricing_breakdown(pr) -> str:
     return "\n".join(lines)
 
 
-def _build_references(docs: list[dict]) -> list[Reference]:
+_HISTORY_INTENTS = {"historical_request", "referential"}
+_HISTORY_DOC_TYPES = {"historical_deal", "deal_profile", "offer_profile"}
+
+
+def _build_references(docs: list[dict], intent: str | None = None) -> list[Reference]:
     """Build Reference objects from retrieved docs. Only show relevant ones."""
     refs = []
     for doc in docs[:8]:
         score = doc.get("final_score", doc.get("rrf_score", 0.0))
-        if score < MIN_RELEVANT_SCORE:
-            continue  # skip noise docs
         payload = doc.get("payload", {})
-        searchable_text = payload.get("searchable_text", "")
         doc_type = payload.get("doc_type", "")
+        # P13.4: when user explicitly asked for past deals, bypass cross-encoder
+        # score gate for deal-shaped docs — cross-encoder underscores them
+        # because deal text rarely contains words like «сделка/ссылка».
+        bypass_gate = intent in _HISTORY_INTENTS and doc_type in _HISTORY_DOC_TYPES
+        if score < MIN_RELEVANT_SCORE and not bypass_gate:
+            continue  # skip noise docs
+        searchable_text = payload.get("searchable_text", "")
         article_id = None
         bitrix_url = None
         if doc_type == "product":
@@ -1427,15 +1435,22 @@ def _filter_relevant_docs(docs: list[dict]) -> list[dict]:
     return relevant if relevant else docs[:3]  # always return at least 3 for LLM context
 
 
-def _build_historical_deals(docs: list[dict], max_deals: int = 3) -> list[HistoricalDealRef]:
+def _build_historical_deals(docs: list[dict], max_deals: int = 3,
+                            intent: str | None = None) -> list[HistoricalDealRef]:
     """P13.3 / T7: extract anonymized historical_deal references for "Похожие сделки".
 
     Surfaced for pricing/sizing/bundle intents. Strict no-PII rule: never
     populate company/contact data — only deal_id (Bitrix internal),
     anonymized title, year, amount, sections, top product names.
+
+    P13.4: when user explicitly asked for past deals (intent in
+    historical_request/referential), bypass the cross-encoder score gate —
+    cross-encoder gives deal_text low scores against meta-queries like
+    «дай ссылки на сделки». doc_type filter alone is sufficient signal.
     """
     out: list[HistoricalDealRef] = []
     seen_ids = set()
+    bypass_gate = intent in _HISTORY_INTENTS
     for doc in docs:
         if len(out) >= max_deals:
             break
@@ -1446,7 +1461,7 @@ def _build_historical_deals(docs: list[dict], max_deals: int = 3) -> list[Histor
         if not deal_id or deal_id in seen_ids:
             continue
         score = round(doc.get("final_score", doc.get("rrf_score", 0.0)), 4)
-        if score < MIN_RELEVANT_SCORE:
+        if score < MIN_RELEVANT_SCORE and not bypass_gate:
             continue
         seen_ids.add(deal_id)
 
@@ -2964,7 +2979,7 @@ async def query_structured(req: QueryRequest, request: Request,
             reasoning=reasoning,
             flags=all_flags,
             risks=all_risks,
-            references=_build_references(reranked),
+            references=_build_references(reranked, intent=(intent_result.intent if intent_result else None)),
             segmented_references=_build_segmented_references(
                 reranked,
                 photo_index=getattr(request.app.state, "photo_index", None),
@@ -2972,7 +2987,7 @@ async def query_structured(req: QueryRequest, request: Request,
             source_distinction=_detect_source_distinction(reranked),
             parametric_breakdown=parametric_breakdown_schema,
             deal_items=deal_items,
-            historical_deals=_build_historical_deals(reranked),
+            historical_deals=_build_historical_deals(reranked, intent=(intent_result.intent if intent_result else None)),
             latency_ms=int((time.monotonic() - t0) * 1000),
         )
 
