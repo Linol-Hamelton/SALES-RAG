@@ -2075,6 +2075,21 @@ async def query_structured(req: QueryRequest, request: Request,
             reranked = reranker.rerank(req.query, candidates, top_n=req.top_k)
             _force_inject_roadmap(retriever, reranked, req.query)  # P11-R1
             _force_inject_macro(retriever, reranked, req.query)    # P12.3.C
+            # P13.4: when user explicitly asked for past deals, the cross-encoder
+            # under-ranks deal-text against meta-queries («дай ссылки на сделки»).
+            # Re-inject any historical_deal/deal_profile/offer_profile candidates
+            # that survived intent retrieval but got dropped by the reranker.
+            if intent_result and intent_result.intent in _HISTORY_INTENTS:
+                _seen_ids = {id(d) for d in reranked}
+                _hist_extra = [
+                    d for d in candidates
+                    if id(d) not in _seen_ids
+                    and d.get("payload", {}).get("doc_type") in _HISTORY_DOC_TYPES
+                ]
+                if _hist_extra:
+                    reranked = list(reranked) + _hist_extra[:6]
+                    logger.info("History intent — re-injected dropped deal docs",
+                                intent=intent_result.intent, added=len(_hist_extra[:6]))
             pr = pricing.resolve(reranked, decomp=decomp)
             # Filter noise: only pass relevant docs to generator for pricing context
             reranked_relevant = _filter_relevant_docs(reranked)
