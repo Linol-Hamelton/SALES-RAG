@@ -100,3 +100,23 @@ class DealItem(BaseModel):
     notes: str = ""         # hint for the manager
     source_deal_id: str | None = None   # Bitrix deal where this line item came from
     source_deal_url: str | None = None  # Clickable link to source deal in Bitrix24
+
+
+class HistoricalDealRef(BaseModel):
+    """P13.3 / T7: anonymized closed-deal reference from orders.csv.
+
+    Surfaced under "Похожие закрытые сделки" for pricing/sizing intents
+    so the manager can cite real precedents. PII (company/contact names)
+    is NEVER populated.
+    """
+    deal_id: str = ""
+    deal_title: str = ""             # internal Bitrix label, no PII
+    year: int = 0
+    total_price: float = 0.0
+    price_bucket: str = ""           # "5–25К", "25–100К", etc.
+    sections: list[str] = Field(default_factory=list)   # signature_sections
+    directions: list[str] = Field(default_factory=list)
+    items_preview: list[str] = Field(default_factory=list)   # top 3-5 product names
+    items_count: int = 0
+    score: float = 0.0
+    bitrix_url: str | None = None    # /crm/deal/details/{id}/

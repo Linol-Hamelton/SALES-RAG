@@ -8,7 +8,7 @@ from app.schemas.query import QueryRequest, HumanQueryResponse, StructuredRespon
 from app.schemas.pricing import (
     PriceBand, EstimatedPrice, BundleItem, Reference, SourceDistinction,
     ParametricBreakdown, ParametricLineItem, DealItem,
-    SourceSegment, SegmentedReferences,
+    SourceSegment, SegmentedReferences, HistoricalDealRef,
 )
 from app.core.query_decomposer import decompose, QueryDecomposition
 from app.core.query_parser import parse_query
@@ -1427,6 +1427,52 @@ def _filter_relevant_docs(docs: list[dict]) -> list[dict]:
     return relevant if relevant else docs[:3]  # always return at least 3 for LLM context
 
 
+def _build_historical_deals(docs: list[dict], max_deals: int = 3) -> list[HistoricalDealRef]:
+    """P13.3 / T7: extract anonymized historical_deal references for "Похожие сделки".
+
+    Surfaced for pricing/sizing/bundle intents. Strict no-PII rule: never
+    populate company/contact data — only deal_id (Bitrix internal),
+    anonymized title, year, amount, sections, top product names.
+    """
+    out: list[HistoricalDealRef] = []
+    seen_ids = set()
+    for doc in docs:
+        if len(out) >= max_deals:
+            break
+        payload = doc.get("payload", {})
+        if payload.get("doc_type") != "historical_deal":
+            continue
+        deal_id = str(payload.get("deal_id") or "").strip()
+        if not deal_id or deal_id in seen_ids:
+            continue
+        score = round(doc.get("final_score", doc.get("rrf_score", 0.0)), 4)
+        if score < MIN_RELEVANT_SCORE:
+            continue
+        seen_ids.add(deal_id)
+
+        items = payload.get("items") or []
+        items_preview = [
+            (it.get("product_name") or "").strip()
+            for it in items[:5]
+            if (it.get("product_name") or "").strip()
+        ]
+
+        out.append(HistoricalDealRef(
+            deal_id=deal_id,
+            deal_title=str(payload.get("deal_title") or deal_id),
+            year=int(payload.get("year") or 0),
+            total_price=float(payload.get("total_price") or 0.0),
+            price_bucket=str(payload.get("price_bucket") or ""),
+            sections=list(payload.get("signature_sections") or [])[:4],
+            directions=list(payload.get("directions") or [])[:3],
+            items_preview=items_preview,
+            items_count=int(payload.get("items_count") or len(items)),
+            score=score,
+            bitrix_url=build_deal_url(deal_id),
+        ))
+    return out
+
+
 def _build_suggested_bundle(docs: list[dict]) -> list[BundleItem]:
     """Build BundleItem list from the first bundle doc in the candidate list.
 
@@ -1859,14 +1905,21 @@ async def query_structured(req: QueryRequest, request: Request,
             # П7.1-hotfix: describe-intent / user-provided-smeta → SmetaEngine не нужен
             # P13.2: discovery turn → skip SmetaEngine (vague first-touch only,
             # not every single-turn query — otherwise auto-priced eval cases regress).
+            # P13.3 (T3): consultation intent or pending parametric question
+            # (rules #14/15/16) — skip pricing entirely.
+            _pending_q = dialog_state.discovery_question()
             _force_llm = (
                 _is_describe_intent(req.query)
                 or _looks_like_user_provided_smeta(req.query)
                 or dialog_state.needs_discovery_turn
+                or (dialog_state.is_consultation_intent and not dialog_state.has_explicit_price_ask)
+                or _pending_q is not None
             )
             if _force_llm:
                 logger.info("SmetaEngine skipped (complex)",
                             reason=("discovery-turn" if dialog_state.needs_discovery_turn
+                                    else "consultation-intent" if dialog_state.is_consultation_intent
+                                    else "pending-parametric" if _pending_q
                                     else "describe/provided-smeta intent"))
             if is_estimate and not _force_llm:
                 # П7.1 #2: pre-LLM SmetaEngine gating (complex/parametric path).
@@ -2023,14 +2076,20 @@ async def query_structured(req: QueryRequest, request: Request,
             if breakdown_ctx:
                 vision_extra += breakdown_ctx + "\n\n"
             # P13.2: discovery-turn only (not every single-turn query).
+            # P13.3 (T3): consultation intent / pending parametric question.
+            _pending_q_std = dialog_state.discovery_question()
             _force_llm = (
                 _is_describe_intent(req.query)
                 or _looks_like_user_provided_smeta(req.query)
                 or dialog_state.needs_discovery_turn
+                or (dialog_state.is_consultation_intent and not dialog_state.has_explicit_price_ask)
+                or _pending_q_std is not None
             )
             if _force_llm:
                 logger.info("SmetaEngine skipped (std)",
                             reason=("discovery-turn" if dialog_state.needs_discovery_turn
+                                    else "consultation-intent" if dialog_state.is_consultation_intent
+                                    else "pending-parametric" if _pending_q_std
                                     else "describe/provided-smeta intent"))
             # P10/A7: trace flags
             _bridge_forced = False
@@ -2208,7 +2267,7 @@ async def query_structured(req: QueryRequest, request: Request,
                 estimated_price = EstimatedPrice(
                     value=total_mid,
                     currency="RUB",
-                    basis=complex_pr.estimated_basis + " (итого под ключ)" if complex_pr.estimated_basis else "рыночный ориентир (итого под ключ)",
+                    basis=complex_pr.estimated_basis + " (итого под ключ)" if complex_pr.estimated_basis else "внутренний ориентир цеха (итого под ключ)",
                 )
                 price_band = PriceBand(
                     min=complex_pr.total_under_key_min,
@@ -2224,7 +2283,7 @@ async def query_structured(req: QueryRequest, request: Request,
                     estimated_price = EstimatedPrice(
                         value=float(llm_price["value"]),
                         currency="RUB",
-                        basis=llm_price.get("basis", "оценка по аналогичным сделкам и рынку"),
+                        basis=llm_price.get("basis", "оценка по аналогичным сделкам Лабус"),
                     )
                 else:
                     estimated_price = None
@@ -2819,10 +2878,10 @@ async def query_structured(req: QueryRequest, request: Request,
                 ).replace(",", " ")
                 reasoning = (
                     f"П9.1-B height-based pricing: высота {_h} см, "
-                    f"{_nl} букв. Расчёт по рыночным ориентирам (цена/букву × кол-во + "
+                    f"{_nl} букв. Расчёт по внутренним ориентирам цеха (цена/букву × кол-во + "
                     "монтаж + каркас + дизайн)."
                 )
-                _hbp_flag = f"Расчёт по рыночным ориентирам (высота {_h} см)"
+                _hbp_flag = f"Расчёт по внутренним ориентирам цеха (высота {_h} см)"
                 if _hbp_flag not in all_flags:
                     all_flags = [_hbp_flag] + all_flags
 
@@ -2913,6 +2972,7 @@ async def query_structured(req: QueryRequest, request: Request,
             source_distinction=_detect_source_distinction(reranked),
             parametric_breakdown=parametric_breakdown_schema,
             deal_items=deal_items,
+            historical_deals=_build_historical_deals(reranked),
             latency_ms=int((time.monotonic() - t0) * 1000),
         )
 

@@ -1,5 +1,5 @@
 PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TIER;PRICE_RATIO_RANGE;CURRENT_BASE_PRICE;ORDER_PRICE_P50;MANUAL_REVIEW_REASON
-21954;Мобильная съемка Простая 1 час;Дизайн;81;auto;high;0;2000;2000;
+21954;Мобильная съемка Простая 1 час;Дизайн;82;auto;high;0;2000;2000;
 22026;Создание анимационного ролика Простой 1 мин;Дизайн;52;auto;high;0;4000;4000;
 21208;Адаптация слайда презентации простая 1 слайд;Дизайн;47;auto;high;0;500;500;
 17592;Махачкала Ярагского 47 Остановка Ирчи Казака Сторона А1 42.96646, 47.50289;РИК;38;auto;high;0;5000;5000;
@@ -13,11 +13,11 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 22010;Написание сценария для видеоролика от 10 сек до 300 секунд 1 идея;Дизайн;19;guided;medium;0;3000;3000;requires_context_lookup
 10160;Махачкала Акушинского 8/1 Миркато Сторона Б2 42.98315, 47.46829;РИК;18;guided;medium;0;40000;40000;requires_context_lookup
 12316;Макет блокнота брендированного Простой 1 оригинал-макет;Дизайн;17;guided;medium;0;1000;1000;requires_context_lookup
-21426;Макет обложки меню для соц сетей Простой 1 решение;Дизайн;17;guided;medium;0;500;500;requires_context_lookup
 13892;Леса строительные Цех;Цех;16;guided;medium;0;200;120;requires_context_lookup
 21952;Подготовка к производству вывески Сложная;Дизайн;16;guided;medium;0;3000;5000;requires_context_lookup
 13896;Суточные 1 монтажник Цех;Цех;15;guided;medium;0;800;700;requires_context_lookup
 21500;Сольвентная печать на бумаге 140 гр более 50 кв.м;Сольвент;15;guided;medium;0;195;195;requires_context_lookup
+21960;Полноформатная съемка Простая 1 час;Дизайн;15;guided;medium;0;2500;2500;requires_context_lookup
 11306;Текст для поста;Маркетинг;14;guided;medium;0;1000;1000;requires_context_lookup
 12284;Макет футболки брендированной по образцу клиента 1 оригинал-макет;Дизайн;14;guided;medium;0;2000;1000;requires_context_lookup
 12304;Макет бейджа Средней сложности 1 оригинал-макет;Дизайн;14;guided;medium;0;1000;1000;requires_context_lookup
@@ -26,20 +26,17 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 21240;Махачкала Имама Шамиля 57 первый Парк 50 лет октября Сторона 1 42.9604, 47.50433;РИК;14;guided;medium;0;28750;28750;requires_context_lookup
 21242;Махачкала Имама Шамиля 57 второй Парк 50 лет октября Сторона 2 42.95953, 47.50549;РИК;14;guided;medium;0;28750;28750;requires_context_lookup
 21402;Макет поста для социальных сетей Средней сложности 1 решение;Дизайн;14;guided;medium;0;2500;2500;requires_context_lookup
-21960;Полноформатная съемка Простая 1 час;Дизайн;14;guided;medium;0;2500;2500;requires_context_lookup
 23086;Махачкала Амет-хана султана 338 Империя окон Сторона Б 42.91281, 47.52132;РИК;14;guided;medium;0;18000;18000;requires_context_lookup
 24006;Махачкала Акушинского 129 сторона А1 42.97701, 47.44222;РИК;14;guided;medium;0;22000;22000;requires_context_lookup
 24034;Каспийск Ленина 20 второй Следственный отдел сторона А 42.8882, 47.64101;РИК;14;guided;medium;0;22500;22500;requires_context_lookup
 24036;Каспийск Ленина 20 второй Следственный отдел сторона Б 42.8882, 47.64101;РИК;14;guided;medium;0;22500;22500;requires_context_lookup
 15968;Махачкала Гамидова 67 Ленинская Администрация Сторона Б 42.95571, 47.50766;РИК;13;guided;medium;0;16500;17600;requires_context_lookup
 17296;Махачкала Ярагского 57 ДГПУ Сторона А1 42.97119, 47.50786;РИК;13;guided;medium;0;18000;18000;requires_context_lookup
-21950;Подготовка к производству вывески Средней сложности;Дизайн;13;guided;medium;0;2000;3000;requires_context_lookup
 22502;Подбор модели 3D Сложная;Дизайн;13;guided;medium;0;1500;1500;requires_context_lookup
 23850;Махачкала Имама Шамиля 97 второй Восточный рынок Сторона Б 42.95254, 47.5198;РИК;13;guided;medium;0;28000;28000;requires_context_lookup
 7362;Макет плаката имиджевого Простой 1 решение;Дизайн;13;guided;medium;0;3000;2000;requires_context_lookup
 12310;Макет пакета брендированного Простой 1 оригинал-макет;Дизайн;12;guided;medium;0;1000;1000;requires_context_lookup
 21214;Махачкала Магомеда Гаджиева 12А Дзержинского Сторона А 42.98341, 47.5009;РИК;12;guided;medium;0;30000;30000;requires_context_lookup
-21388;Макет меню-плейсмент Простой 1 решение;Дизайн;12;guided;medium;0;2000;2000;requires_context_lookup
 10184;Махачкала Амет-Хана Султана Надежная крыша Сторона Б 42.90461, 47.51995;РИК;11;guided;medium;0;14300;14300;requires_context_lookup
 10406;Создание мокапа имитация 3D визуализации 1 поверхность;Дизайн;11;guided;medium;0;5000;2500;requires_context_lookup
 11550;Ручная отрисовка с доработкой орнамента средней сложности 1 векторное изображение;Дизайн;11;guided;medium;0;10000;5000;requires_context_lookup
@@ -149,7 +146,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 22470;Рендеринг Средней сложности экстерьер;Дизайн;5;manual;low;0;400;400;insufficient_history
 23924;Точечная пайка гибкого неона 30-60 шт Цех;Цех;5;manual;low;0;600;600;insufficient_history
 23966;Махачкала Сурикова Поворот на восточный сторона А 42.95458, 47.5164;РИК;5;manual;low;0;20000;20000;insufficient_history
-24046;Макет паттерна корпоративного Простой 1 оригинал-макет;Дизайн;5;manual;low;0;1000;1000;insufficient_history
 24112;А4 Ламинация матовая 75мкр 2-8 шт Печатная;Печатная;5;manual;low;0;175;175;insufficient_history
 24128;А4 Ламинация матовая 125мкр 2-8 шт Печатная;Печатная;5;manual;low;0;190.5;190.5;insufficient_history
 24276;Визитки Ламинация матовая 125мкр 240 Печатная;Печатная;5;manual;low;0;5.21;5.21;insufficient_history
@@ -193,6 +189,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 24980;Манас Манас кольцо первый сторона А 42.72188, 47.66847;РИК;4;manual;low;0;10000;10000;insufficient_history
 24984;Манас Манас кольцо второй сторона А 42.72147, 47.66862;РИК;4;manual;low;0;10000;10000;insufficient_history
 25508;Флаер 21х10 Печать 4+0 1-3 дня 6 Печатная;Печатная;4;manual;low;0;13.26;13.26;insufficient_history
+25868;Подготовка макета к производству Сложного за 1 макет;Дизайн;4;manual;low;0;2000;2100;insufficient_history
 5000;Хайкот А6 бум. 230 гр. 1 шт Печатная;Печатная;4;manual;low;0;1.09;1.09;insufficient_history
 5288;Визитки Ламинация глянцевая 25мкр 1000 Печатная;Печатная;4;manual;low;0;0.92;0.92;insufficient_history
 5402;Маджестик бум. визитки Сияние золота 1 шт Печатная;Печатная;4;manual;low;0;7.29;8.58;insufficient_history
@@ -255,7 +252,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 25756;Каспийск Советская-Стальского сторона А 42.88863, 47.63652;РИК;3;manual;low;0;20000;20000;insufficient_history
 25758;Каспийск Советская-Стальского сторона Б 42.88863, 47.63652;РИК;3;manual;low;0;20000;20000;insufficient_history
 25760;Каспийск Омарова-Магомеджанова сторона А 42.89728, 47.62363;РИК;3;manual;low;0;25000;25000;insufficient_history
-25868;Подготовка макета к производству Сложного за 1 макет;Дизайн;3;manual;low;0;2000;2100;insufficient_history
 4454;Крафт А3 бум. 350 гр. 1 шт Печатная;Печатная;3;manual;low;0;92.5;60;insufficient_history
 4980;НЕВИЯ А6 бум. 80 гр. 1 шт Печатная;Печатная;3;manual;low;0;0.88;1.46;insufficient_history
 5188;Хайкот Флаер(21х10) Бумага 270 гр. 1 шт Печатная;Печатная;3;manual;low;0;1.71;1.62;insufficient_history
@@ -377,6 +373,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 24070;А3 Ламинация матовая 75мкр 21-60 шт;Печатная;2;manual;low;0;80.5;80.5;insufficient_history
 24084;А3 Ламинация матовая 125мкр 11-20 шт;Печатная;2;manual;low;0;125;125;insufficient_history
 24098;А4 Ламинация матовая 32мкр 8-20 шт Печатная;Печатная;2;manual;low;0;88.96;88.96;insufficient_history
+24130;А4 Ламинация матовая 125мкр 8-20 шт Печатная;Печатная;2;manual;low;0;95.25;100.0113;insufficient_history
 24160;А5 Ламинация матовая 75мкр 4-16 шт Печатная;Печатная;2;manual;low;0;87.5;87.5;insufficient_history
 24242;Визитки Ламинация матовая 32мкр 120 Печатная;Печатная;2;manual;low;0;7.41;7.41;insufficient_history
 24258;Визитки Ламинация матовая 75мкр 120 Печатная;Печатная;2;manual;low;0;7.29;7.29;insufficient_history
@@ -390,7 +387,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 25504;Хайкот А5 бум. 200 гр. 1 шт Печатная;Печатная;2;manual;low;0;2;2;insufficient_history
 25530;Флаер 21х10 Печать 4+4 1-3 дня от 3601 Печатная;Печатная;2;manual;low;0;8.84;8.84;insufficient_history
 25762;Махачкала Булача 44 50 сторона А 42.95173, 47.53548;РИК;2;manual;low;0;50000;50000;insufficient_history
-25776;Алюминиевый борт с гибкой белый/черный 6 мм 11-50 мп Цех;Цех;2;manual;low;0;240;240;insufficient_history
+25774;Алюминиевый борт с гибкой белый/черный 6 мм 3-10 мп Цех;Цех;2;manual;low;0;256;268.8;insufficient_history
 25880;Алюминиевый борт с гибкой 8 мм 3-10 мп Цех;Цех;2;manual;low;0;310;325.5;insufficient_history
 4354;А3 Ламинация глянцевая 75мкр от 601 шт Печатная;Печатная;2;manual;low;0;27.58;26.38;insufficient_history
 4376;А3 Ламинация глянцевая 150мкр 11-20 шт Печатная;Печатная;2;manual;low;0;72.66;72.66;insufficient_history
@@ -555,6 +552,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 14176;Ручка Бремен металлическая от 100 шт;Мерч;1;manual;low;0;187.14;200;insufficient_history
 14224;Ручка-стилус Джуси металлическая от 100 шт;Мерч;1;manual;low;0;105.54;105.54;insufficient_history
 14286;Ручка Какаду пластиковая от 200 шт;Мерч;1;manual;low;0;55.32;61.04;insufficient_history
+14324;Стойка для буклетов А6 11-30 шт;POS;1;manual;low;0;200;210;insufficient_history
 14326;Визитница настольная акрил 1 шт;POS;1;manual;low;0;110;83.6;insufficient_history
 14336;Сберстойка пластиковая односторонняя с гравировкой 15х10 см 2-3 шт;POS;1;manual;low;0;1260;1260;insufficient_history
 14338;Сберстойка пластиковая односторонняя с гравировкой 15х10 см 4-10 шт;POS;1;manual;low;0;1190;1190;insufficient_history
@@ -828,7 +826,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 24074;А3 Ламинация матовая 75мкр 201-400 шт;Печатная;1;manual;low;0;70;73.5;insufficient_history
 24080;А3 Ламинация матовая 125мкр 1-4 шт;Печатная;1;manual;low;0;381;400.05;insufficient_history
 24120;А4 Ламинация матовая 75мкр 121-400 шт Печатная;Печатная;1;manual;low;0;38.5;38.5;insufficient_history
-24130;А4 Ламинация матовая 125мкр 8-20 шт Печатная;Печатная;1;manual;low;0;95.25;100.01;insufficient_history
 24162;А5 Ламинация матовая 75мкр 16-40 шт Печатная;Печатная;1;manual;low;0;43.75;43.75;insufficient_history
 24230;А6 Ламинация матовая 125мкр 161-480 шт Печатная;Печатная;1;manual;low;0;14.38;14.38;insufficient_history
 24262;Визитки Ламинация матовая 75мкр 360 Печатная;Печатная;1;manual;low;0;3.35;3.35;insufficient_history
@@ -845,8 +842,9 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 25022;УФ печать на цветном виниле ORACAL 3-10 кв.м;POS;1;manual;low;0;3200;3200;insufficient_history
 25348;Хайкот Флаер 21х10 бум. 300 гр. 1 шт Печатная;Печатная;1;manual;low;0;1.81;1.81;insufficient_history
 25350;Хайкот А6 Флаер 21х10 бум. 105 гр. 1 шт Печатная;Печатная;1;manual;low;0;0.53;0.67;insufficient_history
-25352;Хайкот А6 Флаер 21х10 бум. 180 гр. 1 шт Печатная;Печатная;1;manual;low;0;1.12;1.176;insufficient_history
-25358;Хайкот А6 Флаер 21х10 бум. 300 гр. 1 шт Печатная;Печатная;1;manual;low;0;1.81;1.81;insufficient_history
+25352;Синтетическая бумага UNO SP А6 Флаер 21х10 бум. 160 гр. 1 шт Печатная;Печатная;1;manual;low;0;16.67;1.176;insufficient_history
+25356;Хайкот А6 Флаер 21х10 бум. 270 гр. 1 шт Печатная;Печатная;1;manual;low;0;1.71;1.7955;insufficient_history
+25358;Синтетическая бумага UNO SP А6 Флаер 21х10 бум. 370 гр. 1 шт Печатная;Печатная;1;manual;low;0;33.33;1.81;insufficient_history
 25406;"Флаер Офсет ""евро"" 150 гр/кв.м мел бум. 4+4/ 4+0 1 000 шт Офсет";Офсет;1;manual;low;0;4.38;3.42;insufficient_history
 25422;"Флаер Офсет ""евро"" 115 гр/кв.м мел бум. 4+4/ 4+0 1 000 шт Офсет";Офсет;1;manual;low;0;3.97;3.52;insufficient_history
 25522;Флаер 21х10 Печать 4+4 1-3 дня 1201-2400 Печатная;Печатная;1;manual;low;0;12.38;12.38;insufficient_history
@@ -858,9 +856,9 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 25734;Махачкала Булача 1 33 Кольцо сторона А 42.95749, 47.55444;РИК;1;manual;low;0;33000;33000;insufficient_history
 25738;Махачкала Шамиля 11 стелла 50 АЗС Ультра сторона А 42.97826, 47.47868;РИК;1;manual;low;0;50000;50000;insufficient_history
 25754;Махачкала Магомеда Гаджиева 12А 40 Дзержинского Сторона А 42.98341, 47.5009;РИК;1;manual;low;0;40000;22000;insufficient_history
-25774;Алюминиевый борт с гибкой белый/черный 6 мм 3-10 мп Цех;Цех;1;manual;low;0;256;268.8;insufficient_history
 25808;Махачкала Акушинского 126 сторона А2 42.97662, 47.44049;РИК;1;manual;low;0;20000;20000;insufficient_history
 25856;Макет буклета А4 2 сгиба Средней сложности 1 сторона;Дизайн;1;manual;low;0;4000;4000;insufficient_history
+25870;Адаптация макета для нового носителя Средней сложности за 1 макет;Дизайн;1;manual;low;0;2000;2100;insufficient_history
 25894;Алюминиевый борт с гибкой золото 6 мм 11-50 мп Цех;Цех;1;manual;low;0;274;274;insufficient_history
 4334;А3 Ламинация глянцевая 25мкр 201-400 шт Печатная;Печатная;1;manual;low;0;22.07;20.04;insufficient_history
 4384;А3 Ламинация глянцевая 150мкр 401-600 шт Печатная;Печатная;1;manual;low;0;60.02;66.5;insufficient_history
@@ -1033,6 +1031,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8038;Баннер шнуровка до 5 мп Цех;Цех;1;manual;low;0;54;30;insufficient_history
 8090;Баннер на рейке замена баннера 10-20 кв.м Цех;Цех;1;manual;low;0;480;480;insufficient_history
 8092;Баннер на рейке замена баннера 20-50 кв.м Цех;Цех;1;manual;low;0;440;440;insufficient_history
+8094;Баннер на рейке замена баннера более 50 кв.м Цех;Цех;1;manual;low;0;400;420;insufficient_history
 8110;Пресс-волл на рейке с учетом рейки 1-5 кв.м Цех;Цех;1;manual;low;0;1540;1540;insufficient_history
 8114;Пресс-волл на рейке с учетом рейки 10-20 кв.м Цех;Цех;1;manual;low;0;1320;1320;insufficient_history
 8132;Баннер на фанеру демонтаж 1 кв.м Цех;Цех;1;manual;low;0;120;120;insufficient_history
@@ -1051,7 +1050,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8284;Сборка светового короба Композит с прорезкой 3-10 кв.м Цех;Цех;1;manual;low;0;4940;3600;insufficient_history
 8286;Сборка светового короба Композит с прорезкой 10-20 кв.м Цех;Цех;1;manual;low;0;4560;3600;insufficient_history
 8328;Монтаж подложки на каркас ПВХ 1 кв.м Цех;Цех;1;manual;low;0;600;300;insufficient_history
-8338;Монтаж подложки на каркас ПВХ более 50 кв.м Цех;Цех;1;manual;low;0;400;220;insufficient_history
 8372;ПВХ3 2-3 кв.м;Цех;1;manual;low;0;1316;900;insufficient_history
 8376;ПВХ3 4-6 кв.м;Цех;1;manual;low;0;1151.5;1120;insufficient_history
 8386;ПВХ5 3-4 кв.м;Цех;1;manual;low;0;2008.13;1200;insufficient_history
@@ -1060,7 +1058,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8428;Композит3 глянцевый до 1 кв.м;Цех;1;manual;low;0;3960;4140;insufficient_history
 8430;Композит3 глянцевый 1-2 кв.м;Цех;1;manual;low;0;3740;2805;insufficient_history
 8440;Композит3 зеркальный до 1 кв.м;Цех;1;manual;low;0;5940;5400;insufficient_history
-8474;Акрил3 цветной более 6 кв.м;Цех;1;manual;low;0;3276;3887;insufficient_history
 8500;Акрил3 прозрачный до 1 кв.м;Цех;1;manual;low;0;4140;2790;insufficient_history
 8510;Акрил3 прозрачный более 6 кв.м;Цех;1;manual;low;0;2990;2990;insufficient_history
 8526;Акрил5 прозрачный 1-2 кв.м;Цех;1;manual;low;0;7233.5;6175;insufficient_history
@@ -1135,9 +1132,13 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 9948;Оргстекло прозрачное5 4-6 кв.м;Цех;1;manual;low;0;5957;6118;insufficient_history
 9954;Оргстекло прозрачное8 1-2 кв.м;Цех;1;manual;low;0;10948;9000;insufficient_history
 9994;Махачкала Азиза Алиева 1 ЖК Золотые ключи Сторона А 42.96694, 47.48807;РИК;1;manual;low;0;17600;17600;insufficient_history
+20882;Синтетическая бумага UNO SP А3 бум. 370 гр. 1 шт Печатная;Печатная;41;auto;high;0.0027;200;10.88;
+20888;Синтетическая бумага UNO SP А6 бум. 370 гр. 1 шт Печатная;Печатная;7;manual;low;0.0028;25;1.36;insufficient_history
 6126;Брошюровка на пласт пружину 5-10 экз. 4 - 8 мм Печатная;Печатная;2;manual;low;0.0044;91;64.2;insufficient_history
 9464;Ролл-ап стенд 100х200 см 4-10 шт;POS;4;manual;low;0.0045;3300;3300;insufficient_history
-17090;ПВХ8 Облегченный 4-6 кв.м;Цех;2;manual;low;0.0061;2278.5;2399.4025;insufficient_history
+20886;Синтетическая бумага UNO SP А5 бум. 370 гр. 1 шт Печатная;Печатная;22;guided;medium;0.0062;50;2.72;requires_context_lookup
+20892;Синтетическая бумага UNO SP бум. визитки 370 гр. 1 шт Печатная;Печатная;50;auto;high;0.0063;8.33;0.45;
+20884;Синтетическая бумага UNO SP А4 бум. 370 гр. 1 шт Печатная;Печатная;61;auto;high;0.0065;100;5.44;
 8514;Акрил4 прозрачный 1-2 кв.м;Цех;2;manual;low;0.0095;5278.5;4225;insufficient_history
 23438;Наклейка бумажная А5 148х210 мм Офсет 5-7 дней 1000 шт;Офсет;2;manual;low;0.0142;10.58;10.815;insufficient_history
 7852;Люмиарт А3 бум. 150 гр. 1 шт Печатная;Печатная;8;manual;low;0.0175;8;7.06;insufficient_history
@@ -1157,6 +1158,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 10558;Баннер на металлокаркас с установкой каркаса 100-200 кв.м Цех;Цех;2;manual;low;0.0285;880;647.475;insufficient_history
 7378;Макет стикера Сложный 1 решение;Дизайн;7;manual;low;0.029;4000;2000;insufficient_history
 20276;Владикавказ Островского 13 Коста Сторона А 43.03455, 44.66518;РИК;23;guided;medium;0.0323;15500;15500;requires_context_lookup
+5370;Синтетическая бумага UNO SP бум. визитки 160 гр. 1 шт Печатная;Печатная;11;guided;medium;0.0335;4.17;0.25;requires_context_lookup
 6304;Винил перфорированный печать 3-10 кв.м;Сольвент;4;manual;low;0.0341;880;850;insufficient_history
 10086;Махачкала Акушинского 268 Северный автовокзал Сторона А1 42.97039, 47.41159;РИК;20;guided;medium;0.0353;17000;17000;requires_context_lookup
 13882;Карман объемный стандарт акрил 1,5 мм А4 3-5 шт Цех;Цех;3;manual;low;0.0356;702;702;insufficient_history
@@ -1166,6 +1168,8 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8332;Монтаж подложки на каркас ПВХ 3-10 кв.м Цех;Цех;3;manual;low;0.0385;520;260;insufficient_history
 13824;Пластиковые карты 8,5х5,5 см с закругленными углами 300;POS;2;manual;low;0.0385;39;23.25;insufficient_history
 20756;Винил УФ печать 1-3 кв.м;POS;6;manual;low;0.0392;2550;1900;insufficient_history
+4822;Синтетическая бумага UNO SP А5 бум. 160 гр. 1 шт Печатная;Печатная;47;auto;high;0.04;25;1.5;
+5008;Синтетическая бумага UNO SP А6 бум. 160 гр. 1 шт Печатная;Печатная;14;guided;medium;0.04;12.5;0.65;requires_context_lookup
 8576;ПЭТ1,5 прозрачный 2-5 кв.м;Цех;3;manual;low;0.0412;1564;1031.25;insufficient_history
 15634;Листовка А5 Офсет 115 гр/м мел бум. 4+4/ 4+0 5-7 дней 10 000 шт;Офсет;3;manual;low;0.0413;2.18;1.81;insufficient_history
 15638;Листовка А5 Офсет 150 гр/м мел бум. 4+4/ 4+0 5-7 дней 1 000 шт;Офсет;2;manual;low;0.0415;5.78;4.84;insufficient_history
@@ -1183,21 +1187,22 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 6164;Брошюровка на пласт пружину 1-5 экз. 20 - 24 мм Печатная;Печатная;6;manual;low;0.0468;308;201.6;insufficient_history
 7826;Сборка объема ПВХ8 простые 3-10 мп Цех;Цех;3;manual;low;0.0469;1343.53;1426.05;insufficient_history
 5294;Визитки Ламинация глянцевая 75мкр 48 Печатная;Печатная;4;manual;low;0.047;6.38;6.11;insufficient_history
+7864;Синтетическая бумага UNO SP А3 бум. 160 гр. 1 шт Печатная;Печатная;64;auto;high;0.0481;100;6;
 8476;Акрил3 зеркальный до 1 кв.м;Цех;2;manual;low;0.0483;12420;11100;insufficient_history
 9904;Оргстекло прозрачное2 до 1 кв.м;Цех;2;manual;low;0.0483;2898;1970;insufficient_history
 9816;ПВХ5 4-6 кв.м;Цех;2;manual;low;0.0489;1874.25;1237.5;insufficient_history
-11300;Экспертная статья за 1000 знаков по ТЗ;Маркетинг;50;auto;high;0.05;2000;2000;
+11300;Экспертная статья за 1000 знаков по ТЗ;Маркетинг;53;auto;high;0.05;2000;2000;
 21406;Макет поста для социальных сетей Адаптация 1 макет;Дизайн;44;auto;high;0.05;500;500;
+21974;Видеомонтаж Средней сложности 1 час;Дизайн;42;auto;high;0.05;3000;3000;
 7272;Ручная резка стикеров на гильотине только квадратные и прямоугольные 1-10 мп Печатная;Печатная;42;auto;high;0.05;5;5;
-21974;Видеомонтаж Средней сложности 1 час;Дизайн;41;auto;high;0.05;3000;3000;
-20882;Хайкот А3 бум. 300 гр. 1 шт Печатная;Печатная;40;auto;high;0.05;10.88;10.88;
 21202;Макет обложки презентации простой 1 слайд;Дизайн;39;auto;high;0.05;1000;1000;
 10436;Макет баннера для web Простой 1 решение;Дизайн;32;auto;high;0.05;2000;1000;
 12358;Макет таблички Средней сложности 1 оригинал-макет;Дизайн;32;auto;high;0.05;1000;1000;
 11378;Выезд на диагностику среднюю Цех;Цех;27;guided;medium;0.05;3000;3000;requires_context_lookup
+25866;Подготовка макета к производству Средней сложности за 1 макет;Дизайн;25;guided;medium;0.05;1000;1050;requires_context_lookup
 21400;Макет поста для социальных сетей Простой 1 решение;Дизайн;24;guided;medium;0.05;1000;1000;requires_context_lookup
-25866;Подготовка макета к производству Средней сложности за 1 макет;Дизайн;24;guided;medium;0.05;1000;1050;requires_context_lookup
 21354;Макет текстового баннера Средней сложности 1 решение;Дизайн;19;guided;medium;0.05;2000;2000;requires_context_lookup
+21426;Макет обложки меню для соц сетей Простой 1 решение;Дизайн;18;guided;medium;0.05;500;500;requires_context_lookup
 23650;Ламинация с накаткой для интерьерной печати винила холодная глянцевая 3-10 кв.м;Сольвент;18;guided;medium;0.05;720;720;requires_context_lookup
 21428;Макет обложки меню для соц сетей Средней сложности 1 решение;Дизайн;16;guided;medium;0.05;1500;1500;requires_context_lookup
 21414;Макет шаблона для поста Простой 1 решение;Дизайн;15;guided;medium;0.05;1000;1000;requires_context_lookup
@@ -1206,6 +1211,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 18532;Каспийск 7-я линия второй Мост Сторона Б 42.90156, 47.59535;РИК;14;guided;medium;0.05;17500;17500;requires_context_lookup
 21408;Макет баннера для соц сетей Простой 1 решение;Дизайн;14;guided;medium;0.05;1000;1000;requires_context_lookup
 16708;Махачкала Магомеда Гаджиева 168Б Вузовское озеро Сторона Б 42.99203, 47.48096;РИК;13;guided;medium;0.05;55000;55000;requires_context_lookup
+21388;Макет меню-плейсмент Простой 1 решение;Дизайн;13;guided;medium;0.05;2000;2000;requires_context_lookup
 21550;Подбор фирменных цветов 1 решение;Дизайн;12;guided;medium;0.05;2000;2000;requires_context_lookup
 21236;Макет вывески световой с визуалицией день/ночь Средней сложности 1 макет;Дизайн;10;guided;medium;0.05;3000;3000;requires_context_lookup
 23970;Махачкала Имама Шамиля 99 Большой Поворот на восточный сторона А1 42.95241, 47.52108;РИК;10;guided;medium;0.05;35000;35000;requires_context_lookup
@@ -1216,15 +1222,16 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 25668;Избербаш Советская 32 первый Центр плаза 42.55141, 47.87498;РИК;9;manual;low;0.05;35000;35000;insufficient_history
 18446;Каспийск Молодежная 4 третий Анжи арена Сторона А 42.90794, 47.61583;РИК;8;manual;low;0.05;22000;22000;insufficient_history
 18448;Каспийск Молодежная 4 третий Анжи арена Сторона Б 42.90794, 47.61583;РИК;8;manual;low;0.05;22000;22000;insufficient_history
+21234;Макет вывески световой с визуалицией день/ночь Простой 1 макет;Дизайн;8;manual;low;0.05;1000;1000;insufficient_history
+21238;Макет вывески световой с визуалицией день/ночь Сложный 1 макет;Дизайн;8;manual;low;0.05;5000;5000;insufficient_history
 25500;Хайкот А6 Флаер 21х10 бум. 140 гр. 1 шт;Печатная;8;manual;low;0.05;1;1;insufficient_history
 7916;Тачкавер бум. А4 цветной 1 шт Печатная;Печатная;8;manual;low;0.05;126;126;insufficient_history
-21234;Макет вывески световой с визуалицией день/ночь Простой 1 макет;Дизайн;7;manual;low;0.05;1000;1000;insufficient_history
-21238;Макет вывески световой с визуалицией день/ночь Сложный 1 макет;Дизайн;7;manual;low;0.05;5000;5000;insufficient_history
 21422;Макет карточки товара для соц сетей Средней сложности 1 решение;Дизайн;7;manual;low;0.05;2000;2000;insufficient_history
 25720;Избербаш Р-217 866 км сторона А 42.56891, 47.85014;РИК;7;manual;low;0.05;12000;12000;insufficient_history
 25722;Избербаш Р-217 866 км сторона Б 42.56891, 47.85014;РИК;7;manual;low;0.05;12000;12000;insufficient_history
 10038;Махачкала Акушинского Троллейбусное кольцо Сторона Б 42.98323, 47.46936;РИК;6;manual;low;0.05;18000;18450;insufficient_history
 21420;Макет карточки товара для соц сетей Простой 1 решение;Дизайн;6;manual;low;0.05;1000;1000;insufficient_history
+24046;Макет паттерна корпоративного Простой 1 оригинал-макет;Дизайн;6;manual;low;0.05;1000;1000;insufficient_history
 25750;Махачкала Магомеда Гаджиева 12А 50 Дзержинского Сторона А 42.98341, 47.5009;РИК;6;manual;low;0.05;50000;51250;insufficient_history
 12342;Макет паттерна корпоративного Средней сложности 1 оригинал-макет;Дизайн;5;manual;low;0.05;2000;2000;insufficient_history
 18034;Каспийск Ленина 46 Донатсдей Сторона А 42.89436, 47.63291;РИК;5;manual;low;0.05;15000;15750;insufficient_history
@@ -1238,29 +1245,29 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 6462;Аппликация накатка на монтажную пленку 10-20 кв.м Цех;Цех;5;manual;low;0.05;600;360;insufficient_history
 12360;Макет таблички Сложная 1 оригинал-макет;Дизайн;4;manual;low;0.05;2000;2000;insufficient_history
 15064;Фрезировка композита 1-3 кв.м Цех;Цех;4;manual;low;0.05;700;700;insufficient_history
+21464;Подбор шрифта для логотипа 1 решение;Дизайн;4;manual;low;0.05;1500;1500;insufficient_history
 21468;Подбор шрифта для логотипа 5 решений;Дизайн;4;manual;low;0.05;5000;5125;insufficient_history
 25510;Флаер 21х10 Печать 4+4 1-3 дня 7-120 Печатная;Печатная;4;manual;low;0.05;17.68;17.68;insufficient_history
 25518;Флаер 21х10 Печать 4+4 1-3 дня 361-1200 Печатная;Печатная;4;manual;low;0.05;14.14;14.4935;insufficient_history
 25766;Махачкала Булача 44 40 сторона А 42.95173, 47.53548;РИК;4;manual;low;0.05;40000;42000;insufficient_history
+25776;Алюминиевый борт с гибкой белый/черный 6 мм 11-50 мп Цех;Цех;4;manual;low;0.05;240;240;insufficient_history
 25830;Махачкала Магомеда Гаджиева 12А 22 Дзержинского Сторона А 42.98341, 47.5009;РИК;4;manual;low;0.05;22000;22550;insufficient_history
 6782;Табличка полиграфия 0,01-0,02 кв.м 3-10 шт Цех;Цех;4;manual;low;0.05;9800;10290;insufficient_history
 6806;Табличка полиграфия 0,03-0,04 кв.м 3-10 шт Цех;Цех;4;manual;low;0.05;5413.33;5413.33;insufficient_history
 10654;Студийная натяжка на подрамник 0,2 - 0,4 м² за 1 шт Цех;Цех;3;manual;low;0.05;840;840;insufficient_history
-21464;Подбор шрифта для логотипа 1 решение;Дизайн;3;manual;low;0.05;1500;1500;insufficient_history
 22288;Сольвентная печать стикеров на виниле 3-10 кв.м;Сольвент;3;manual;low;0.05;1440;1440;insufficient_history
 23658;Акрил2 зеркальный до 1 кв.м;Цех;3;manual;low;0.05;8694;9128.7;insufficient_history
+25882;Алюминиевый борт с гибкой 8 мм 11-50 мп Цех;Цех;3;manual;low;0.05;291;305.55;insufficient_history
 4880;Коктейль А5 бум. Белый 1 шт Печатная;Печатная;3;manual;low;0.05;23.88;23.88;insufficient_history
 5854;Календарь настенный 10-50 экз. квартальный;Печатная;3;manual;low;0.05;395.34;395.34;insufficient_history
 19032;Шнурок на резинке клип-рулетке 10 шт;POS;2;manual;low;0.05;90;92.25;insufficient_history
 19056;Бейдж карман А2 106х88 мм 10 шт;POS;2;manual;low;0.05;9;9.225;insufficient_history
 23848;ПВХ3 Облегченный более 6 кв.м;Цех;2;manual;low;0.05;834.71;855.5778;insufficient_history
 25858;Макет навигационной таблички Средней сложности 1 решение;Дизайн;2;manual;low;0.05;2000;2050;insufficient_history
-25882;Алюминиевый борт с гибкой 8 мм 11-50 мп Цех;Цех;2;manual;low;0.05;291;298.275;insufficient_history
 6794;Табличка полиграфия 0,02-0,03 кв.м 3-10 шт Цех;Цех;2;manual;low;0.05;6580;6744.5;insufficient_history
 6844;Табличка полиграфия 0,08-0,1 кв.м 10-30 шт Цех;Цех;2;manual;low;0.05;3315;3397.875;insufficient_history
 8764;Блок питания влагозащ. IP67 200 Вт 1 шт;Цех;9;manual;low;0.0506;2145;225;insufficient_history
 7596;Демонтаж буквы сложной на выезде 11-50 мп Цех;Цех;2;manual;low;0.0513;390;290;insufficient_history
-20888;Хайкот А6 бум. 300 гр. 1 шт Печатная;Печатная;7;manual;low;0.0515;1.36;1.36;insufficient_history
 7494;Оклейка бочины букв пленкой простые более 300 мп Цех;Цех;5;manual;low;0.053;340;265;insufficient_history
 8406;ПВХ10 1-2 кв.м;Цех;2;manual;low;0.0531;4254.25;4546.375;insufficient_history
 5584;НЕВИЯ бум. Открытка 21х20см 1 шт;Печатная;4;manual;low;0.0534;8.8;15.38;insufficient_history
@@ -1271,7 +1278,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 15738;Магнитный винил Рулон 62 см 1-3 мп;Материалы;6;manual;low;0.0556;648;648;insufficient_history
 11112;Штендер эмалированный с оцинковкой 1220х660 см 2-3 шт;POS;2;manual;low;0.0556;5400;5550;insufficient_history
 8828;Рейка шлифованная 40х30 мм до 3 мп;Цех;2;manual;low;0.0556;71.25;69.27;insufficient_history
-8700;Резка листового материала ЧПУ 60-100 мп;Резка;5;manual;low;0.0568;44;70;insufficient_history
+17090;ПВХ8 Облегченный 4-6 кв.м;Цех;3;manual;low;0.0561;2278.5;2392.425;insufficient_history
 15030;Установка композита на подсистему откос 10-20 мп Цех;Цех;2;manual;low;0.0577;1040;810;insufficient_history
 9888;Акрил цветной 4-6 кв.м;Цех;3;manual;low;0.0579;3528;3500;insufficient_history
 7766;Сборка объема акрил простые 51-100 мп Цех;Цех;2;manual;low;0.0585;2736;2170;insufficient_history
@@ -1305,13 +1312,13 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 21498;Сольвентная печать на бумаге 140 гр 20-50 кв.м;Сольвент;7;manual;low;0.0667;225;225;insufficient_history
 17030;Махачкала Петра первого 85 Парк Дракон Сторона А 42.96655, 47.54233;РИК;6;manual;low;0.0667;16500;16500;insufficient_history
 23088;Титульная вывеска полиграфия 0,65-1 кв.м 1-3 шт Цех;Цех;6;manual;low;0.0667;2400;2400;insufficient_history
-15068;Фрезировка композита 10-20 кв.м Цех;Цех;5;manual;low;0.0667;600;520;insufficient_history
 19248;Тиснение на ежедневнике бесцветное 20 шт;Мерч;4;manual;low;0.0667;81.27;81.27;insufficient_history
 9454;Ролл-ап стенд 85х200 см 4-10 шт;POS;3;manual;low;0.0667;3300;3520;insufficient_history
 10362;Дистанционный держатель хром 51-100 шт;Цех;2;manual;low;0.0667;75;72.5;insufficient_history
 19152;Ежедневник недатированный А5 Мегаполис Флекс 20 шт;Мерч;2;manual;low;0.0667;705;728.5;insufficient_history
 22188;Шоколад бельгийский с логотипом 5 гр 300 шт;Мерч;2;manual;low;0.0667;24;23.2;insufficient_history
 22312;УФ печать на прозрачной пленке 3-10 кв.м;POS;3;manual;low;0.067;2240;2475;insufficient_history
+4630;Синтетическая бумага UNO SP А4 бум. 160 гр. 1 шт Печатная;Печатная;85;auto;high;0.0672;50;3;
 8468;Акрил3 цветной 2-3 кв.м;Цех;4;manual;low;0.0678;4032;3683.33;insufficient_history
 16284;"Флаер Офсет ""евро"" 115 гр/кв.м мел бумага(4+4/4+0) 5-7 дней 20 000 шт";Офсет;2;manual;low;0.069;1.16;1.01;insufficient_history
 7822;Сборка объема ПВХ5 простые более 300 мп Цех;Цех;3;manual;low;0.0692;650.91;747.5;insufficient_history
@@ -1407,23 +1414,20 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 13838;Карман плоский ПЭТ 0,5 мм стандарт А4 10-20 шт Цех;Цех;9;manual;low;0.1123;228.8;210;insufficient_history
 15678;Термотрансфер для одежды min 100 см² за 1 см² от 50 шт;Печатная;2;manual;low;0.1125;1.12;1.113;insufficient_history
 6360;Винил на призматрон 4х3 12 м² печать кв.м;Сольвент;15;guided;medium;0.1126;3640;3640;requires_context_lookup
-9848;Композит матовый 2-5 кв.м;Цех;4;manual;low;0.113;3256;3358;insufficient_history
+9848;Композит матовый 2-5 кв.м;Цех;5;manual;low;0.113;3256;3404;insufficient_history
 17704;Наклейка бумажная Офсет 100х70 мм 4+0 5-7 дней 1000 шт;Офсет;3;manual;low;0.1133;3.62;2.12;insufficient_history
 6926;Табличка аппликация 0,06-0,08 кв.м 3-10 шт Цех;Цех;2;manual;low;0.1134;6068.67;5523.67;insufficient_history
 4778;А5 Ламинация глянцевая 150мкр 4-16 шт Печатная;Печатная;5;manual;low;0.1136;56.41;56.41;insufficient_history
 4378;А3 Ламинация глянцевая 150мкр 21-60 шт Печатная;Печатная;3;manual;low;0.1137;69.5;61.6;insufficient_history
-20886;Хайкот А5 бум. 300 гр. 1 шт Печатная;Печатная;22;guided;medium;0.114;2.72;2.72;requires_context_lookup
 21904;Махачкала Гайдара Гаджиева 11Е Поворот на призывной пункт Сторона Б 42.98403, 47.47548;РИК;22;guided;medium;0.1143;35000;39000;requires_context_lookup
 5756;Буклет А4 2 Бига Печать 4+4 801-1200 Печатная;Печатная;2;manual;low;0.1154;32.92;34.82;insufficient_history
 8236;Сварка металлокаркаса и покраска рамка с выпусками 3-10 кв.м Цех;Цех;2;manual;low;0.1154;1560;1210;insufficient_history
 6114;Брошюровка на пласт пружину 1-5 экз. до 4 мм Печатная;Печатная;2;manual;low;0.1161;56;42.25;insufficient_history
-20892;Хайкот бум. визитки 300 гр. 1 шт Печатная;Печатная;50;auto;high;0.1167;0.45;0.45;
 9270;Стенд из ПВХ оклеенный полиграфией 8 мм 1 кв.м Цех;Цех;4;manual;low;0.1176;4969.5;4395.83;insufficient_history
 8930;Аллюминевый уголок 35х40 3-10 мп;Цех;2;manual;low;0.1176;221;221;insufficient_history
 13948;Ручка Нави софт-тек пластиковая от 100 шт;Мерч;4;manual;low;0.1177;104.77;104.77;insufficient_history
 6764;Папка с объемным карманом Сборка 60-100 шт Печатная;Печатная;2;manual;low;0.1182;110;94.5;insufficient_history
 5450;Визитки Ламинация глянцевая 250мкр 2000 Печатная;Печатная;2;manual;low;0.1185;10.38;3.935;insufficient_history
-20884;Хайкот А4 бум. 300 гр. 1 шт Печатная;Печатная;61;auto;high;0.1199;5.44;5.44;
 16752;Махачкала Магомедтагирова 174 Гамбит Сторона А 42.98619, 47.46651;РИК;34;auto;high;0.12;20000;17600;
 10090;Махачкала Акушинского 270 Северный автовокзал Сторона А1 42.97005, 47.41154;РИК;29;guided;medium;0.12;20000;20000;requires_context_lookup
 15840;Махачкала Гайдара Гаджиева 4 Кольцо Сторона Б 42.98865, 47.48874;РИК;28;guided;medium;0.12;20000;18800;requires_context_lookup
@@ -1444,7 +1448,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8720;Торцевой модуль 1,5 Вт 20-50 шт;Цех;12;guided;medium;0.125;64;64;requires_context_lookup
 11570;Макет этикетки Сложный 1 оригинал-макет;Дизайн;8;manual;low;0.125;8000;5000;insufficient_history
 22028;Создание анимационного ролика Средней сложности 1 мин;Дизайн;6;manual;low;0.125;8000;8000;insufficient_history
-8702;Резка листового материала ЧПУ более 100 мп;Резка;6;manual;low;0.125;40;65;insufficient_history
 10550;Баннер на металлокаркас с установкой каркаса 3-10 кв.м Цех;Цех;3;manual;low;0.125;1200;1050;insufficient_history
 21246;Объемный стикер со смолой 3х3 см квадрат/круг 200 шт;Сольвент;3;manual;low;0.125;40.8;28.9;insufficient_history
 8120;Баннер на фанеру монтаж 1 кв.м Цех;Цех;3;manual;low;0.125;240;240;insufficient_history
@@ -1456,13 +1459,12 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 11136;Тейблтент с прозрачным основанием 1/3 А4 11-30 шт;POS;2;manual;low;0.1296;216;210;insufficient_history
 22178;Каспийск Амет-Хана Султана 13А второй Мейджик транс Сторона Б 42.88571, 47.6227;РИК;18;guided;medium;0.13;20000;20000;requires_context_lookup
 9366;Карман объемный индивидуальный А4 1-2 шт Цех;Цех;2;manual;low;0.1302;2400;1506.25;insufficient_history
-4346;А3 Ламинация глянцевая 75мкр 21-60 шт Печатная;Печатная;8;manual;low;0.1306;35.24;33.71;insufficient_history
-7584;Демонтаж буквы простой на выезде 11-50 мп Цех;Цех;8;manual;low;0.1308;312;222;insufficient_history
 6196;Холодная ламинация 5-10 экз. А4 Печатная;Печатная;12;guided;medium;0.1323;13.6;14;requires_context_lookup
 10234;"Махачкала Амет-Хана Султана 127 Магагзин ""Тропики"" Сторона Б 42.91911, 47.52206";РИК;36;auto;high;0.1333;15000;13200;
 20748;Махачкала Гагарина 56 Малыш Сторона 2 42.95693, 47.50098;РИК;24;guided;medium;0.1333;15000;17000;requires_context_lookup
 6102;Брошюровка на металл пружину более 100 экз. 4 - 8 мм Печатная;Печатная;16;guided;medium;0.1333;90;60.8;requires_context_lookup
 10032;Махачкала Акушинского Троллейбусное кольцо Сторона А1 42.98323, 47.46936;РИК;12;guided;medium;0.1333;18000;19200;requires_context_lookup
+4346;А3 Ламинация глянцевая 75мкр 21-60 шт Печатная;Печатная;9;manual;low;0.1363;35.24;33.71;insufficient_history
 6086;Брошюровка на металл пружину 5-10 экз. до 4 мм Печатная;Печатная;3;manual;low;0.1385;65;39;insufficient_history
 8572;ПЭТ1,5 прозрачный до 1 кв.м;Цех;5;manual;low;0.141;1759.5;1328.13;insufficient_history
 9248;Стенд из ПВХ оклеенный полиграфией 3 мм 1-5 кв.м Цех;Цех;3;manual;low;0.1413;3313.25;1747.8;insufficient_history
@@ -1515,7 +1517,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8104;Баннер на рейке демонтаж  20-50 кв.м Цех;Цех;2;manual;low;0.1667;264;242;insufficient_history
 10670;Галерейная натяжка на подрамник 0,6 - 0,8 м² за 1 шт Цех;Цех;5;manual;low;0.167;1174.8;783.2;insufficient_history
 9354;Карман объемный индивидуальный А5 1-2 шт Цех;Цех;3;manual;low;0.1672;1800;1204;insufficient_history
-23648;Ламинация с накаткой для интерьерной печати винила холодная глянцевая 1-3 кв.м;Сольвент;27;guided;medium;0.1676;765;765;requires_context_lookup
+23648;Ламинация с накаткой для интерьерной печати винила холодная глянцевая 1-3 кв.м;Сольвент;29;guided;medium;0.1676;765;765;requires_context_lookup
 9390;Карман плоский ПЭТ 1,5 мм А5 1-2 шт Цех;Цех;3;manual;low;0.1686;510;390;insufficient_history
 10156;Махачкала Акушинского 62 Целитель Сторона А2 42.98007, 47.45606;РИК;36;guided;medium;0.17;20000;18000;requires_context_lookup
 8790;Стабилизатор 2 кВт 1 шт Цех;Цех;6;manual;low;0.1714;10355.4;8790;insufficient_history
@@ -1539,6 +1541,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 13868;Карман объемный стандарт акрил 1,5 мм А5 1-2 шт Цех;Цех;4;manual;low;0.1843;640;640;insufficient_history
 5456;Открытка 21х20 Печать 1 сгиб 5-40 шт Печатная;Печатная;3;manual;low;0.1857;65.04;50.77;insufficient_history
 13832;Карман плоский ПЭТ 0,5 мм стандарт А4 1-2 шт Цех;Цех;6;manual;low;0.186;430;386;insufficient_history
+8474;Акрил3 цветной более 6 кв.м;Цех;2;manual;low;0.1865;3276;3581.5;insufficient_history
 8616;Оракал 641 цветная 25-50 кв.м;Цех;4;manual;low;0.1866;560;542;insufficient_history
 6752;Конверт/Папка с плоским карманом Сборка 60-100 шт Печатная;Печатная;4;manual;low;0.187;77;90.2;insufficient_history
 8624;Оракал 641 бронза/медь 3-10 кв.м;Цех;3;manual;low;0.189;672;672;insufficient_history
@@ -1556,13 +1559,13 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8122;Баннер на фанеру монтаж 1-5 кв.м Цех;Цех;3;manual;low;0.1964;224;180;insufficient_history
 8724;Торцевой модуль 1,5 Вт 100-300 шт;Цех;3;manual;low;0.1964;56;56;insufficient_history
 8776;Труба профильная 20х20 1,5 мм металлическая до 3 мп;Цех;3;manual;low;0.1972;144;115.6;insufficient_history
-16580;Махачкала Исмаилова 32 Сбербанк Сторона Б 42.97155, 47.48112;РИК;28;guided;medium;0.1977;17600;15000;requires_context_lookup
+16580;Махачкала Исмаилова 32 Сбербанк Сторона Б 42.97155, 47.48112;РИК;29;guided;medium;0.1977;17600;15000;requires_context_lookup
 15654;Листовка А6 Офсет 115 гр/кв.м мел бум. 4+4/ 4+0 5-7 дней 10 000 шт;Офсет;2;manual;low;0.1983;1.16;0.855;insufficient_history
 8470;Акрил3 цветной 3-4 кв.м;Цех;3;manual;low;0.1984;3780;3300;insufficient_history
 7734;Свет для буквы лента более 100 мп Цех;Цех;11;guided;medium;0.1986;511.56;530.83;requires_context_lookup
 4736;А5 Ламинация глянцевая 25мкр 81-240 шт Печатная;Печатная;3;manual;low;0.1992;7.17;7.17;insufficient_history
+10732;Фотосъемка предметная без обработки 1 час;Дизайн;34;guided;medium;0.2;2000;2000;requires_context_lookup
 15974;Махачкала Гамидова 77А Акаева перекресток Сторона А 42.95279, 47.50505;РИК;34;guided;medium;0.2;20000;17600;requires_context_lookup
-10732;Фотосъемка предметная без обработки 1 час;Дизайн;33;guided;medium;0.2;2000;2000;requires_context_lookup
 15810;Махачкала Гайдара Гаджиева АЗС F1 Сторона Б 42.9869, 47.48601;РИК;30;guided;medium;0.2;20000;19000;requires_context_lookup
 12350;Брендирование транспорта Сложное 1 оригинал-макет;Дизайн;26;guided;medium;0.2;20000;8000;requires_context_lookup
 16342;Махачкала Имама Шамиля 48Д Мегафон Сторона Б 42.97079, 47.48961;РИК;23;guided;medium;0.2;22000;17600;requires_context_lookup
@@ -1583,7 +1586,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 5282;Визитки Ламинация глянцевая 25мкр 240 Печатная;Печатная;26;guided;medium;0.2022;1.38;1.38;requires_context_lookup
 4908;А6 Печать 4+4 3201-4800 шт Печатная;Печатная;2;manual;low;0.2023;7.96;8.765;insufficient_history
 13834;Карман плоский ПЭТ 0,5 мм стандарт А4 3-5 шт Цех;Цех;9;manual;low;0.2052;307.4;259.7;insufficient_history
-7730;Свет для буквы лента 31-60 мп Цех;Цех;49;guided;medium;0.2071;601.78;594.22;requires_context_lookup
+7730;Свет для буквы лента 31-60 мп Цех;Цех;53;guided;medium;0.2071;601.78;594.22;requires_context_lookup
 9202;Световая панель Кристал односторонняя подвесная 1189 x 841 мм А0;POS;11;guided;medium;0.2079;21229;21229;requires_context_lookup
 17696;Наклейка бумажная Офсет 90х50 мм 4+0 5-7 дней 3000 шт;Офсет;12;guided;medium;0.2102;1.57;1.25;requires_context_lookup
 23390;Хайкот А3 бум. 140 гр. 1 шт Печатная;Печатная;45;guided;medium;0.2134;6;6;requires_context_lookup
@@ -1674,7 +1677,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 11376;Выезд на диагностику простую Цех;Цех;34;guided;medium;0.25;2000;1750;requires_context_lookup
 22176;Каспийск Амет-Хана Султана 13А второй Мейджик транс Сторона А 42.88571, 47.6227;РИК;34;guided;medium;0.25;20000;18400;requires_context_lookup
 18552;Каспийск Алферова 1 Пожарная часть Сторона Б 42.88351, 47.64493;РИК;31;guided;medium;0.25;20000;17500;requires_context_lookup
-9020;Бэклит световой 1440 dpi до 1 кв.м;Печатная;29;guided;medium;0.25;2100;2100;requires_context_lookup
+9020;Бэклит световой 1440 dpi до 1 кв.м;Печатная;30;guided;medium;0.25;2100;2100;requires_context_lookup
 16626;Махачкала Каммаева 12 Восход Сторона Б 43.0101, 47.44596;РИК;28;guided;medium;0.25;16000;16000;requires_context_lookup
 17616;Махачкала Ярагского 55 ДГПУ Сторона А 42.97213, 47.50912;РИК;27;guided;medium;0.25;16000;16000;requires_context_lookup
 18412;Каспийск Кавказская 13А Сторона Б 42.89467, 47.61994;РИК;26;guided;medium;0.25;20000;18400;requires_context_lookup
@@ -1693,6 +1696,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 11474;Хром труба 0,9 мм кратно 3м, крепеж отдельно 10-30 мп;Цех;7;manual;low;0.25;192;160;insufficient_history
 8086;Баннер на рейке замена баннера 1-5 кв.м Цех;Цех;7;manual;low;0.25;560;560;insufficient_history
 8130;Баннер на фанеру монтаж более 50 кв.м Цех;Цех;7;manual;low;0.25;160;152;insufficient_history
+15068;Фрезировка композита 10-20 кв.м Цех;Цех;6;manual;low;0.25;600;520;insufficient_history
 6198;Холодная ламинация 10-50 экз. А4 Печатная;Печатная;6;manual;low;0.25;12.8;12.8;insufficient_history
 8128;Баннер на фанеру монтаж 20-50 кв.м Цех;Цех;6;manual;low;0.25;176;144;insufficient_history
 12404;Макет кружки брендированной Средней сложности 1 оригинал-макет;Дизайн;4;manual;low;0.25;4000;1500;insufficient_history
@@ -1702,7 +1706,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 9092;Биговка 2-4 шт Печатная;Печатная;11;guided;medium;0.254;5;1.05;requires_context_lookup
 19364;Каспийск Стальского 20 Сторона А 42.89115, 47.64017;РИК;20;guided;medium;0.2571;14000;14350;requires_context_lookup
 19366;Каспийск Стальского 20 Сторона Б 42.89115, 47.64017;РИК;20;guided;medium;0.2571;14000;14350;requires_context_lookup
-18588;Каспийск Приморская 16М Сторона Б 42.87125, 47.65937;РИК;18;guided;medium;0.2571;14000;14000;requires_context_lookup
+18588;Каспийск Приморская 16М Сторона Б 42.87125, 47.65937;РИК;19;guided;medium;0.2571;14000;14000;requires_context_lookup
 16012;Махачкала Дахадаева 109 первый Джума Мечеть Сторона Б 42.96894, 47.4945;РИК;15;guided;medium;0.2571;14000;14000;requires_context_lookup
 16922;Махачкала Насрутдинова 71 Орион Сторона Б 42.94823, 47.56859;РИК;2;manual;low;0.2571;14000;15800;insufficient_history
 8146;Баннер прошивка 5-10 мп Цех;Цех;3;manual;low;0.2588;85;54;insufficient_history
@@ -1722,11 +1726,10 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8148;Баннер прошивка 10-20 мп Цех;Цех;12;guided;medium;0.2667;80;54;requires_context_lookup
 9602;Таблички монтаж на дюбель-гвозди за 1 шт более 100 шт Цех;Цех;2;manual;low;0.2667;240;208;insufficient_history
 17692;Наклейка бумажная Офсет 90х50 мм 4+0 5-7 дней 1000 шт;Офсет;2;manual;low;0.2677;2.69;1.85;insufficient_history
-8340;Установка Фотореле макс.нагрузка 2,2кВт 1 шт. Цех;Цех;63;guided;medium;0.2679;1400;1400;requires_context_lookup
+8340;Установка Фотореле макс.нагрузка 2,2кВт 1 шт. Цех;Цех;64;guided;medium;0.2679;1400;1400;requires_context_lookup
 16854;Махачкала Насрутдинова 223 Въезд в город Сторона А 42.913, 47.61363;РИК;9;manual;low;0.2692;13000;16500;insufficient_history
 8770;Труба профильная 20х40 1,5 мм металлическая 100-300 мп;Цех;4;manual;low;0.2693;187.5;185.75;insufficient_history
 8342;Установка Фотореле макс.нагрузка 5,5кВт 1 шт. Цех;Цех;11;guided;medium;0.2709;1750;1600;requires_context_lookup
-8322;Монтаж подложки на каркас композит 10-20 кв.м Цех;Цех;11;guided;medium;0.2711;720;480;requires_context_lookup
 4724;А5 Печать 4+0 1601-2400 шт Печатная;Печатная;2;manual;low;0.2714;7.96;9.04;insufficient_history
 10144;Махачкала Акушинского 5 Миркато Сторона А2 42.98274, 47.46803;РИК;41;guided;medium;0.2727;22000;17600;requires_context_lookup
 16418;Махачкала Имама Шамиля 72 Парк Сторона Б 42.96025, 47.50393;РИК;38;guided;medium;0.2727;22000;18000;requires_context_lookup
@@ -1751,7 +1754,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 4332;А3 Ламинация глянцевая 25мкр 61-200 шт Печатная;Печатная;6;manual;low;0.2829;24.25;23.135;insufficient_history
 5278;Визитки Ламинация глянцевая 25мкр 48 Печатная;Печатная;4;manual;low;0.2832;4.59;4.245;insufficient_history
 16250;Махачкала Имама Шамиля 39 Сторона Б 42.96295, 47.50074;РИК;29;guided;medium;0.2848;23000;17600;requires_context_lookup
-22282;Вышка до 16 метров 1 час Вышка;Вышка;52;guided;medium;0.2857;2800;2800;requires_context_lookup
+22282;Вышка до 16 метров 1 час Вышка;Вышка;53;guided;medium;0.2857;2800;2800;requires_context_lookup
 11336;Выезд Дербент 130 км 2,0 ч Цех;Цех;13;guided;medium;0.2857;7000;5000;requires_context_lookup
 8016;Баннер проклейка 5-10 мп Цех;Цех;7;manual;low;0.2857;119;87.5;insufficient_history
 8036;Баннер проварка литой более 50 мп Цех;Цех;7;manual;low;0.2857;91;70;insufficient_history
@@ -1770,7 +1773,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 11472;Хром труба 0,9 мм кратно 3м, крепеж отдельно 3-10 мп;Цех;7;manual;low;0.2941;204;180;insufficient_history
 16670;Махачкала Каммаева 87 Доступный дом Сторона Б 43.0085, 47.44884;РИК;20;guided;medium;0.2944;18000;12700;requires_context_lookup
 5420;Визитки 4+4 Офсет 300 гр/м мел картон 5-7 дней 2000 Офсет;Офсет;14;guided;medium;0.2947;2.01;1.55;requires_context_lookup
-8070;Баннер на рейке монтаж более 50 кв.м Цех;Цех;7;manual;low;0.295;400;176;insufficient_history
 4810;Люмиарт А5 бум. 150 гр. 1 шт Печатная;Печатная;5;manual;low;0.295;2;1.8;insufficient_history
 13458;Винил на призматрон 4х3 12 м² монтаж 1 шт;Монтажники;23;guided;medium;0.2952;5590;4200;requires_context_lookup
 4688;А4 Ламинация глянцевая 250мкр 8-20 шт Печатная;Печатная;4;manual;low;0.2958;101.1;95.175;insufficient_history
@@ -1783,7 +1785,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 16328;Махачкала Имама Шамиля 48 Советский РОВД Сторона А2 42.97166, 47.48843;РИК;10;guided;medium;0.296;25000;25000;requires_context_lookup
 6506;Оклейка рельефной поверхности пленкой 1-3 кв.м Цех;Цех;22;guided;medium;0.2972;1470;1092;requires_context_lookup
 10116;Махачкала Акушинского 310 Строймаркет Устар Сторона А2 42.96827, 47.40295;РИК;22;guided;medium;0.3;22000;22000;requires_context_lookup
-11544;Логобук шаблонный 10 слайдов;Дизайн;17;guided;medium;0.3;15000;10000;requires_context_lookup
 22296;УФ печать стикеров на прозрачной пленке с белым цветом 1 кв.м;POS;15;guided;medium;0.3;3600;2850;requires_context_lookup
 11486;Пресс-волл на хром трубе без учета хром трубы 5-10 кв.м Цех;Цех;12;guided;medium;0.3;1300;980;requires_context_lookup
 25798;Махачкала Булача 44 22 сторона А 42.95173, 47.53548;РИК;12;guided;medium;0.3;22000;16500;requires_context_lookup
@@ -1838,7 +1839,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 17082;ПВХ8 Облегченный до 1 кв.м;Цех;5;manual;low;0.3243;2929.5;2691.67;insufficient_history
 8390;ПВХ5 более 6 кв.м;Цех;2;manual;low;0.3248;1740.38;1635.955;insufficient_history
 8768;Труба профильная 20х40 1,5 мм металлическая 10-100 мп;Цех;21;guided;medium;0.326;200;192;requires_context_lookup
-6460;Аппликация накатка на монтажную пленку 3-10 кв.м Цех;Цех;28;guided;medium;0.3262;650;440;requires_context_lookup
 8464;Акрил3 цветной до 1 кв.м;Цех;19;guided;medium;0.3267;4536;4180;requires_context_lookup
 7818;Сборка объема ПВХ5 простые 51-100 мп Цех;Цех;6;manual;low;0.3271;767.04;902.085;insufficient_history
 9480;Ролл-ап стенд 150х200 см 1 шт;POS;6;manual;low;0.3273;9350;9583.75;insufficient_history
@@ -1858,7 +1858,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 11314;Установка носителя на ролл-ап стенд 2-3 шт Цех;Цех;7;manual;low;0.3333;720;480;insufficient_history
 11316;Установка носителя на ролл-ап стенд 4-10 шт Цех;Цех;7;manual;low;0.3333;660;480;insufficient_history
 7538;Монтаж буквы простой на выезде 51-100 мп Цех;Цех;6;manual;low;0.3333;576;432;insufficient_history
-6474;Аппликация ровной поверхности монтаж 10-20 кв.м Цех;Цех;5;manual;low;0.3333;1080;600;insufficient_history
 11452;Крепеж для хром трубы 31-50 шт;Цех;4;manual;low;0.3333;225;160;insufficient_history
 7116;Титульная вывеска демонтаж дюбель-гвозди 1 шт Цех;Цех;4;manual;low;0.3333;540;495;insufficient_history
 7582;Демонтаж буквы простой на выезде 3-10 мп Цех;Цех;4;manual;low;0.3333;336;336;insufficient_history
@@ -1910,7 +1909,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8056;Баннер люверсовка 20-30 шт Цех;Цех;30;guided;medium;0.3667;24;25;requires_context_lookup
 17928;Замена блока питания ремонтные работы 1 шт Цех;Цех;14;guided;medium;0.3667;900;660;requires_context_lookup
 4344;А3 Ламинация глянцевая 75мкр 11-20 шт Печатная;Печатная;11;guided;medium;0.3681;38.3;40;requires_context_lookup
-8102;Баннер на рейке демонтаж  10-20 кв.м Цех;Цех;7;manual;low;0.3681;288;260;insufficient_history
+8102;Баннер на рейке демонтаж  10-20 кв.м Цех;Цех;8;manual;low;0.3681;288;274;insufficient_history
 18050;Каспийск Ленина 34А Банк Пойдем Сторона Б 42.89357, 47.63399;РИК;36;guided;medium;0.3682;22000;20700;requires_context_lookup
 10080;Махачкала Акушинского 24 Мечта Сторона А1 42.98151, 47.4625;РИК;21;guided;medium;0.3682;22000;22000;requires_context_lookup
 10082;Махачкала Акушинского 24 Мечта Сторона А2 42.98151, 47.4625;РИК;21;guided;medium;0.3682;22000;22000;requires_context_lookup
@@ -1933,12 +1932,11 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 9108;Скругление двух углов до 5 мм 5-40 шт Печатная;Печатная;18;guided;medium;0.3733;1.5;0.9;requires_context_lookup
 9122;Люверсовка пикколо 0,5 мм внутри 0,8 мм снаружи 5-40 шт Печатная;Печатная;3;manual;low;0.3733;15;8.4;insufficient_history
 11148;Тейбл-тент с основанием из черного акрила А4 2-3 шт;POS;3;manual;low;0.3734;540;446.25;insufficient_history
-11370;Выезд на монтаж 2 монтажника Цех;Цех;148;guided;medium;0.375;2000;1500;requires_context_lookup
+11370;Выезд на монтаж 2 монтажника Цех;Цех;149;guided;medium;0.375;2000;1500;requires_context_lookup
 6082;Брошюровка на 1 скобу более 100 экз. до 3 мм Печатная;Печатная;19;guided;medium;0.375;16;11;requires_context_lookup
 8098;Баннер на рейке демонтаж  1-5 кв.м Цех;Цех;6;manual;low;0.375;336;308;insufficient_history
 10544;Баннер на металлокаркас без каркаса 50-100 кв.м Цех;Цех;2;manual;low;0.375;480;570;insufficient_history
 6500;Аппликация рельефной поверхности монтаж 20-50 кв.м Цех;Цех;11;guided;medium;0.3765;1485;936;requires_context_lookup
-7550;Монтаж буквы сложной на выезде 51-100 мп Цех;Цех;6;manual;low;0.3769;720;480;insufficient_history
 9378;Карман плоский ПЭТ 1,5 мм А6 1-2 шт Цех;Цех;3;manual;low;0.3769;390;300;insufficient_history
 6096;Брошюровка на металл пружину 5-10 экз. 4 - 8 мм Печатная;Печатная;14;guided;medium;0.3778;117;84;requires_context_lookup
 17092;ПВХ8 Облегченный более 6 кв.м;Цех;5;manual;low;0.3784;2115.75;2030;insufficient_history
@@ -1947,7 +1945,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8074;Баннер на рейке без монтажа 1-5 кв.м Цех;Цех;54;guided;medium;0.381;840;690;requires_context_lookup
 8020;Баннер проклейка 20-30 мп Цех;Цех;5;manual;low;0.381;105;75;insufficient_history
 13616;Почасовая работа с дизайнером - криэйтором 1 час;Дизайн;186;guided;medium;0.3833;3000;2000;requires_context_lookup
-11368;Выезд на монтаж 1 монтажник Цех;Цех;69;guided;medium;0.3833;1500;1500;requires_context_lookup
+11368;Выезд на монтаж 1 монтажник Цех;Цех;70;guided;medium;0.3833;1500;1500;requires_context_lookup
 11312;Установка носителя на ролл-ап стенд 1 шт Цех;Цех;52;guided;medium;0.3833;780;600;requires_context_lookup
 11320;Замена носителя на ролл-ап стенде 1 шт Цех;Цех;14;guided;medium;0.3833;1170;915;requires_context_lookup
 7294;Макет визитки Сложный 1 сторона;Дизайн;13;guided;medium;0.3833;3000;2000;requires_context_lookup
@@ -1958,7 +1956,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8076;Баннер на рейке без монтажа 5-10 кв.м Цех;Цех;49;guided;medium;0.3846;780;560;requires_context_lookup
 7548;Монтаж буквы сложной на выезде 11-50 мп Цех;Цех;29;guided;medium;0.3846;780;598;requires_context_lookup
 7536;Монтаж буквы простой на выезде 11-50 мп Цех;Цех;22;guided;medium;0.3846;624;468;requires_context_lookup
-7514;Монтаж буквы простой в цеху 51-100 мп Цех;Цех;16;guided;medium;0.3846;312;246;requires_context_lookup
 17042;Махачкала пр.Гамидова 63 Донатсдей Сторона Б 42.95689, 47.50828;РИК;14;guided;medium;0.3846;13000;13000;requires_context_lookup
 8112;Пресс-волл на рейке с учетом рейки 5-10 кв.м Цех;Цех;7;manual;low;0.3846;1430;1040;insufficient_history
 8078;Баннер на рейке без монтажа 10-20 кв.м Цех;Цех;21;guided;medium;0.3889;720;552;requires_context_lookup
@@ -1990,14 +1987,12 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 13782;Резка винила ручная до 5 мп Цех;Цех;71;guided;medium;0.4;15;15;requires_context_lookup
 16884;Махачкала Насрутдинова 278 Грин групп Сторона Б 42.91406, 47.61087;РИК;39;guided;medium;0.4;14000;15000;requires_context_lookup
 16222;Махачкала Имама Шамиля 31 Напротив Мед академии Сторона А 42.97021, 47.49095;РИК;36;guided;medium;0.4;30000;21500;requires_context_lookup
-10722;Отрисовка ручная с доработкой простого эскиза логотипа 1 векторное изображение;Дизайн;35;guided;medium;0.4;5000;5000;requires_context_lookup
 17160;Махачкала Хаджи Булача 11 Фарм-центр Сторона А2 42.95607, 47.55228;РИК;35;guided;medium;0.4;30000;18000;requires_context_lookup
 7304;Макет буклета А4 2 сгиба простой 1 сторона;Дизайн;29;guided;medium;0.4;3000;2000;requires_context_lookup
 17646;Махачкала Хушетское шоссе - 9-я Моторная БЗ Орион Сторона А 42.91557, 47.57447;РИК;23;guided;medium;0.4;12500;12650;requires_context_lookup
 17680;Махачкала Хушетское шоссе - 9-я Моторная БЗ Орион Сторона Б 42.91557, 47.57447;РИК;23;guided;medium;0.4;12500;12650;requires_context_lookup
 18008;Каспийск Ленина 33 второй Белорусская мебель Сторона А 42.89694, 47.63006;РИК;20;guided;medium;0.4;25000;25000;requires_context_lookup
-7388;Цветокорекция сложная за фото;Дизайн;7;manual;low;0.4;500;400;insufficient_history
-7398;Фотомонтаж Сложный 1 объект;Дизайн;7;manual;low;0.4;5000;3000;insufficient_history
+7398;Фотомонтаж Сложный 1 объект;Дизайн;8;manual;low;0.4;5000;3500;insufficient_history
 8082;Баннер на рейке без монтажа более 50 кв.м Цех;Цех;7;manual;low;0.4;600;438.5;insufficient_history
 9144;Ламинация с накаткой для стандартной печати холодная глянцевая более 50 кв.м;Сольвент;7;manual;low;0.4;325;420;insufficient_history
 7532;Монтаж буквы простой на выезде до 3 мп Цех;Цех;5;manual;low;0.4;720;560;insufficient_history
@@ -2008,7 +2003,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 13588;Макет упаковки палочек для еды Средней сложности 1 оригинал-макет;Дизайн;2;manual;low;0.4;5000;3000;insufficient_history
 8678;Монтажная пленка с подложкой более 50 кв.м;Цех;5;manual;low;0.4004;507;518;insufficient_history
 13626;Сварка металлокаркаса и покраска кронштейн 3-10 кв.м Цех;Цех;3;manual;low;0.4017;1170;910;insufficient_history
-13622;Сварка металлокаркаса и покраска кронштейн 1 кв.м Цех;Цех;13;guided;medium;0.4019;1350;1225;requires_context_lookup
+13622;Сварка металлокаркаса и покраска кронштейн 1 кв.м Цех;Цех;14;guided;medium;0.4019;1350;1225;requires_context_lookup
 6280;Винил стандартная печать 3-10 кв.м;Сольвент;61;guided;medium;0.4046;608;560;requires_context_lookup
 9358;Карман объемный индивидуальный А5 5-10 шт Цех;Цех;3;manual;low;0.4077;1560;1118;insufficient_history
 7688;Монтаж вывески сложный 1 кв.м Цех;Цех;45;guided;medium;0.4087;4000;2700;requires_context_lookup
@@ -2033,7 +2028,8 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8754;Блок питания 150 Вт 1 шт;Цех;13;guided;medium;0.4231;520;1430;requires_context_lookup
 7802;Сборка объема ПВХ3 сложные 3-10 мп Цех;Цех;8;manual;low;0.4232;994.05;985;insufficient_history
 6076;Брошюровка на 1 скобу 5-10 экз. до 3 мм Печатная;Печатная;9;manual;low;0.425;20.8;14;insufficient_history
-8670;Монтажная пленка с подложкой 1-3 кв.м;Цех;68;guided;medium;0.4268;663;663;requires_context_lookup
+8670;Монтажная пленка с подложкой 1-3 кв.м;Цех;69;guided;medium;0.4268;663;663;requires_context_lookup
+7550;Монтаж буквы сложной на выезде 51-100 мп Цех;Цех;7;manual;low;0.4269;720;480;insufficient_history
 16836;Махачкала Насрутдинова 138 Икар Сторона Б 42.93928, 47.57579;РИК;25;guided;medium;0.4286;42000;60000;requires_context_lookup
 21948;Махачкала Петра первого 133 Сторона Б 42.9593, 47.55285;РИК;20;guided;medium;0.4286;35000;20000;requires_context_lookup
 22172;Махачкала Батырая 6Б Спорткомплекс Садулаева Сторона А 42.9781, 47.49922;РИК;18;guided;medium;0.4286;35000;35000;requires_context_lookup
@@ -2041,9 +2037,11 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 7682;Монтаж вывески простой 11-25 кв.м Цех;Цех;6;manual;low;0.4286;1680;560;insufficient_history
 14358;Стойка акриловая с золотом 15х20 см 1 шт;POS;3;manual;low;0.4286;2800;2400;insufficient_history
 7800;Сборка объема ПВХ3 сложные до 3 мп Цех;Цех;3;manual;low;0.4289;1070.5;1105;insufficient_history
-17086;ПВХ8 Облегченный 2-3 кв.м;Цех;5;manual;low;0.4296;2604;2408.33;insufficient_history
+17086;ПВХ8 Облегченный 2-3 кв.м;Цех;6;manual;low;0.4296;2604;2571.265;insufficient_history
 5252;Визитки Печать 4+0 1-3 дня 48 Печатная;Печатная;15;guided;medium;0.4305;7.48;6.1;requires_context_lookup
+7584;Демонтаж буквы простой на выезде 11-50 мп Цех;Цех;9;manual;low;0.4308;312;234;insufficient_history
 6094;Брошюровка на металл пружину 1-5 экз. 4 - 8 мм Печатная;Печатная;58;guided;medium;0.4333;126;84;requires_context_lookup
+7514;Монтаж буквы простой в цеху 51-100 мп Цех;Цех;17;guided;medium;0.4346;312;252;requires_context_lookup
 6278;Винил стандартная печать 1-3 кв.м;Сольвент;99;guided;medium;0.4348;646;595;requires_context_lookup
 7702;Монтаж буквы на держатель в цеху 3-10 мп Цех;Цех;3;manual;low;0.4348;644;420;insufficient_history
 11440;Кружки с сублимационной печатью 330 мл от 100 шт;Мерч;5;manual;low;0.4358;296;296;insufficient_history
@@ -2054,11 +2052,10 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 6124;Брошюровка на пласт пружину 1-5 экз. 4 - 8 мм Печатная;Печатная;8;manual;low;0.4378;98;74.75;insufficient_history
 5762;Буклет А4 Офсет с 2 фальцами 115 гр/м 4+4 5-7 дней 2000 шт;Офсет;5;manual;low;0.4379;5.55;4.29;insufficient_history
 8780;Труба профильная 20х20 1,5 мм металлическая 10-100 мп;Цех;49;guided;medium;0.4383;128;127.75;requires_context_lookup
-8462;Акрил3 молочный более 6 кв.м;Цех;17;guided;medium;0.4388;3139.5;2556.67;requires_context_lookup
+8462;Акрил3 молочный более 6 кв.м;Цех;18;guided;medium;0.4388;3139.5;2585;requires_context_lookup
 18208;Каспийск Ильяшенко-Ленина 52 Аптека Шах Сторона Б 42.89512, 47.63104;РИК;30;guided;medium;0.4389;18000;12000;requires_context_lookup
 11322;Замена носителя на ролл-ап стенде 2-3 шт Цех;Цех;8;manual;low;0.4389;1080;969;insufficient_history
 5244;"Флаер Офсет ""евро"" 150 гр/кв.м мел бумага(4+4/4+0) 5-7 дней 3 000 шт Офсет";Офсет;7;manual;low;0.4391;2.3;2.19;insufficient_history
-18004;Каспийск Ленина 54А третий Белорусская мебель Сторона А 42.89669, 47.63;РИК;34;guided;medium;0.44;25000;17600;requires_context_lookup
 17038;Махачкала Пирогова 2 Клиническая больница Сторона А 42.9727, 47.50499;РИК;29;guided;medium;0.44;50000;28000;requires_context_lookup
 9414;Карман плоский ПЭТ 1,5 мм А3 1-2 шт Цех;Цех;6;manual;low;0.44;1200;1050;insufficient_history
 7484;Оклейка бочины букв пленкой простые до 3 мп Цех;Цех;26;guided;medium;0.441;510;495.25;requires_context_lookup
@@ -2076,12 +2073,14 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 5748;Буклет А4 2 Бига Печать 4+4 10 шт. Печатная;Печатная;6;manual;low;0.4482;65.04;57.775;insufficient_history
 12356;Макет таблички Простая 1 оригинал-макет;Дизайн;88;guided;medium;0.45;500;500;requires_context_lookup
 13792;Резка винила ручная более 100 мп Цех;Цех;57;guided;medium;0.45;10;10;requires_context_lookup
-6458;Аппликация накатка на монтажную пленку 1-3 кв.м Цех;Цех;50;guided;medium;0.45;700;525;requires_context_lookup
+6458;Аппликация накатка на монтажную пленку 1-3 кв.м Цех;Цех;51;guided;medium;0.45;700;525;requires_context_lookup
+10722;Отрисовка ручная с доработкой простого эскиза логотипа 1 векторное изображение;Дизайн;36;guided;medium;0.45;5000;5000;requires_context_lookup
 18390;Каспийск Каспийское шоссе 26 Эйфелева башня Сторона А 42.88239, 47.61721;РИК;36;guided;medium;0.45;20000;13500;requires_context_lookup
 8052;Баннер люверсовка 5-10 шт Цех;Цех;27;guided;medium;0.45;28;28;requires_context_lookup
 18666;Каспийск Орджоникидзе 8 Автостанция Сторона Б 42.8874, 47.63389;РИК;26;guided;medium;0.45;25000;25000;requires_context_lookup
 16370;Махачкала Имама Шамиля 59Б Занавес 05 Сторона Б 42.95921, 47.50533;РИК;25;guided;medium;0.45;20000;11000;requires_context_lookup
 16552;Махачкала Исмаилова 185 Мечеть Сторона А 42.97639, 47.47342;РИК;21;guided;medium;0.45;20000;20000;requires_context_lookup
+21950;Подготовка к производству вывески Средней сложности;Дизайн;14;guided;medium;0.45;2000;3000;requires_context_lookup
 10858;Макет плаката информационного Средней сложности 1 решение;Дизайн;3;manual;low;0.45;4000;4200;insufficient_history
 7312;Макет открытки Средней сложности 1 решение;Дизайн;3;manual;low;0.45;5000;5000;insufficient_history
 9402;Карман плоский ПЭТ 1,5 мм А4 1-2 шт Цех;Цех;6;manual;low;0.451;690;540;insufficient_history
@@ -2105,7 +2104,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 18718;Каспийск Хизроева 26-3 Сторона А 42.89115, 47.62492;РИК;26;guided;medium;0.4571;25300;25300;requires_context_lookup
 9404;Карман плоский ПЭТ 1,5 мм А4 3-5 шт Цех;Цех;7;manual;low;0.4581;644;375;insufficient_history
 8968;Фольгирование Бумаги Тачкавер Открытка 10х21см 1 шт;Печатная;2;manual;low;0.4582;40;35.835;insufficient_history
-7560;Демонтаж буквы простой в цеху 11-50 мп Цех;Цех;9;manual;low;0.4583;169;112;insufficient_history
+7560;Демонтаж буквы простой в цеху 11-50 мп Цех;Цех;11;guided;medium;0.4583;169;130;requires_context_lookup
 9260;Стенд из ПВХ оклеенный полиграфией 5 мм 1-5 кв.м Цех;Цех;40;guided;medium;0.4589;3640.5;2940;requires_context_lookup
 18240;Каспийск Ильяшенко 7 Сторона Б 42.89558, 47.62584;РИК;29;guided;medium;0.4591;22000;17600;requires_context_lookup
 18116;Каспийск Халилова 5 второй Руссгидро Сторона А 42.89047, 47.64291;РИК;25;guided;medium;0.4591;22000;15000;requires_context_lookup
@@ -2115,12 +2114,11 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8100;Баннер на рейке демонтаж  5-10 кв.м Цех;Цех;22;guided;medium;0.4615;312;260;requires_context_lookup
 20844;УФ-печать на ПВХ без белого цвета более 6 кв.м;УФ-печать;2;manual;low;0.4615;2340;1800;insufficient_history
 8878;Фанера 1,5х1,5 нешлифованная 8 мм лист;Цех;2;manual;low;0.4615;780;960;insufficient_history
-8456;Акрил3 молочный 2-3 кв.м;Цех;22;guided;medium;0.4619;3864;3186.665;requires_context_lookup
+8456;Акрил3 молочный 2-3 кв.м;Цех;25;guided;medium;0.4619;3864;3200;requires_context_lookup
 16282;"Флаер Офсет ""евро"" 115 гр/кв.м мел бумага(4+4/4+0) 5-7 дней 1 000 шт";Офсет;4;manual;low;0.4631;3.52;2.99;insufficient_history
 4338;А3 Ламинация глянцевая 25мкр от 601 шт Печатная;Печатная;186;guided;medium;0.4632;17.64;17.64;requires_context_lookup
 9004;Холст лакированный 1440 dpi 3-10 кв.м;Печатная;54;guided;medium;0.4637;2080;1920;requires_context_lookup
 9164;Световая панель Клик двусторонняя подвесная 841 x 594 мм А1;POS;2;manual;low;0.4639;13113.1;13338;insufficient_history
-8672;Монтажная пленка с подложкой 3-10 кв.м;Цех;42;guided;medium;0.4645;624;624;requires_context_lookup
 9810;ПВХ5 1-2 кв.м;Цех;15;guided;medium;0.4653;2275.88;2492.63;requires_context_lookup
 18092;Каспийск Ленина 6 второй Гемотест Сторона А 42.88486, 47.64539;РИК;45;guided;medium;0.4666;18000;15000;requires_context_lookup
 16506;Махачкала Ирчи Казака 13 Диваны Сафия Сторона А 42.96818, 47.49862;РИК;37;guided;medium;0.4667;30000;23000;requires_context_lookup
@@ -2129,13 +2127,13 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 20090;Избербаш Маяковского 2А второй Сторона Б 42.55136, 47.87431;РИК;11;guided;medium;0.4667;12000;12000;requires_context_lookup
 19988;Избербаш Буйнакского Въезд четвертый Сторона Б 42.57592, 47.84093;РИК;10;guided;medium;0.4667;12000;12000;requires_context_lookup
 6354;Ламинация с накаткой для стандартной печати холодная матовая 10-20 кв.м;Сольвент;5;manual;low;0.4667;375;375;insufficient_history
-8782;Труба профильная 20х20 1,5 мм металлическая 100-300 мп;Цех;6;manual;low;0.4675;120;120;insufficient_history
+8782;Труба профильная 20х20 1,5 мм металлическая 100-300 мп;Цех;7;manual;low;0.4675;120;120;insufficient_history
 6296;Винил/Баннер интерьерная печать 20-50 кв.м;Сольвент;29;guided;medium;0.4682;770;525;requires_context_lookup
 6298;Винил/Баннер интерьерная печать более 50 кв.м;Сольвент;24;guided;medium;0.4682;715;490;requires_context_lookup
 22284;Сольвентная печать стикеров на виниле 1 кв.м;Сольвент;7;manual;low;0.4691;1620;1701;insufficient_history
 8216;Сварка металлокаркаса и покраска рамка 20-50 кв.м Цех;Цех;2;manual;low;0.4697;990;757.5;insufficient_history
 7328;Верстка страницы брошюры сложная 1 сторона;Дизайн;7;manual;low;0.47;3000;2000;insufficient_history
-7486;Оклейка бочины букв пленкой простые 3-10 мп Цех;Цех;46;guided;medium;0.4702;476;393;requires_context_lookup
+7486;Оклейка бочины букв пленкой простые 3-10 мп Цех;Цех;47;guided;medium;0.4702;476;394.6;requires_context_lookup
 8160;Баннер на билборд 4х3 световой монтаж 12 кв.м;Монтажники;110;guided;medium;0.4712;5200;3900;requires_context_lookup
 7950;Баннер печать 240гр 20-50 кв.м;Сольвент;10;guided;medium;0.4718;255;252;requires_context_lookup
 7524;Монтаж буквы сложной в цеху 11-50 мп Цех;Цех;20;guided;medium;0.4731;416;321;requires_context_lookup
@@ -2147,27 +2145,30 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8158;Баннер на билборд 4х3 монтаж 12 кв.м;Монтажники;200;guided;medium;0.4793;1690;1300;requires_context_lookup
 7732;Свет для буквы лента 61-100 мп Цех;Цех;8;manual;low;0.4797;556.67;554.22;insufficient_history
 18244;Каспийск Амет-Хана Султана 4 ТЦ Атмосфера Сторона Б 42.89602, 47.62515;РИК;33;guided;medium;0.48;25000;17600;requires_context_lookup
-6276;Винил стандартная печать 1 кв.м;Сольвент;250;guided;medium;0.4806;684;630;requires_context_lookup
+6276;Винил стандартная печать 1 кв.м;Сольвент;254;guided;medium;0.4806;684;630;requires_context_lookup
 8614;Оракал 641 цветная 10-25 кв.м;Цех;17;guided;medium;0.4813;600;544;requires_context_lookup
 6080;Брошюровка на 1 скобу 50-100 экз. до 3 мм Печатная;Печатная;17;guided;medium;0.4818;17.6;13;requires_context_lookup
 8766;Труба профильная 20х40 1,5 мм металлическая 3-10 мп;Цех;39;guided;medium;0.4823;212.5;212.5;requires_context_lookup
 9258;Стенд из ПВХ оклеенный полиграфией 5 мм 1 кв.м Цех;Цех;31;guided;medium;0.4824;3867;3208;requires_context_lookup
 8402;ПВХ8 более 6 кв.м;Цех;5;manual;low;0.4824;2934.75;2665;insufficient_history
 6494;Аппликация рельефной поверхности монтаж 1-3 кв.м Цех;Цех;28;guided;medium;0.4841;1890;1456;requires_context_lookup
+8322;Монтаж подложки на каркас композит 10-20 кв.м Цех;Цех;12;guided;medium;0.4878;720;480;requires_context_lookup
+18004;Каспийск Ленина 54А третий Белорусская мебель Сторона А 42.89669, 47.63;РИК;35;guided;medium;0.49;25000;17600;requires_context_lookup
 10842;Автоматическая контурная прорезка любой формы на листе 30х45 до 1 мп Печатная;Печатная;22;guided;medium;0.49;50;42.3;requires_context_lookup
-8214;Сварка металлокаркаса и покраска рамка 10-20 кв.м Цех;Цех;10;guided;medium;0.4907;1080;840;requires_context_lookup
 8164;Баннер на билборд 4х3 демонтаж 12 кв.м;Монтажники;223;guided;medium;0.4923;650;650;requires_context_lookup
 5192;Хайкот А6 Флаер(21х10) Бумага 105 гр. 1 шт Печатная;Печатная;18;guided;medium;0.4926;0.67;0.6;requires_context_lookup
 6084;Брошюровка на металл пружину 1-5 экз. до 4 мм Печатная;Печатная;32;guided;medium;0.4929;70;45;requires_context_lookup
 6108;Брошюровка на металл пружину 10-50 экз. 8 - 12 мм Печатная;Печатная;23;guided;medium;0.4939;144;108;requires_context_lookup
+6474;Аппликация ровной поверхности монтаж 10-20 кв.м Цех;Цех;6;manual;low;0.4944;1080;690;insufficient_history
 8592;Пленка для ламинации винила матовая 25-50 кв.м;Цех;3;manual;low;0.4949;196;196;insufficient_history
 6286;Винил стандартная печать более 50 кв.м;Сольвент;15;guided;medium;0.496;494;442;requires_context_lookup
 8452;Акрил3 молочный до 1 кв.м;Цех;81;guided;medium;0.4961;4347;3978;requires_context_lookup
+6460;Аппликация накатка на монтажную пленку 3-10 кв.м Цех;Цех;29;guided;medium;0.4962;650;440;requires_context_lookup
 9112;Скругление двух углов до 5 мм 121-400 шт Печатная;Печатная;8;manual;low;0.4962;1.3;1.2;insufficient_history
 7976;Баннер печать ширка литой более 50 кв.м;Сольвент;111;guided;medium;0.5;390;364;requires_context_lookup
-21972;Видеомонтаж Простой 1 час;Дизайн;96;guided;medium;0.5;2000;1000;requires_context_lookup
-13786;Резка винила ручная 10-30 мп Цех;Цех;71;guided;medium;0.5;13;13;requires_context_lookup
-7296;Макет флаера 21х10 Средней сложности 1 сторона;Дизайн;60;guided;medium;0.5;2000;1000;requires_context_lookup
+21972;Видеомонтаж Простой 1 час;Дизайн;99;guided;medium;0.5;2000;1000;requires_context_lookup
+13786;Резка винила ручная 10-30 мп Цех;Цех;73;guided;medium;0.5;13;13;requires_context_lookup
+7296;Макет флаера 21х10 Средней сложности 1 сторона;Дизайн;61;guided;medium;0.5;2000;1000;requires_context_lookup
 6632;Баннер люверсовка 30-50 шт Цех;Цех;51;guided;medium;0.5;22;22;requires_context_lookup
 10140;Махачкала Акушинского 391 ТЦ Северный Сторона Б 42.96966, 47.41021;РИК;34;guided;medium;0.5;20000;16000;requires_context_lookup
 10720;Наложение макета на Сложный мокап 1 изображение;Дизайн;31;guided;medium;0.5;1000;500;requires_context_lookup
@@ -2175,17 +2176,14 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 18086;Каспийск Ленина 20 Следственный отдел Сторона Б 42.88895, 47.64;РИК;25;guided;medium;0.5;25000;15000;requires_context_lookup
 10856;Макет плаката информационного Простой 1 решение;Дизайн;24;guided;medium;0.5;2000;2000;requires_context_lookup
 18084;Каспийск Ленина 20 Следственный отдел Сторона А 42.88895, 47.64;РИК;24;guided;medium;0.5;25000;15000;requires_context_lookup
-7694;Монтаж вывески сложный 11-25 кв.м Цех;Цех;24;guided;medium;0.5;2400;1200;requires_context_lookup
 10354;Дистанционный держатель хром 1-5 шт;Цех;23;guided;medium;0.5;100;90;requires_context_lookup
 10666;Галерейная натяжка на подрамник 0,2 - 0,4 м² за 1 шт Цех;Цех;22;guided;medium;0.5;924;616;requires_context_lookup
 11568;Макет этикетки Средней сложности 1 оригинал-макет;Дизайн;21;guided;medium;0.5;4000;3000;requires_context_lookup
 7326;Верстка страницы брошюры простая 1 сторона;Дизайн;19;guided;medium;0.5;1000;500;requires_context_lookup
-12430;Макет вывески с визуализацией 1 адаптация;Дизайн;16;guided;medium;0.5;1000;1000;requires_context_lookup
 7308;Верстка буклета А4 2 сгиба простая 1 сторона;Дизайн;13;guided;medium;0.5;2000;1000;requires_context_lookup
 7376;Макет стикера Средней сложности 1 решение;Дизайн;13;guided;medium;0.5;2000;1000;requires_context_lookup
 11198;Доработка иллюстрации простая 1 решение;Дизайн;12;guided;medium;0.5;1000;1000;requires_context_lookup
 13678;Верстка страницы многостраничного меню Средней сложности формат А4;Дизайн;11;guided;medium;0.5;2000;1000;requires_context_lookup
-5370;Хайкот бум. визитки 180 гр. 1 шт Печатная;Печатная;11;guided;medium;0.5;0.28;0.25;requires_context_lookup
 9142;Ламинация с накаткой для стандартной печати холодная глянцевая 20-50 кв.м;Сольвент;11;guided;medium;0.5;350;420;requires_context_lookup
 13598;Верстка страницы брошюры Средней сложности 1 сторона;Дизайн;8;manual;low;0.5;2000;1000;insufficient_history
 8200;Тачкавер бум. визитки слон.кость 1 шт Печатная;Печатная;8;manual;low;0.5;10.5;10.5;insufficient_history
@@ -2199,6 +2197,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 10580;Демонтаж вывески сложный 11-25 кв.м Цех;Цех;4;manual;low;0.5;1200;625;insufficient_history
 10416;Отрисовка ручная с доработкой сложного эскиза логотипа 1 векторное изображение;Дизайн;3;manual;low;0.5;10000;10000;insufficient_history
 10818;Приобретение домена и хостинга за один сайт;IT;2;manual;low;0.5;2000;1500;insufficient_history
+8338;Монтаж подложки на каркас ПВХ более 50 кв.м Цех;Цех;2;manual;low;0.5;400;320;insufficient_history
 16272;Махачкала Имама Шамиля 40 первый Цветочный рынок Сторона А1 42.97436, 47.48423;РИК;21;manual;low;0.5002;3333;3333;high_price_variance
 16274;Махачкала Имама Шамиля 40 первый Цветочный рынок Сторона А2 42.97436, 47.48423;РИК;21;manual;low;0.5002;3333;3333;high_price_variance
 16276;Махачкала Имама Шамиля 40 первый Цветочный рынок Сторона Б 42.97436, 47.48423;РИК;21;manual;low;0.5002;3333;3333;high_price_variance
@@ -2206,10 +2205,9 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8422;Композит3 матовый 5-8 кв.м;Цех;8;manual;low;0.5021;3052.5;2277;insufficient_history
 8046;Баннер шнуровка 30-50 мп Цех;Цех;16;manual;low;0.5024;42;30;high_price_variance
 18206;Каспийск Ильяшенко-Ленина 52 Аптека Шах Сторона А 42.89512, 47.63104;РИК;42;manual;low;0.5045;27500;16500;high_price_variance
-8646;Оракал 8500 световая 1-3 кв.м;Цех;11;manual;low;0.5059;1445;1445;high_price_variance
+8672;Монтажная пленка с подложкой 3-10 кв.м;Цех;43;manual;low;0.5065;624;624;high_price_variance
 7490;Оклейка бочины букв пленкой простые 51-100 мп Цех;Цех;22;manual;low;0.5068;408;325.2;high_price_variance
 4890;А6 Печать 4+0 8-16 шт Печатная;Печатная;12;manual;low;0.5076;9.95;9.95;high_price_variance
-6316;Винил световой УФ печать 3-10 кв.м;POS;8;manual;low;0.5078;3200;2400;insufficient_history
 8984;Глянцевый плакат 720 dpi 3-10 кв.м;Печатная;11;manual;low;0.5091;1430;1320;high_price_variance
 8022;Баннер проклейка 30-50 мп Цех;Цех;5;manual;low;0.5102;98;75;insufficient_history
 8460;Акрил3 молочный 4-6 кв.м;Цех;15;manual;low;0.5107;3381;4025;high_price_variance
@@ -2221,11 +2219,11 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 6324;Оклейка ровной поверхности пленкой 1 кв.м Цех;Цех;107;manual;low;0.5167;1050;900;high_price_variance
 7968;Баннер печать ширка литой 1-5 кв.м;Сольвент;7;manual;low;0.5197;660;560;insufficient_history
 9394;Карман плоский ПЭТ 1,5 мм А5 5-10 шт Цех;Цех;8;manual;low;0.5204;442;266;insufficient_history
-6328;Оклейка ровной поверхности пленкой 3-10 кв.м Цех;Цех;81;manual;low;0.5225;910;586;high_price_variance
-6336;Винил демонтаж 1 кв.м Цех;Цех;26;manual;low;0.5238;1050;850;high_price_variance
+8646;Оракал 8500 световая 1-3 кв.м;Цех;12;manual;low;0.5206;1445;1470.5;high_price_variance
+6328;Оклейка ровной поверхности пленкой 3-10 кв.м Цех;Цех;82;manual;low;0.5225;910;600;high_price_variance
 16130;"Махачкала Имама Шамиля 14А Гипермаркет ""Роддом"" Сторона А 42.97932, 47.47642";РИК;15;manual;low;0.5243;37000;37000;high_price_variance
 15824;Махачкала Гайдара Гаджиева 22 Тулуза Сторона Б 42.98467, 47.47544;РИК;9;manual;low;0.5243;37000;17600;insufficient_history
-17084;ПВХ8 Облегченный 1-2 кв.м;Цех;5;manual;low;0.5247;2766.75;2766.75;insufficient_history
+17084;ПВХ8 Облегченный 1-2 кв.м;Цех;7;manual;low;0.5247;2766.75;2905.0875;insufficient_history
 8972;Матовый плакат 720 dpi 1-3 кв.м;Печатная;37;manual;low;0.5257;1400;1400;high_price_variance
 5246;"Флаер Офсет ""евро"" 150 гр/кв.м мел бумага(4+4/4+0) 5-7 дней 5 000 шт Офсет";Офсет;2;manual;low;0.5263;1.71;1.65;insufficient_history
 8618;Оракал 641 цветная более 50 кв.м;Цех;11;manual;low;0.5269;520;520;high_price_variance
@@ -2233,28 +2231,27 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 10576;Демонтаж вывески сложный 1-2 кв.м Цех;Цех;13;manual;low;0.5286;1400;700;high_price_variance
 7872;Маджестик А3 бум. Голубой свет 1 шт Печатная;Печатная;2;manual;low;0.5286;175;147.25;insufficient_history
 17070;ПВХ5 Облегченный до 1 кв.м;Цех;21;manual;low;0.5297;1827;2001;high_price_variance
-4326;А3 Ламинация глянцевая 25мкр 5-10 шт Печатная;Печатная;24;manual;low;0.5298;55.1;51;high_price_variance
+4326;А3 Ламинация глянцевая 25мкр 5-10 шт Печатная;Печатная;25;manual;low;0.5298;55.1;53.05;high_price_variance
 8064;Баннер на рейке монтаж 5-10 кв.м Цех;Цех;39;manual;low;0.53;520;260;high_price_variance
-10578;Демонтаж вывески сложный 3-10 кв.м Цех;Цех;22;manual;low;0.5308;1300;650;high_price_variance
 11438;Кружки с сублимационной печатью 330 мл от 50 шт;Мерч;5;manual;low;0.531;314.5;288;insufficient_history
 8050;Баннер люверсовка до 5 шт Цех;Цех;21;manual;low;0.5333;30;30;high_price_variance
 4660;Маджестик А4 бум. Голубой свет 1 шт Печатная;Печатная;3;manual;low;0.5334;87.5;96.75;insufficient_history
 8778;Труба профильная 20х20 1,5 мм металлическая 3-10 мп;Цех;41;manual;low;0.5338;136;136;high_price_variance
-6470;Аппликация ровной поверхности монтаж 1-3 кв.м Цех;Цех;40;manual;low;0.5341;1260;900;high_price_variance
+6470;Аппликация ровной поверхности монтаж 1-3 кв.м Цех;Цех;41;manual;low;0.5341;1260;900;high_price_variance
 8210;Сварка металлокаркаса и покраска рамка 1-3 кв.м Цех;Цех;26;manual;low;0.5341;1260;980;high_price_variance
 9096;Биговка 41-120 шт Печатная;Печатная;48;manual;low;0.5357;1.4;0.87;high_price_variance
+8214;Сварка металлокаркаса и покраска рамка 10-20 кв.м Цех;Цех;11;manual;low;0.5407;1080;840;high_price_variance
 8212;Сварка металлокаркаса и покраска рамка 3-10 кв.м Цех;Цех;28;manual;low;0.5415;1170;910;high_price_variance
 8166;Баннер на билборд 6х3 демонтаж 18 кв.м;Монтажники;674;manual;low;0.5423;650;650;high_price_variance
 9098;Биговка 121-400 шт Печатная;Печатная;32;manual;low;0.5423;1.3;0.78;high_price_variance
 7804;Сборка объема ПВХ3 сложные 11-50 мп Цех;Цех;17;manual;low;0.5423;925.83;987.14;high_price_variance
-8668;Монтажная пленка с подложкой до 1 кв.м;Цех;222;manual;low;0.5426;702;666;high_price_variance
-7692;Монтаж вывески сложный 3-10 кв.м Цех;Цех;48;manual;low;0.545;2600;1310;high_price_variance
-7512;Монтаж буквы простой в цеху 11-50 мп Цех;Цех;68;manual;low;0.547;338;252;high_price_variance
+8668;Монтажная пленка с подложкой до 1 кв.м;Цех;223;manual;low;0.5426;702;666;high_price_variance
+7512;Монтаж буквы простой в цеху 11-50 мп Цех;Цех;70;manual;low;0.547;338;252;high_price_variance
 6356;Ламинация с накаткой для стандартной печати холодная матовая 20-50 кв.м;Сольвент;3;manual;low;0.5486;350;476;insufficient_history
 9814;ПВХ5 3-4 кв.м;Цех;6;manual;low;0.5491;2008.13;1929.2683;insufficient_history
 7290;Макет визитки Простой 1 сторона;Дизайн;160;manual;low;0.55;1000;500;high_price_variance
 12346;Брендирование транспорта Простое 1 оригинал-макет;Дизайн;143;manual;low;0.55;5000;5000;high_price_variance
-21978;Аудиомонтаж Простой 1 час;Дизайн;112;manual;low;0.55;2000;1500;high_price_variance
+21978;Аудиомонтаж Простой 1 час;Дизайн;115;manual;low;0.55;2000;2000;high_price_variance
 11364;Выезд на замеры средний Цех;Цех;87;manual;low;0.55;2000;1000;high_price_variance
 12728;Макет баннер рекламного Простой 1 решение;Дизайн;75;manual;low;0.55;3000;2000;high_price_variance
 11566;Макет этикетки Простой 1 оригинал-макет;Дизайн;55;manual;low;0.55;2000;1000;high_price_variance
@@ -2262,8 +2259,9 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 7346;Гайдлайн Простой верстка 1 страницы;Дизайн;41;manual;low;0.55;1000;1000;high_price_variance
 18392;Каспийск Каспийское шоссе 26 Эйфелева башня Сторона Б 42.88239, 47.61721;РИК;33;manual;low;0.55;20000;17500;high_price_variance
 18338;Каспийск Амет-Хана Султана 38 АЗС ЕКА Сторона А 42.87876, 47.62221;РИК;29;manual;low;0.55;20000;10000;high_price_variance
-11362;Выезд на замеры простой Цех;Цех;22;manual;low;0.55;1000;500;high_price_variance
+11362;Выезд на замеры простой Цех;Цех;23;manual;low;0.55;1000;500;high_price_variance
 10438;Макет баннера для web Средней сложности 1 решение;Дизайн;20;manual;low;0.55;4000;2000;high_price_variance
+12430;Макет вывески с визуализацией 1 адаптация;Дизайн;17;manual;low;0.55;1000;1000;high_price_variance
 23070;Макет флаера 21х10 Простого 1 сторона;Дизайн;16;manual;low;0.55;1000;500;high_price_variance
 9100;Биговка 401-800 шт Печатная;Печатная;14;manual;low;0.55;1.2;0.72;high_price_variance
 12730;Макет баннер рекламного Средней сложности 1 решение;Дизайн;13;manual;low;0.55;5000;5000;high_price_variance
@@ -2282,7 +2280,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 5298;Визитки Ламинация глянцевая 75мкр 240 Печатная;Печатная;20;manual;low;0.5624;1.6;1.6;high_price_variance
 8636;Оракал 352 серебро/золото 3-10 кв.м;Цех;3;manual;low;0.5625;1200;1440;insufficient_history
 8586;Пленка для ламинации винила матовая 1-3 кв.м;Цех;6;manual;low;0.563;238;180;insufficient_history
-7386;Цветокорекция простая за фото;Дизайн;9;manual;low;0.564;250;200;insufficient_history
 4554;А4 Ламинация глянцевая 75мкр 2-8 шт Печатная;Печатная;37;manual;low;0.5641;76.6;73.29;high_price_variance
 4342;А3 Ламинация глянцевая 75мкр 5-10 шт Печатная;Печатная;10;manual;low;0.5641;76.6;73.29;high_price_variance
 6332;Оклейка ровной поверхности пленкой 20-50 кв.м Цех;Цех;26;manual;low;0.5643;770;660;high_price_variance
@@ -2301,19 +2298,16 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8368;ПВХ3 до 1 кв.м;Цех;40;manual;low;0.5775;1480.5;1308.335;high_price_variance
 8458;Акрил3 молочный 3-4 кв.м;Цех;21;manual;low;0.5778;3622.5;3000;high_price_variance
 16688;Махачкала Коркмасова 16 первый ЦУМ Сторона Б1 42.9817, 47.49806;РИК;28;manual;low;0.5797;17250;15000;high_price_variance
-6508;Оклейка рельефной поверхности пленкой 3-10 кв.м Цех;Цех;56;manual;low;0.5799;1365;754;high_price_variance
-21184;Макет слайда презентации с изображением простой 1 слайд;Дизайн;30;manual;low;0.58;1000;1000;high_price_variance
+21184;Макет слайда презентации с изображением простой 1 слайд;Дизайн;31;manual;low;0.58;1000;1000;high_price_variance
 18108;Каспийск Комсомольская 5 Эль-сам Сторона А 42.886, 47.64155;РИК;31;manual;low;0.5846;13000;13000;high_price_variance
 18110;Каспийск Комсомольская 5 Эль-сам Сторона Б 42.886, 47.64155;РИК;31;manual;low;0.5846;13000;13000;high_price_variance
 8788;Стабилизатор 1 кВт 1 шт Цех;Цех;106;manual;low;0.5873;5511;5170;high_price_variance
 8392;ПВХ8 до 1 кв.м;Цех;35;manual;low;0.5899;4063.5;3450;high_price_variance
 10838;Ручная резка стикеров на гильотине только квадратные и прямоугольные 201-500 мп Печатная;Печатная;26;manual;low;0.5909;2.2;2.15;high_price_variance
-6338;Винил демонтаж 1-3 кв.м Цех;Цех;21;manual;low;0.5918;980;840;high_price_variance
+8700;Резка листового материала ЧПУ 60-100 мп Цех;Цех;8;manual;low;0.5909;44;67.75;insufficient_history
 6504;Оклейка рельефной поверхности пленкой 1 кв.м Цех;Цех;24;manual;low;0.5943;1575;1040;high_price_variance
 6840;Табличка полиграфия 0,08-0,1 кв.м 1-3 шт Цех;Цех;7;manual;low;0.5948;3825;3825;insufficient_history
-4822;Хайкот А5 бум. 180 гр. 1 шт Печатная;Печатная;47;manual;low;0.5952;1.68;1.5;high_price_variance
-5008;Хайкот А6 бум. 180 гр. 1 шт Печатная;Печатная;14;manual;low;0.5952;0.84;0.65;high_price_variance
-6456;Аппликация накатка на монтажную пленку 1 кв.м Цех;Цех;211;manual;low;0.596;750;525;high_price_variance
+6456;Аппликация накатка на монтажную пленку 1 кв.м Цех;Цех;214;manual;low;0.596;750;525;high_price_variance
 8680;Резка листового материала Лазерная до 5 мп;Резка;35;manual;low;0.5972;108;108;high_price_variance
 5194;Хайкот А6 Флаер(21х10) Бумага 180 гр. 1 шт Печатная;Печатная;40;manual;low;0.5982;1.12;0.86;high_price_variance
 5404;Маджестик бум. визитки Розовый лепесток 1 шт Печатная;Печатная;3;manual;low;0.5995;7.29;8.58;insufficient_history
@@ -2325,24 +2319,26 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 9110;Скругление двух углов до 5 мм 41-120 шт Печатная;Печатная;12;manual;low;0.6;1.4;1.2;high_price_variance
 7282;Подбор иконки 2 решения;Дизайн;9;manual;low;0.6;500;200;insufficient_history
 7306;Макет буклета А4 2 сгиба сложный 1 сторона;Дизайн;9;manual;low;0.6;5000;3500;insufficient_history
+7388;Цветокорекция сложная за фото;Дизайн;8;manual;low;0.6;500;400;insufficient_history
 13664;Макет обложки многостраничного меню Простой формат А4;Дизайн;5;manual;low;0.6;5000;2000;insufficient_history
 10743;3D моделирование простого объекта 1 шт;Дизайн;3;manual;low;0.6;5000;2000;insufficient_history
 4864;Маджестик А5 бум. Белый мрамор 1 шт Печатная;Печатная;2;manual;low;0.6;43.75;38.375;insufficient_history
 7876;Маджестик А3 бум. Розовый лепесток 1 шт Печатная;Печатная;2;manual;low;0.6;175;153.5;insufficient_history
 7982;Баннер печать интерьерный 440гр 5-10 кв.м;Сольвент;210;manual;low;0.6023;855;448;high_price_variance
+6508;Оклейка рельефной поверхности пленкой 3-10 кв.м Цех;Цех;57;manual;low;0.6043;1365;780;high_price_variance
 8058;Баннер люверсовка более 50 шт Цех;Цех;175;manual;low;0.605;20;20;high_price_variance
 7104;Титульная вывеска ушки без монтажа 1 шт Цех;Цех;19;manual;low;0.6056;720;480;high_price_variance
 4986;НЕВИЯ А6 бум. 200 гр. 1 шт Печатная;Печатная;6;manual;low;0.6056;1.8;2.655;insufficient_history
 4898;А6 Печать 4+0 161-480 шт Печатная;Печатная;12;manual;low;0.6064;5.97;5.74;high_price_variance
-6292;Винил/Баннер интерьерная печать 3-10 кв.м;Сольвент;194;manual;low;0.6066;880;560.5;high_price_variance
+6292;Винил/Баннер интерьерная печать 3-10 кв.м;Сольвент;195;manual;low;0.6066;880;561;high_price_variance
 4896;А6 Печать 4+4 161-480 шт Печатная;Печатная;14;manual;low;0.6077;11.93;10.15;high_price_variance
 7352;Подготовка макета к производству за 1 макет;Дизайн;701;manual;low;0.61;500;500;high_price_variance
 9890;Акрил цветной более 6 кв.м;Цех;3;manual;low;0.6109;3276;3500;insufficient_history
 5174;НАВИЯ Флаер(21х10) Бумага 250 гр. 1 шт Печатная;Печатная;5;manual;low;0.6126;4.13;4.13;insufficient_history
 18226;Каспийск Ильяшенко 3Б Раш бургер Сторона А 42.89544, 47.62688;РИК;36;manual;low;0.6136;27500;15000;high_price_variance
 18476;Каспийск Омарова 4 Магнит Сторона Б 42.89739, 47.62346;РИК;36;manual;low;0.6136;27500;15000;high_price_variance
-25788;Сборка объема БОРТОГИБ 11-50 мп Цех;Цех;9;manual;low;0.6143;420;441;insufficient_history
-8698;Резка листового материала ЧПУ 30-60 мп;Резка;27;manual;low;0.6167;48;75;high_price_variance
+25788;Сборка объема БОРТОГИБ 11-50 мп Цех;Цех;13;manual;low;0.6143;420;441;high_price_variance
+8698;Резка листового материала ЧПУ 30-60 мп Цех;Цех;29;manual;low;0.6167;48;75;high_price_variance
 8644;Оракал 8500 световая до 1 кв.м;Цех;29;manual;low;0.617;1530;1530;high_price_variance
 6330;Оклейка ровной поверхности пленкой 10-20 кв.м Цех;Цех;49;manual;low;0.6214;840;520;high_price_variance
 7266;Печать самоклеящейся бумаги без резки лист 30х45 401-600 шт Печатная;Печатная;4;manual;low;0.6226;75.91;46.305;insufficient_history
@@ -2353,9 +2349,9 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 9006;Холст лакированный 1440 dpi 10-30 кв.м;Печатная;44;manual;low;0.6302;1920;2080;high_price_variance
 7984;Баннер печать интерьерный 440гр 10-20 кв.м;Сольвент;78;manual;low;0.6317;765;453.5;high_price_variance
 4816;Хайкот А5 бум. 270 гр. 1 шт Печатная;Печатная;8;manual;low;0.6328;2.56;3;insufficient_history
-8612;Оракал 641 цветная 3-10 кв.м;Цех;68;manual;low;0.6333;640;640;high_price_variance
+8612;Оракал 641 цветная 3-10 кв.м;Цех;69;manual;low;0.6333;640;640;high_price_variance
 8066;Баннер на рейке монтаж 10-20 кв.м Цех;Цех;21;manual;low;0.6333;480;224;high_price_variance
-8696;Резка листового материала ЧПУ 10-30 мп;Резка;52;manual;low;0.6346;52;80;high_price_variance
+8696;Резка листового материала ЧПУ 10-30 мп Цех;Цех;52;manual;low;0.6346;52;80;high_price_variance
 5422;Визитки 4+4 Офсет 300 гр/м мел картон 5-7 дней 5000 Офсет;Офсет;8;manual;low;0.6353;1.7;1.47;insufficient_history
 4824;Хайкот А5 бум. 230 гр. 1 шт Печатная;Печатная;12;manual;low;0.6376;2.18;2.46;high_price_variance
 19994;Избербаш Буйнакского 137 Кафе Джазз Сторона А 42.57534, 47.84732;РИК;32;manual;low;0.64;15000;8000;high_price_variance
@@ -2366,10 +2362,13 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8820;Пленка для ламинации винила глянец 3-10 кв.м;Цех;4;manual;low;0.6428;224;165;insufficient_history
 4316;А3 Печать 4+4 401-600 шт 1-3 дня Печатная;Печатная;5;manual;low;0.6499;63.65;63.65;insufficient_history
 10404;Наложение макета на Простой мокап 1 изображение;Дизайн;241;manual;low;0.65;250;200;high_price_variance
-10420;Креативная графическая идея для логотипа с обоснованием 1 эскиз;Дизайн;63;manual;low;0.65;5000;5000;high_price_variance
+10420;Креативная графическая идея для логотипа с обоснованием 1 эскиз;Дизайн;64;manual;low;0.65;5000;5000;high_price_variance
 12364;Макет таблички ручная 1 адаптация;Дизайн;54;manual;low;0.65;500;200;high_price_variance
+7692;Монтаж вывески сложный 3-10 кв.м Цех;Цех;51;manual;low;0.65;2600;1320;high_price_variance
 10396;Подбор мокапа со стоков 5 решений;Дизайн;34;manual;low;0.65;1000;1000;high_price_variance
 12422;Макет вывески с визуализацией Простой 1 оригинал-макет;Дизайн;27;manual;low;0.65;5000;2000;high_price_variance
+7694;Монтаж вывески сложный 11-25 кв.м Цех;Цех;25;manual;low;0.65;2400;1200;high_price_variance
+11544;Логобук шаблонный 10 слайдов;Дизайн;18;manual;low;0.65;15000;10000;high_price_variance
 7286;Подбор шрифта 2 решения;Дизайн;17;manual;low;0.65;500;200;high_price_variance
 7284;Подбор иконки 5 решений;Дизайн;15;manual;low;0.65;1000;1000;high_price_variance
 11548;Ручная отрисовка с доработкой простого орнамента 1 векторное изображение;Дизайн;12;manual;low;0.65;5000;2500;high_price_variance
@@ -2388,7 +2387,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 7856;Хайкот А3 бум. 230 гр. 1 шт Печатная;Печатная;24;manual;low;0.6659;8.74;8.87;high_price_variance
 8204;Фольгирование визитки от 120 шт 1 сторона Печатная;Печатная;14;manual;low;0.6666;7.5;5;high_price_variance
 8590;Пленка для ламинации винила матовая 10-25 кв.м;Цех;4;manual;low;0.6666;210;275.5;insufficient_history
-13652;Макет одностраничного меню Простой формат А4;Дизайн;24;manual;low;0.6667;3000;1000;high_price_variance
 18568;Каспийск Алферова 4 Аптека Целитель Сторона Б 42.88055, 47.64034;РИК;16;manual;low;0.6667;9000;9000;high_price_variance
 6342;Винил демонтаж 10-20 кв.м Цех;Цех;12;manual;low;0.6667;840;630;high_price_variance
 8396;ПВХ8 2-3 кв.м;Цех;21;manual;low;0.6699;3612;2819.17;high_price_variance
@@ -2402,7 +2400,8 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 13676;Верстка страницы многостраничного меню Простой формат А4;Дизайн;48;manual;low;0.68;1000;1000;high_price_variance
 10710;Макет конверта Простой 1 решение;Дизайн;10;manual;low;0.68;1000;1000;high_price_variance
 5180;Люмиарт Флаер(21х10) Бумага 130 гр. 1 шт Печатная;Печатная;2;manual;low;0.68;1;1.36;insufficient_history
-7964;Баннер печать стандарт 440гр более 50 кв.м;Сольвент;22;manual;low;0.6813;364;299;high_price_variance
+10578;Демонтаж вывески сложный 3-10 кв.м Цех;Цех;23;manual;low;0.6808;1300;650;high_price_variance
+7964;Баннер печать стандарт 440гр более 50 кв.м;Сольвент;23;manual;low;0.6813;364;299;high_price_variance
 7952;Баннер печать 240гр более 50 кв.м;Сольвент;45;manual;low;0.6832;221;192;high_price_variance
 12830;Хайкот А6 бум. 270 гр. 1 шт Печатная;Печатная;9;manual;low;0.6875;1.28;1.28;insufficient_history
 6468;Аппликация ровной поверхности монтаж 1 кв.м Цех;Цех;114;manual;low;0.6889;1350;1050;high_price_variance
@@ -2413,22 +2412,24 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 5362;Хайкот бум. визитки 230 гр. 1 шт Печатная;Печатная;3;manual;low;0.6944;0.36;0.4;insufficient_history
 17906;Визитки 4+4 Офсет 300 гр/м мел картон 5-7 дней 1000 Офсет;Офсет;33;manual;low;0.6953;2.56;1.79;high_price_variance
 8792;Скотч 3М с накаткой до 1 кв.м;Цех;35;manual;low;0.6958;7200;3800;high_price_variance
-8762;Блок питания 400 Вт 1 шт;Цех;50;manual;low;0.7;1300;1950;high_price_variance
+8762;Блок питания 400 Вт 1 шт;Цех;52;manual;low;0.7;1300;1950;high_price_variance
+8702;Резка листового материала ЧПУ более 100 мп Цех;Цех;9;manual;low;0.7;40;65;insufficient_history
 7970;Баннер печать ширка литой 5-10 кв.м;Сольвент;23;manual;low;0.7001;570;476;high_price_variance
 9002;Холст лакированный 1440 dpi 1-3 кв.м;Печатная;42;manual;low;0.7009;2240;1680;high_price_variance
 13830;"Флаер Офсет ""евро"" 150 гр/кв.м мел бумага(4+4/4+0) 5-7 дней 1 000 шт Офсет";Офсет;12;manual;low;0.7047;3.42;3.42;high_price_variance
 4812;Хайкот А5 бум. 180 гр. 1 шт Печатная;Печатная;4;manual;low;0.7083;1.68;1.77;insufficient_history
 9118;Скругление двух углов до 5 мм от 1200 шт Печатная;Печатная;9;manual;low;0.71;1;0.42;insufficient_history
-7276;Ручная резка стикеров на гильотине только квадратные и прямоугольные 51-100 мп Печатная;Печатная;41;manual;low;0.7107;2.8;2.8;high_price_variance
+7276;Ручная резка стикеров на гильотине только квадратные и прямоугольные 51-100 мп Печатная;Печатная;42;manual;low;0.7107;2.8;2.8;high_price_variance
 9022;Бэклит световой 1440 dpi 1-3 кв.м;Печатная;16;manual;low;0.7143;1960;1960;high_price_variance
 5262;Визитки Печать 4+4 1-3 дня 360 Печатная;Печатная;25;manual;low;0.7149;4.98;4.18;high_price_variance
-7864;Хайкот А3 бум. 180 гр. 1 шт Печатная;Печатная;64;manual;low;0.7158;6.72;6;high_price_variance
 4806;Хайкот А5 бум. 115 гр. 1 шт Печатная;Печатная;4;manual;low;0.7158;0.95;1.13;insufficient_history
-11342;Выезд Каспийск, 1Махачкала, Семендер 20 км 0,4 ч Цех;Цех;184;manual;low;0.7167;1500;1000;high_price_variance
+11342;Выезд Каспийск, 1Махачкала, Семендер 20 км 0,4 ч Цех;Цех;185;manual;low;0.7167;1500;1000;high_price_variance
 12354;Брендирование транспорта 1 адаптация;Дизайн;35;manual;low;0.7167;3000;1000;high_price_variance
+6336;Винил демонтаж 1 кв.м Цех;Цех;27;manual;low;0.7167;1050;900;high_price_variance
+13652;Макет одностраничного меню Простой формат А4;Дизайн;25;manual;low;0.7167;3000;1000;high_price_variance
 7910;Люмиарт А4 бум. 150 гр. 1 шт Печатная;Печатная;18;manual;low;0.72;4;4.15;high_price_variance
 7978;Баннер печать интерьерный 440гр 1 кв.м;Сольвент;105;manual;low;0.7206;1125;560;high_price_variance
-8610;Оракал 641 цветная 1-3 кв.м;Цех;76;manual;low;0.725;680;697;high_price_variance
+8610;Оракал 641 цветная 1-3 кв.м;Цех;77;manual;low;0.725;680;697;high_price_variance
 4726;А5 Печать 4+4 от 2400 шт Печатная;Печатная;6;manual;low;0.727;13.26;13.055;insufficient_history
 11138;Тейблтент с прозрачным основанием А5 1 шт;POS;3;manual;low;0.7293;300;380;insufficient_history
 7956;Баннер печать стандарт 440гр 1-5 кв.м;Сольвент;69;manual;low;0.7322;560;487.5;high_price_variance
@@ -2455,6 +2456,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 11142;Тейблтент с прозрачным основанием А5 4-10 шт;POS;4;manual;low;0.7514;255;287;insufficient_history
 7022;Композит матовый 1-2 кв.м;Цех;5;manual;low;0.7515;3459.5;2400;insufficient_history
 5276;Визитки Печать 4+0 1-3 дня 2000 Печатная;Печатная;18;manual;low;0.753;1.7;1.76;high_price_variance
+6316;Винил световой УФ печать 3-10 кв.м;POS;10;manual;low;0.7578;3200;2400;high_price_variance
 5264;Визитки Печать 4+0 1-3 дня 360 Печатная;Печатная;15;manual;low;0.7581;2.77;2.17;high_price_variance
 19942;Махачкала-Дербент 82К-037 844-й км Сторона А 42.70838, 47.68407;РИК;28;manual;low;0.76;10000;13800;high_price_variance
 16596;"Махачкала Казбекова 101 Супермаркет ""Яблочко"" Сторона Б 42.97885, 47.40084";РИК;21;manual;low;0.76;10000;17600;high_price_variance
@@ -2462,19 +2464,22 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 19932;Манас 82К-037 после моста Сторона Б 42.71171, 47.67291;РИК;9;manual;low;0.76;10000;17600;insufficient_history
 19928;Манас 82К-037 до моста Сторона Б 42.71678, 47.67046;РИК;8;manual;low;0.76;10000;17600;insufficient_history
 5442;Визитки Ламинация глянцевая 250мкр 240 Печатная;Печатная;3;manual;low;0.7604;16.85;16.85;insufficient_history
+7386;Цветокорекция простая за фото;Дизайн;10;manual;low;0.764;250;200;high_price_variance
 17624;Махачкала Ярагского 77 КТ Парамакс Сторона Б 42.96348, 47.49865;РИК;11;manual;low;0.7647;17000;30000;high_price_variance
 8394;ПВХ8 1-2 кв.м;Цех;27;manual;low;0.7719;3837.75;2565;high_price_variance
 4312;А3 Печать 4+4 201-400 шт 1-3 дня Печатная;Печатная;10;manual;low;0.7742;74.26;74.26;high_price_variance
+8070;Баннер на рейке монтаж более 50 кв.м Цех;Цех;8;manual;low;0.775;400;176;insufficient_history
 7676;Монтаж вывески простой 1 кв.м Цех;Цех;20;manual;low;0.776;2500;1500;high_price_variance
 10562;Демонтаж вывески простой 1 кв.м Цех;Цех;6;manual;low;0.776;1250;750;insufficient_history
 5260;Визитки Печать 4+0 1-3 дня 240 Печатная;Печатная;81;manual;low;0.7796;3.04;2.65;high_price_variance
 10714;Подбор мокапа со стоков 2 решения;Дизайн;216;manual;low;0.78;500;200;high_price_variance
 10718;Наложение макета на Мокап средней сложности 1 изображение;Дизайн;60;manual;low;0.78;500;500;high_price_variance
-6452;Аппликация прорезка 50-100 мп Печатная;Печатная;62;manual;low;0.7818;22;14.4;high_price_variance
+6452;Аппликация прорезка 50-100 мп Печатная;Печатная;63;manual;low;0.7818;22;14.55;high_price_variance
 7300;Макет листовки Простой 1 сторона;Дизайн;120;manual;low;0.7833;1500;1000;high_price_variance
-7396;Фотомонтаж Средней сложности 1 объект;Дизайн;14;manual;low;0.7833;3000;2000;high_price_variance
-6326;Оклейка ровной поверхности пленкой 1-3 кв.м Цех;Цех;76;manual;low;0.7847;980;840;high_price_variance
-8694;Резка листового материала ЧПУ 5-10 мп;Резка;52;manual;low;0.7857;56;85;high_price_variance
+7396;Фотомонтаж Средней сложности 1 объект;Дизайн;15;manual;low;0.7833;3000;3000;high_price_variance
+6326;Оклейка ровной поверхности пленкой 1-3 кв.м Цех;Цех;77;manual;low;0.7847;980;840;high_price_variance
+6338;Винил демонтаж 1-3 кв.м Цех;Цех;22;manual;low;0.7847;980;840;high_price_variance
+8694;Резка листового материала ЧПУ 5-10 мп Цех;Цех;52;manual;low;0.7857;56;85;high_price_variance
 7958;Баннер печать стандарт 440гр 5-10 кв.м;Сольвент;54;manual;low;0.7874;490;371;high_price_variance
 7680;Монтаж вывески простой 3-10 кв.м Цех;Цех;27;manual;low;0.7885;1820;780;high_price_variance
 7868;Маджестик А3 бум. Белый мрамор 1 шт Печатная;Печатная;2;manual;low;0.7885;175;137;insufficient_history
@@ -2483,8 +2488,8 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 6106;Брошюровка на металл пружину 5-10 экз. 8 - 12 мм Печатная;Печатная;7;manual;low;0.7949;156;135;insufficient_history
 12348;Брендирование транспорта Средней сложности 1 оригинал-макет;Дизайн;41;manual;low;0.799;10000;3000;high_price_variance
 13614;Почасовая работа с дизайнером рекламы 1 час;Дизайн;723;manual;low;0.8;2000;1500;high_price_variance
-7354;Адаптация макета для нового носителя за 1 макет;Дизайн;87;manual;low;0.8;1000;1000;high_price_variance
-6450;Аппликация прорезка 30-50 мп Печатная;Печатная;79;manual;low;0.8;24;16.8;high_price_variance
+7354;Адаптация макета для нового носителя за 1 макет;Дизайн;89;manual;low;0.8;1000;1000;high_price_variance
+6450;Аппликация прорезка 30-50 мп Печатная;Печатная;80;manual;low;0.8;24;16.8;high_price_variance
 17568;Махачкала Ярагского 78 второй Школа №5 Сторона Б 42.971, 47.50712;РИК;36;manual;low;0.8;20000;16000;high_price_variance
 12366;Макет титульной вывески Простая 1 оригинал-макет;Дизайн;22;manual;low;0.8;2000;1000;high_price_variance
 12384;Макет ручки брендированной Простая 1 оригинал-макет;Дизайн;19;manual;low;0.8;2000;500;high_price_variance
@@ -2501,8 +2506,8 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 11248;Нейминг 5 решений;Маркетинг;4;manual;low;0.8333;30000;17500.5;insufficient_history
 5078;Флаер(21х10) Печать 4+4 1-3 дня 7-120 Печатная;Печатная;35;manual;low;0.8348;17.68;14.51;high_price_variance
 6348;Ламинация с накаткой для стандартной печати холодная матовая 1 кв.м;Сольвент;35;manual;low;0.8356;450;584.25;high_price_variance
-4624;Хайкот А4 бум. 270 гр. 1 шт Печатная;Печатная;41;manual;low;0.836;5.12;5.13;high_price_variance
-8608;Оракал 641 цветная до 1 кв.м;Цех;374;manual;low;0.8391;720;720;high_price_variance
+4624;Хайкот А4 бум. 270 гр. 1 шт Печатная;Печатная;42;manual;low;0.836;5.12;5.253;high_price_variance
+8608;Оракал 641 цветная до 1 кв.м;Цех;376;manual;low;0.8391;720;720;high_price_variance
 6454;Аппликация прорезка более 100 мп Печатная;Печатная;96;manual;low;0.84;20;13.2;high_price_variance
 10704;Макет листовки Сложный 1 сторона;Дизайн;14;manual;low;0.84;5000;2000;high_price_variance
 7256;Печать самоклеящейся бумаги без резки лист 30х45 1 шт Печатная;Печатная;93;manual;low;0.8405;104.2;104.84;high_price_variance
@@ -2510,14 +2515,14 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 5268;Визитки Печать 4+0 1-3 дня 500 Печатная;Печатная;48;manual;low;0.841;2.39;2.09;high_price_variance
 5082;Флаер(21х10) Печать 4+4 1-3 дня 121-360 Печатная;Печатная;18;manual;low;0.841;15.91;13.19;high_price_variance
 9138;Ламинация с накаткой для стандартной печати холодная глянцевая 3-10 кв.м;Сольвент;71;manual;low;0.8437;400;522.75;high_price_variance
-7394;Фотомонтаж Простой 1 объект;Дизайн;56;manual;low;0.85;1000;400;high_price_variance
+7394;Фотомонтаж Простой 1 объект;Дизайн;58;manual;low;0.85;1000;400;high_price_variance
 7374;Макет стикера Простой 1 решение;Дизайн;28;manual;low;0.85;1000;500;high_price_variance
 4542;А4 Ламинация глянцевая 25мкр 21-40 шт Печатная;Печатная;23;manual;low;0.8505;16.52;16.52;high_price_variance
 9546;Оргстекло прозрачное4 1-2 кв.м;Цех;3;manual;low;0.8524;5278.5;4500;insufficient_history
 7268;Печать самоклеящейся бумаги без резки лист 30х45 от 601 шт Печатная;Печатная;20;manual;low;0.8541;73.26;72.995;high_price_variance
 4902;А6 Печать 4+0 481-1600 шт Печатная;Печатная;7;manual;low;0.8585;5.3;3.54;insufficient_history
 5270;Визитки Печать 4+4 1-3 дня 1000 Печатная;Печатная;75;manual;low;0.861;3.74;3.34;high_price_variance
-6352;Ламинация с накаткой для стандартной печати холодная матовая 3-10 кв.м;Сольвент;16;manual;low;0.8625;400;535;high_price_variance
+6352;Ламинация с накаткой для стандартной печати холодная матовая 3-10 кв.м;Сольвент;17;manual;low;0.8625;400;510;high_price_variance
 7898;НЕВИЯ А4 бум. 160 гр. 1 шт Печатная;Печатная;34;manual;low;0.8635;7.84;7.84;high_price_variance
 4718;А5 Печать 4+4 801-1600 шт Печатная;Печатная;8;manual;low;0.8691;18.56;15.515;insufficient_history
 20116;Избербаш Буйнакского 20 Ресторан Сафия Сторона А 42.55393, 47.88103;РИК;22;manual;low;0.8727;11000;8000;high_price_variance
@@ -2540,7 +2545,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 6950;Табличка аппликация 0,1-0,16 кв.м 3-10 шт Цех;Цех;6;manual;low;0.9179;5210;4455.5;insufficient_history
 6892;Табличка аппликация 0,02-0,03 кв.м 10-30 шт Цех;Цех;3;manual;low;0.9196;8983;7593;insufficient_history
 4800;НЕВИЯ А5 бум. 200 гр. 1 шт Печатная;Печатная;22;manual;low;0.9222;3.6;4.635;high_price_variance
-4304;А3 Печать 4+4 21-60 шт 1-3 дня Печатная;Печатная;46;manual;low;0.9288;95.47;95.47;high_price_variance
+4304;А3 Печать 4+4 21-60 шт 1-3 дня Печатная;Печатная;47;manual;low;0.9288;95.47;95.47;high_price_variance
 4714;А5 Печать 4+4 241-800 шт Печатная;Печатная;18;manual;low;0.9345;21.22;21.22;high_price_variance
 12828;Хайкот А5 бум. 270 гр. 1 шт Печатная;Печатная;22;manual;low;0.9375;2.56;2.57;high_price_variance
 4496;Хайкот А3 бум. 270 гр. 1 шт Печатная;Печатная;33;manual;low;0.9385;10.24;10.27;high_price_variance
@@ -2548,20 +2553,20 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 17618;Махачкала Ярагского 59А ТЦ Мегаполис Сторона А 42.9705, 47.50648;РИК;11;manual;low;0.9444;18000;18000;high_price_variance
 17294;"Махачкала Ярагского 30 ТЦ ""7 континент"" Сторона Б 42.97673, 47.51336";РИК;33;manual;low;0.9466;30000;30000;high_price_variance
 4990;НЕВИЯ А6 бум. 300 гр. 1 шт Печатная;Печатная;16;manual;low;0.9488;3.9;3.9;high_price_variance
-8692;Резка листового материала ЧПУ до 5 мп;Резка;44;manual;low;0.95;60;90;high_price_variance
+8692;Резка листового материала ЧПУ до 5 мп Цех;Цех;44;manual;low;0.95;60;90;high_price_variance
 4524;А4 Печать 4+0 121-400 шт Печатная;Печатная;70;manual;low;0.9515;21.22;16.8;high_price_variance
 5084;Флаер(21х10) Печать 4+0 1-3 дня 121-360 Печатная;Печатная;14;manual;low;0.9548;7.96;6.595;high_price_variance
 4530;А4 Печать 4+4 801-1200 шт Печатная;Печатная;8;manual;low;0.9554;31.82;20.83;insufficient_history
 4314;А3 Печать 4+0 201-400 шт 1-3 дня Печатная;Печатная;26;manual;low;0.9564;37.13;37.13;high_price_variance
 7790;Сборка объема ПВХ3 простые 3-10 мп Цех;Цех;16;manual;low;0.9591;826.05;788.61;high_price_variance
-5272;Визитки Печать 4+0 1-3 дня 1000 Печатная;Печатная;30;manual;low;0.9594;1.97;1.38;high_price_variance
+5272;Визитки Печать 4+0 1-3 дня 1000 Печатная;Печатная;31;manual;low;0.9594;1.97;1.395;high_price_variance
 9892;Акрил зеркальный до 1 кв.м;Цех;7;manual;low;0.9661;12420;10800;insufficient_history
 4794;НЕВИЯ А5 бум. 80 гр. 1 шт Печатная;Печатная;6;manual;low;0.9661;1.77;2.34;insufficient_history
 7894;НЕВИЯ А4 бум. 80 гр. 1 шт Печатная;Печатная;8;manual;low;0.9688;3.53;3.285;insufficient_history
 16438;Махачкала Имама Шамиля 76Б первый Саваб Сторона Б 42.95719, 47.50815;РИК;21;manual;low;0.97;20000;37000;high_price_variance
 9800;ПВХ3 2-3 кв.м;Цех;3;manual;low;0.9725;1316;1020;insufficient_history
 7020;Композит матовый до 1 кв.м;Цех;48;manual;low;0.9828;3663;0.32;high_price_variance
-7260;Печать самоклеящейся бумаги без резки лист 30х45 21-60 шт Печатная;Печатная;91;manual;low;0.9879;81.22;81.62;high_price_variance
+7260;Печать самоклеящейся бумаги без резки лист 30х45 21-60 шт Печатная;Печатная;92;manual;low;0.9879;81.22;81.62;high_price_variance
 17032;Махачкала Петра первого 85 Парк Дракон Сторона Б 42.96655, 47.54233;РИК;2;manual;low;0.9886;17600;26300;insufficient_history
 17352;Махачкала Ярагского 78 первый Школа №5 Сторона А3 42.97122, 47.50733;РИК;2;manual;low;0.9886;17600;26300;insufficient_history
 6916;Табличка аппликация 0,04-0,06 кв.м 10-30 шт Цех;Цех;5;manual;low;0.9888;7033;6752;insufficient_history
@@ -2574,14 +2579,13 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 9916;Оргстекло прозрачное3 до 1 кв.м;Цех;4;manual;low;0.9999;4140;3540;insufficient_history
 9532;Оргстекло прозрачное3 до 1 кв.м;Цех;3;manual;low;0.9999;4140;3333.33;insufficient_history
 6856;Табличка полиграфия 0,1-0,16 кв.м 10-30 шт Цех;Цех;2;manual;low;0.9999;2990;1495.16;insufficient_history
-4630;Хайкот А4 бум. 180 гр. 1 шт Печатная;Печатная;85;manual;low;1;3.36;3;high_price_variance
 12428;Подготовка к производству вывески Простая;Дизайн;18;manual;low;1;1000;2000;high_price_variance
 9024;Бэклит световой 1440 dpi 3-10 кв.м;Печатная;14;manual;low;1;1820;1820;high_price_variance
 18990;Бейдж с гравировкой или гравировка + покраска 1 шт;POS;2;manual;low;1;450;225;insufficient_history
 24102;А4 Ламинация матовая 32мкр 41-120 шт Печатная;Печатная;2;manual;low;1;46.29;69.435;insufficient_history
 4534;А4 Печать 4+4 от 1200 шт Печатная;Печатная;15;manual;low;1.0011;26.52;26.52;high_price_variance
 8598;Оракал 641 белая/прозрачная 1-3 кв.м;Цех;56;manual;low;1.0036;510;510;high_price_variance
-4892;А6 Печать 4+4 16-160 шт Печатная;Печатная;35;manual;low;1.0083;13.26;13.26;high_price_variance
+4892;А6 Печать 4+4 16-160 шт Печатная;Печатная;36;manual;low;1.0083;13.26;13.26;high_price_variance
 6880;Табличка аппликация 0,01-0,02 кв.м 10-30 шт Цех;Цех;2;manual;low;1.0188;13533;6895.135;insufficient_history
 8970;Матовый плакат 720 dpi до 1 кв.м;Печатная;58;manual;low;1.0257;1500;1500;high_price_variance
 4302;А3 Печать 4+0 2-20 шт 1-3 дня Печатная;Печатная;138;manual;low;1.0332;53.04;43.165;high_price_variance
@@ -2600,7 +2604,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 9136;Ламинация с накаткой для стандартной печати холодная глянцевая 1-3 кв.м;Сольвент;65;manual;low;1.0588;425;540;high_price_variance
 6948;Табличка аппликация 0,1-0,16 кв.м 1-3 шт Цех;Цех;25;manual;low;1.0594;5610;4650;high_price_variance
 4704;А5 Печать 4+0 4-8 шт Печатная;Печатная;36;manual;low;1.0614;19.89;19.89;high_price_variance
-4300;А3 Печать 4+4 2-20 шт 1-3 дня Печатная;Печатная;124;manual;low;1.0655;106.08;87.04;high_price_variance
+4300;А3 Печать 4+4 2-20 шт 1-3 дня Печатная;Печатная;125;manual;low;1.0655;106.08;87.04;high_price_variance
 8600;Оракал 641 белая/прозрачная 3-10 кв.м;Цех;43;manual;low;1.0662;480;463.095;high_price_variance
 10414;Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение;Дизайн;13;manual;low;1.0666;7500;5000;high_price_variance
 6818;Табличка полиграфия 0,04-0,06 кв.м 3-10 шт Цех;Цех;5;manual;low;1.0713;4900;5250;insufficient_history
@@ -2612,7 +2616,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 10708;Макет обложки брошюры Простой 1 решение;Дизайн;11;manual;low;1.0767;3000;3000;high_price_variance
 6820;Табличка полиграфия 0,04-0,06 кв.м 10-30 шт Цех;Цех;3;manual;low;1.0768;4550;4550;insufficient_history
 6972;ПВХ3 до 1 кв.м;Цех;17;manual;low;1.0806;1480.5;0.14;high_price_variance
-8596;Оракал 641 белая/прозрачная до 1 кв.м;Цех;233;manual;low;1.0833;540;570;high_price_variance
+8596;Оракал 641 белая/прозрачная до 1 кв.м;Цех;234;manual;low;1.0833;540;570;high_price_variance
 9798;ПВХ3 1-2 кв.м;Цех;7;manual;low;1.087;1398.25;1140;insufficient_history
 7896;НЕВИЯ А4 бум. 120 гр. 1 шт Печатная;Печатная;35;manual;low;1.0894;6.15;6.15;high_price_variance
 7854;Хайкот А3 бум. 180 гр. 1 шт Печатная;Печатная;13;manual;low;1.0952;6.72;8.2;high_price_variance
@@ -2622,7 +2626,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 7258;Печать самоклеящейся бумаги без резки лист 30х45 2-20 шт Печатная;Печатная;263;manual;low;1.1049;83.87;77.5;high_price_variance
 7906;Хайкот А4 бум. 105 гр. 1 шт Печатная;Печатная;12;manual;low;1.1111;1.89;2.3;high_price_variance
 8632;Оракал 352 серебро/золото до 1 кв.м;Цех;37;manual;low;1.1126;1350;1220;high_price_variance
-4516;А4 Печать 4+0 5-40 шт Печатная;Печатная;297;manual;low;1.1127;26.52;21.76;high_price_variance
+4516;А4 Печать 4+0 5-40 шт Печатная;Печатная;298;manual;low;1.1127;26.52;21.76;high_price_variance
 4716;А5 Печать 4+0 241-800 шт Печатная;Печатная;23;manual;low;1.1169;10.61;9.43;high_price_variance
 9140;Ламинация с накаткой для стандартной печати холодная глянцевая 10-20 кв.м;Сольвент;36;manual;low;1.12;375;525;high_price_variance
 9844;Композит матовый до 1 кв.м;Цех;78;manual;low;1.1302;3663;3000;high_price_variance
@@ -2630,7 +2634,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 6912;Табличка аппликация 0,04-0,06 кв.м 1-3 шт Цех;Цех;66;manual;low;1.1409;8130;7940;high_price_variance
 11104;Снегурочка А5 80 гр. 1 шт Печатная;Печатная;60;manual;low;1.1428;0.56;0.56;high_price_variance
 9868;Композит зеркальный до 1 кв.м;Цех;3;manual;low;1.1499;5940;0.48;insufficient_history
-4514;А4 Печать 4+4 5-40 шт Печатная;Печатная;168;manual;low;1.1536;53.04;43.52;high_price_variance
+4514;А4 Печать 4+4 5-40 шт Печатная;Печатная;169;manual;low;1.1536;53.04;43.52;high_price_variance
 4522;А4 Печать 4+4 121-400 шт Печатная;Печатная;67;manual;low;1.1657;42.43;37.72;high_price_variance
 6900;Табличка аппликация 0,03-0,04 кв.м 1-3 шт Цех;Цех;9;manual;low;1.1668;9230;9040;insufficient_history
 4804;НЕВИЯ А5 бум. 300 гр. 1 шт Печатная;Печатная;27;manual;low;1.1769;7.8;7.8;high_price_variance
@@ -2671,12 +2675,12 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 7724;Свет для буквы лента до 3 мп Цех;Цех;21;manual;low;1.3656;752.22;826.56;high_price_variance
 9880;Акрил цветной до 1 кв.м;Цех;9;manual;low;1.3689;4536;5000;insufficient_history
 4818;Хайкот А5 бум. 300 гр. 1 шт Печатная;Печатная;9;manual;low;1.4081;2.72;2.86;insufficient_history
-13612;Почасовая работа с дизайнером - художником 1 час;Дизайн;1095;manual;low;1.41;1000;1000;high_price_variance
-9134;Ламинация с накаткой для стандартной печати холодная глянцевая 1 кв.м;Сольвент;120;manual;low;1.4444;450;600;high_price_variance
+13612;Почасовая работа с дизайнером - художником 1 час;Дизайн;1099;manual;low;1.41;1000;1000;high_price_variance
+9134;Ламинация с накаткой для стандартной печати холодная глянцевая 1 кв.м;Сольвент;121;manual;low;1.4444;450;600;high_price_variance
 4298;А3 Печать 4+0 1 шт 1-3 дня Печатная;Печатная;59;manual;low;1.447;79.56;52.45;high_price_variance
-6340;Винил демонтаж 3-10 кв.м Цех;Цех;21;manual;low;1.4506;910;520;high_price_variance
+6340;Винил демонтаж 3-10 кв.м Цех;Цех;22;manual;low;1.4506;910;520;high_price_variance
 4988;НЕВИЯ А6 бум. 250 гр. 1 шт Печатная;Печатная;19;manual;low;1.4591;2.2;3.84;high_price_variance
-6290;Винил/Баннер интерьерная печать 1-3 кв.м;Сольвент;288;manual;low;1.4673;935;595;high_price_variance
+6290;Винил/Баннер интерьерная печать 1-3 кв.м;Сольвент;290;manual;low;1.4673;935;595;high_price_variance
 4512;А4 Печать 4+0 2-4 шт Печатная;Печатная;145;manual;low;1.4784;39.78;28.045;high_price_variance
 4814;Хайкот А5 бум. 230 гр. 1 шт Печатная;Печатная;10;manual;low;1.4817;2.18;2.655;high_price_variance
 7302;Макет листовки Средней сложности 1 сторона;Дизайн;57;manual;low;1.5;3000;1000;high_price_variance
@@ -2684,7 +2688,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 15994;Махачкала Гамидова 61 третий ТЦ Этажи Сторона А 42.95711, 47.50895;РИК;59;manual;low;1.5143;7000;7000;high_price_variance
 15996;Махачкала Гамидова 61 третий ТЦ Этажи Сторона Б 42.95711, 47.50895;РИК;37;manual;low;1.5143;7000;7000;high_price_variance
 7274;Ручная резка стикеров на гильотине только квадратные и прямоугольные 11-50 мп Печатная;Печатная;79;manual;low;1.5625;3.2;3.2;high_price_variance
-7904;НЕВИЯ А4 бум. 300 гр. 1 шт Печатная;Печатная;153;manual;low;1.5641;15.6;15.6;high_price_variance
+7904;НЕВИЯ А4 бум. 300 гр. 1 шт Печатная;Печатная;154;manual;low;1.5641;15.6;15.6;high_price_variance
 4706;А5 Печать 4+4 8-80 шт Печатная;Печатная;72;manual;low;1.5664;26.52;26.52;high_price_variance
 10848;Автоматическая контурная прорезка любой формы на листе 30х45 10-30 мп Печатная;Печатная;109;manual;low;1.5692;13;13;high_price_variance
 7292;Макет визитки Средней сложности 1 сторона;Дизайн;114;manual;low;1.6;2000;1000;high_price_variance
@@ -2694,11 +2698,11 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 4802;НЕВИЯ А5 бум. 250 гр. 1 шт Печатная;Печатная;54;manual;low;1.6591;4.4;6.2;high_price_variance
 10846;Автоматическая контурная прорезка любой формы на листе 30х45 5-10 мп Печатная;Печатная;41;manual;low;1.7;14;14;high_price_variance
 4520;А4 Печать 4+0 41-120 шт Печатная;Печатная;104;manual;low;1.7675;23.87;22.95;high_price_variance
-5352;НЕВИЯ бум. визитки 300 гр. 1 шт Печатная;Печатная;99;manual;low;1.7769;1.3;1.3;high_price_variance
+5352;НЕВИЯ бум. визитки 300 гр. 1 шт Печатная;Печатная;100;manual;low;1.7769;1.3;1.3;high_price_variance
 4620;Хайкот А4 бум. 180 гр. 1 шт Печатная;Печатная;17;manual;low;1.7798;3.36;3.72;high_price_variance
-10764;Макет баннера информационного Простой 1 решение;Дизайн;236;manual;low;1.7875;2000;1000;high_price_variance
+10764;Макет баннера информационного Простой 1 решение;Дизайн;237;manual;low;1.7875;2000;1000;high_price_variance
 7902;НЕВИЯ А4 бум. 250 гр. 1 шт Печатная;Печатная;164;manual;low;1.8455;8.8;12.4;high_price_variance
-6444;Аппликация прорезка 1-5 мп Печатная;Печатная;108;manual;low;1.86;30;21;high_price_variance
+6444;Аппликация прорезка 1-5 мп Печатная;Печатная;109;manual;low;1.86;30;21;high_price_variance
 6288;Винил/Баннер интерьерная печать 1 кв.м;Сольвент;499;manual;low;1.9091;990;665;high_price_variance
 10854;Автоматическая контурная прорезка любой формы на листе 30х45 более 100 мп Печатная;Печатная;154;manual;low;1.92;10;10;high_price_variance
 7892;Снегурочка А3 80 гр. 1 шт Печатная;Печатная;51;manual;low;1.9643;2.24;2.24;high_price_variance
@@ -2720,16 +2724,16 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 6334;Оклейка ровной поверхности пленкой более 50 кв.м Цех;Цех;8;manual;low;5.0686;700;380;insufficient_history
 10840;Ручная резка стикеров на гильотине только квадратные и прямоугольные более 500 мп Печатная;Печатная;59;manual;low;5.69;2;2;high_price_variance
 7900;НЕВИЯ А4 бум. 200 гр. 1 шт Печатная;Печатная;136;manual;low;6.3888;7.2;8.74;high_price_variance
-6448;Аппликация прорезка 10-30 мп Печатная;Печатная;237;manual;low;8.477;26;18.2;high_price_variance
+6448;Аппликация прорезка 10-30 мп Печатная;Печатная;239;manual;low;8.477;26;18.2;high_price_variance
 7858;Хайкот А3 бум. 270 гр. 1 шт Печатная;Печатная;39;manual;low;8.8164;10.24;10.24;high_price_variance
 7866;Хайкот А3 бум. 230 гр. 1 шт Печатная;Печатная;65;manual;low;10.7792;8.74;8.74;high_price_variance
 4526;А4 Печать 4+4 401-800 шт Печатная;Печатная;35;manual;low;26.558;37.13;22.62;high_price_variance
 5258;Визитки Печать 4+4 1-3 дня 240 Печатная;Печатная;183;manual;low;94.7619;5.25;5.25;high_price_variance
-13818;Безнал 10%;Безнал;932;manual;low;210;100;100;financial_modifier
+13818;Безнал 10%;Безнал;933;manual;low;210;100;100;financial_modifier
 5254;Визитки Печать 4+4 1-3 дня 120 Печатная;Печатная;60;manual;low;2626.9179;6.09;4.735;high_price_variance
 5350;НЕВИЯ бум. визитки 250 гр. 1 шт Печатная;Печатная;330;manual;low;4109.0137;0.73;1.02;high_price_variance
 5256;Визитки Печать 4+0 1-3 дня 120 Печатная;Печатная;44;manual;low;4123.0799;3.88;2.9;high_price_variance
-0;дизайн;__MANUAL_OR_UNCATEGORIZED__;148;manual;low;;;1000;manual_or_missing_catalog
+0;дизайн;__MANUAL_OR_UNCATEGORIZED__;146;manual;low;;;1000;manual_or_missing_catalog
 0;работа с дизайнером;__MANUAL_OR_UNCATEGORIZED__;72;manual;low;;;1000;manual_or_missing_catalog
 0;макет;__MANUAL_OR_UNCATEGORIZED__;70;manual;low;;;600;manual_or_missing_catalog
 0;10%;__MANUAL_OR_UNCATEGORIZED__;58;manual;low;;;1649;manual_or_missing_catalog
@@ -2955,6 +2959,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;Аренда щита Шамиля тр кольцо призма;__MANUAL_OR_UNCATEGORIZED__;3;manual;low;;;15000;manual_or_missing_catalog
 0;Аренда Щитов с 01.05. по 31.05;__MANUAL_OR_UNCATEGORIZED__;3;manual;low;;;13916.67;manual_or_missing_catalog
 0;БАННЕРА Избербаш;__MANUAL_OR_UNCATEGORIZED__;3;manual;low;;;0;manual_or_missing_catalog
+0;Бейджики царапанный пластик с гравировкой(250) POS;__MANUAL_OR_UNCATEGORIZED__;3;manual;low;;;493;manual_or_missing_catalog
 0;Буклет А4 2 бига 130 гр/м2 Офсет (3,42);__MANUAL_OR_UNCATEGORIZED__;3;manual;low;;;6.82;manual_or_missing_catalog
 0;виз 4+4 днс 250 гр;__MANUAL_OR_UNCATEGORIZED__;3;manual;low;;;3.7;manual_or_missing_catalog
 0;Визуализация вывески;__MANUAL_OR_UNCATEGORIZED__;3;manual;low;;;2500;manual_or_missing_catalog
@@ -3158,7 +3163,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;Бейдж (300);__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;550;manual_or_missing_catalog
 0;БЕЙДЖ ИЗ ЦАРАПАННОГО ПЛАСТИКА;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;500;manual_or_missing_catalog
 0;бейдж с гравировкой;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;450;manual_or_missing_catalog
-0;Бейджики царапанный пластик с гравировкой(250) POS;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;493;manual_or_missing_catalog
 0;Брелоки Блэкпринт(70);__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;140;manual_or_missing_catalog
 0;Брендмауэр А. СУЛТАНА МАРАКЕШ  6х15;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;0;manual_or_missing_catalog
 0;Брендмауэр ГАГАРИНА-ГАМИДОВА 3х10;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;0;manual_or_missing_catalog
@@ -3180,6 +3184,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;Дахадаева-Ирчи Казака Рисалат 4х3;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;15000;manual_or_missing_catalog
 0;демонтаж проводки;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;1000;manual_or_missing_catalog
 0;Диагностика ситика;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;1250;manual_or_missing_catalog
+0;Дизайн (Зарема);__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;4725;manual_or_missing_catalog
 0;Дизайн баннера 6х3;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;2000;manual_or_missing_catalog
 0;Дизайн Газель А9;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;3250;manual_or_missing_catalog
 0;дизайн плаката обувной цех;__MANUAL_OR_UNCATEGORIZED__;2;manual;low;;;1250;manual_or_missing_catalog
@@ -3382,6 +3387,9 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;------------ Кофейное меню ------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;------------ монтаж пленок на газель ------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;;manual_or_missing_catalog
 0;------------ Основное меню ------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;------------- А3 меню;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;------------- Меню с фото под стол;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;------------- ТВ меню;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;--------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;---------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;--------------- г. Буйнакск, ул. Ханмурзаева, 25;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
@@ -3482,6 +3490,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;-------------------Стенд 300х170 / 210х170 / 200х170 см---------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;------------------клик-------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-----------------баннер;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;-----------------зуб панель кронштейн;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;----------------А3 ламинация биговка;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;----------------Банер на рейку без рейки 228х250см------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;----------------визитки------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
@@ -3498,6 +3507,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;-------------Брендирование транспорта 1 машина;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-------------Брендирование транспорта 2 машина;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-------------Брендирование транспорта 3 машина;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;-------------буквы;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-------------визитки------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-------------короб------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-------------Лазерная печать-------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
@@ -3554,7 +3564,10 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;-------буквы;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-------самоклейка---------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-------Талоны---------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;------КОРОБА Лабквест Медицинские Анализы;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;------КОРОБА ЛОГОТИПЫ--------------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;------панель кронштейн;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;------Подложка для букв-----;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;------штендер;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-----Блокнот А5 30 листов ++++++++++++;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;-----ВЫВЕСКА зодчи;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
@@ -3563,6 +3576,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;----буквы акрильные хромолаб+медицинские анализы;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;----композитная подложка;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;----Панель кронштейн;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;----Панель Кронштей��------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;---)дизайнерские услуги;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;800;manual_or_missing_catalog
 0;---визитки 300 шт.;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;---вывеска;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
@@ -3626,6 +3640,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;+1400;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1400;manual_or_missing_catalog
 0;+25% за нестандартный размер визитки 9х6см;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1555;manual_or_missing_catalog
 0;+30% к печати;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
+0;09.09.2025------------------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;1-(Диагностика в вывески в семендере);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;1) +10% за оплату безналом;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1691;manual_or_missing_catalog
 0;1) ВИЗИТКИ  4+4 ДНС 250 ГР;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;2.2;manual_or_missing_catalog
@@ -3648,6 +3663,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;1000 мелочей мост баннер 1,35х28,7 ст.А1;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1000;manual_or_missing_catalog
 0;1000 мелочей мост баннер 1,35х28,7 ст.А2;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1000;manual_or_missing_catalog
 0;11%;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;2198;manual_or_missing_catalog
+0;13.09.2025-------------------------------;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;15% Дизайн;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;12675;manual_or_missing_catalog
 0;2-Табличка 30х40см режимник;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;2(Б) Коркмасова напротив 13 школы  4х3 с 08.12 по 31.12;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;12400;manual_or_missing_catalog
@@ -4271,6 +4287,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;безнал 6%;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1200;manual_or_missing_catalog
 0;Бейдж;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;700;manual_or_missing_catalog
 0;Бейдж акрил с окошком на магните Блекпринт(250);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;500;manual_or_missing_catalog
+0;бейдж акриловый с УФ-Печатью 1 шт. (300) POS;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;600;manual_or_missing_catalog
 0;Бейдж акриловый с уф-печатью 6 шт с покрытием;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;600;manual_or_missing_catalog
 0;Бейдж акриловый с уф-печатью с кармашками;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;720;manual_or_missing_catalog
 0;бейдж без окошка с магнитом;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;500;manual_or_missing_catalog
@@ -4482,7 +4499,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;выезд в каспийск;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;500;manual_or_missing_catalog
 0;Выступ (4000) Цех;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;6000;manual_or_missing_catalog
 0;Выступ на щит (4000);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;6000;manual_or_missing_catalog
-0;Вышка (2500);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;3675;manual_or_missing_catalog
+0;Вышка (2500) Безнал;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;3675;manual_or_missing_catalog
 0;вышка 2 часа;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1800;manual_or_missing_catalog
 0;Вышка артур (6000);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;8000;manual_or_missing_catalog
 0;Вышка спецтехника;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;2000;manual_or_missing_catalog
@@ -4546,7 +4563,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;ДЕМОНТАЖ СВЕТОВОЙ ЛЕНТЫ;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;290;manual_or_missing_catalog
 0;демонтаж табло;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1100;manual_or_missing_catalog
 0;Демонтаж щит 3х3;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;480;manual_or_missing_catalog
-0;Демонтаж+ монтаж (12000);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;26250;manual_or_missing_catalog
+0;Демонтаж+ монтаж (12000) Сольвент;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;26250;manual_or_missing_catalog
 0;демонтаж+монтаж аппликации на выезде;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;600;manual_or_missing_catalog
 0;демонтаж+монтаж желебов;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1000;manual_or_missing_catalog
 0;демонтаж+монтаж светильников;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;800;manual_or_missing_catalog
@@ -5768,6 +5785,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;СТЕНДЫ ПВХ 5;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;стенды ПВХ 5 интерьерка + ламинация 5 шт;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;0;manual_or_missing_catalog
 0;Стенды уличные (56300);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;80000;manual_or_missing_catalog
+0;Стик паки А6 (220) POS;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;350;manual_or_missing_catalog
 0;стикер  с контурной резкой;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1000;manual_or_missing_catalog
 0;стикер виниловый с контурной резкой;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1300;manual_or_missing_catalog
 0;Стикерпаки 12шт объемные со смолой квадратный 3х3см (300р);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;480;manual_or_missing_catalog
@@ -6064,6 +6082,7 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 0;Флаер А4 1000шт (4.16);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;8.32;manual_or_missing_catalog
 0;ФЛАЕР ЕВРО 4+0 МЕЛОВКА 150 ГР (1,583);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;4;manual_or_missing_catalog
 0;Флаер офсет;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;2.1;manual_or_missing_catalog
+0;"Флаер Офсет ""евро"" 115 гр/кв.м мел бум. 4+4/ 4+0 1 000 шт Офсет";__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;4.095;manual_or_missing_catalog
 0;флаер офсет 3000 шт;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;2.2;manual_or_missing_catalog
 0;флаер офсет 4+4 (1,5);__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;2.7;manual_or_missing_catalog
 0;флаер оффсет;__MANUAL_OR_UNCATEGORIZED__;1;manual;low;;;1.83;manual_or_missing_catalog
@@ -7025,7 +7044,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 14318;Стойка для буклетов А6 1 шт;POS;0;manual;low;;250;;insufficient_history
 14320;Стойка для буклетов А6 2-3 шт;POS;0;manual;low;;225;;insufficient_history
 14322;Стойка для буклетов А6 4-10 шт;POS;0;manual;low;;212.5;;insufficient_history
-14324;Стойка для буклетов А6 11-30 шт;POS;0;manual;low;;200;;insufficient_history
 14328;Визитница настольная акрил 2-3 шт;POS;0;manual;low;;99;;insufficient_history
 14330;Визитница настольная акрил 4-10 шт;POS;0;manual;low;;93.5;;insufficient_history
 14332;Визитница настольная акрил 11-30 шт;POS;0;manual;low;;88;;insufficient_history
@@ -11138,7 +11156,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 25342;Хайкот Флаер 21х10 бум. 180 гр. 1 шт Печатная;Печатная;0;manual;low;;1.12;;insufficient_history
 25346;Хайкот Флаер 21х10 бум. 270 гр. 1 шт Печатная;Печатная;0;manual;low;;1.71;;insufficient_history
 25354;Хайкот А6 Флаер 21х10 бум. 230 гр. 1 шт Печатная;Печатная;0;manual;low;;1.46;;insufficient_history
-25356;Хайкот А6 Флаер 21х10 бум. 270 гр. 1 шт Печатная;Печатная;0;manual;low;;1.71;;insufficient_history
 25360;СтарДрим Флаер 21х10 бум. Александрит 1 шт Печатная;Печатная;0;manual;low;;18.67;;insufficient_history
 25362;СтарДрим Флаер 21х10 бум. Аметист 1 шт Печатная;Печатная;0;manual;low;;20;;insufficient_history
 25364;СтарДрим Флаер 21х10 бум. Корал 1 шт Печатная;Печатная;0;manual;low;;18.67;;insufficient_history
@@ -11343,7 +11360,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 25860;Адаптация слайда презентации средней сложности 1 слайд;Дизайн;0;manual;low;;1000;;insufficient_history
 25862;Гайдлайн Средней сложности верстка 1 страницы;Дизайн;0;manual;low;;2000;;insufficient_history
 25864;Макет конверта Средней сложности 1 решение;Дизайн;0;manual;low;;2000;;insufficient_history
-25870;Адаптация макета для нового носителя Средней сложности за 1 макет;Дизайн;0;manual;low;;2000;;insufficient_history
 25872;Адаптация макета для нового носителя Сложного за 1 макет;Дизайн;0;manual;low;;3000;;insufficient_history
 25874;Ретуширование Средней сложности 1 решение;Дизайн;0;manual;low;;2000;;insufficient_history
 25876;Доработка иллюстрации Средней сложности 1 решение;Дизайн;0;manual;low;;2000;;insufficient_history
@@ -12085,7 +12101,6 @@ PRODUCT_ID;PRODUCT_NAME;NORMALIZED_DIRECTION;ORDER_ROWS;PRICE_MODE;CONFIDENCE_TI
 8012;Баннер печать световой более 50 кв.м;Сольвент;0;manual;low;;2600;;insufficient_history
 8026;Баннер проварка литой до 5 мп Цех;Цех;0;manual;low;;126;;insufficient_history
 8084;Баннер на рейке замена баннера 1 кв.м Цех;Цех;0;manual;low;;600;;insufficient_history
-8094;Баннер на рейке замена баннера более 50 кв.м Цех;Цех;0;manual;low;;400;;insufficient_history
 8106;Баннер на рейке демонтаж  более 50 кв.м Цех;Цех;0;manual;low;;240;;insufficient_history
 8116;Пресс-волл на рейке с учетом рейки 20-50 кв.м Цех;Цех;0;manual;low;;1210;;insufficient_history
 8134;Баннер на фанеру демонтаж 1-5 кв.м Цех;Цех;0;manual;low;;112;;insufficient_history

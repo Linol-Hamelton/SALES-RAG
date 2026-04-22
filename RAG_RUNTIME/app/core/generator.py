@@ -26,6 +26,50 @@ def _load_prompts(settings) -> dict:
     }
 
 
+# Anti-pattern phrases operators flagged in prod feedback (chats #94/288, #95/294).
+# LLM keeps reaching for "рыночные данные для Дагестана" despite system-prompt
+# rules; this is a deterministic post-LLM scrub. Only rewrites the offending
+# phrasing — does NOT touch numbers or product info.
+_FORBIDDEN_PHRASE_PATTERNS: list[tuple[re.Pattern, str]] = [
+    (re.compile(r"\bпо\s+рынк[уа]\s+Дагестан[аеу]?\b", re.IGNORECASE), "по внутренним ориентирам цеха"),
+    (re.compile(r"\bрыночн[ыоа][ме]\s+ориентир[ыау]?\s+по\s+Дагестан[уаеы]?\b", re.IGNORECASE), "внутренние ориентиры цеха"),
+    (re.compile(r"\bрыночн[ыоа][ме]\s+(?:данны[ме]|данных)\s+(?:для\s+)?(?:Дагестан[аеу]?|регион[аеу]?)\b", re.IGNORECASE), "внутренние ориентиры Лабус"),
+    (re.compile(r"\bв\s+средн[еио][мй]\s+по\s+рынк[уа]\b", re.IGNORECASE), "по внутренним ориентирам цеха"),
+    (re.compile(r"\bсредн[еио][мй]\s+рыночн[ыоа][емй]?\s+(?:цен[ауы]|стоимост[ьи])\b", re.IGNORECASE), "цена по внутренним ориентирам Лабус"),
+]
+
+
+def _scrub_forbidden_phrases(text: str) -> str:
+    """Replace phrases operators flagged as critical errors. Idempotent.
+
+    Applied to summary/reasoning/basis fields after LLM returns. Numbers and
+    product references are untouched — only the offending sourcing language
+    («рыночные данные для Дагестана») is rewritten to internal sourcing.
+    """
+    if not text or not isinstance(text, str):
+        return text
+    out = text
+    for rx, replacement in _FORBIDDEN_PHRASE_PATTERNS:
+        out = rx.sub(replacement, out)
+    return out
+
+
+def _scrub_structured_response(payload: dict) -> dict:
+    """Apply phrase scrubbing to all string fields of a structured response."""
+    if not isinstance(payload, dict):
+        return payload
+    for key in ("summary", "reasoning"):
+        if key in payload and isinstance(payload[key], str):
+            payload[key] = _scrub_forbidden_phrases(payload[key])
+    ep = payload.get("estimated_price")
+    if isinstance(ep, dict) and isinstance(ep.get("basis"), str):
+        ep["basis"] = _scrub_forbidden_phrases(ep["basis"])
+    flags = payload.get("flags")
+    if isinstance(flags, list):
+        payload["flags"] = [_scrub_forbidden_phrases(f) if isinstance(f, str) else f for f in flags]
+    return payload
+
+
 def _classify_deal_profile(payload: dict) -> str:
     """Classify a deal_profile as repair, full-cycle, or production-only."""
     summary = (payload.get("component_summary", "") or "").lower()
@@ -440,6 +484,44 @@ def _format_context_block(docs: list[dict], pricing_resolution=None) -> str:
                 lines.append(bitrix_line)
             blocks.append("\n".join(lines))
 
+        elif doc_type == "historical_deal":
+            # P13.3 / T7: anonymized closed-deal anchor for pricing intents.
+            # No PII (company/contact never in payload).
+            deal_id = payload.get("deal_id", "")
+            year = payload.get("year", "")
+            total = payload.get("total_price", 0)
+            bucket = payload.get("price_bucket", "")
+            sections = payload.get("signature_sections", []) or []
+            directions_blk = payload.get("directions", []) or []
+            items = payload.get("items", []) or []
+
+            head = f"[Закрытая сделка #{deal_id}"
+            if year:
+                head += f" / {year}"
+            head += f" — {bucket}]"
+            lines = [head]
+            if sections:
+                lines.append(f"  Категории: {', '.join(sections[:4])}")
+            if directions_blk:
+                lines.append(f"  Направления: {', '.join(directions_blk[:3])}")
+            lines.append(f"  Сумма сделки: {float(total):,.0f} ₽")
+            for it in items[:6]:
+                name = (it.get("product_name") or "").strip()
+                if not name:
+                    continue
+                qty = it.get("quantity") or 0
+                price = it.get("price") or 0
+                line = f"  • {name}"
+                if qty:
+                    line += f" × {qty:g}"
+                if price:
+                    line += f" @ {float(price):,.2f} ₽"
+                lines.append(line)
+            bitrix_line = format_deal_link_line(deal_id, label="Bitrix")
+            if bitrix_line:
+                lines.append(bitrix_line)
+            blocks.append("\n".join(lines))
+
     return "\n---\n".join(blocks)
 
 
@@ -532,7 +614,7 @@ class DeepseekGenerator:
                 temperature=0.15,
                 max_tokens=1000,
             )
-            return response.choices[0].message.content or ""
+            return _scrub_forbidden_phrases(response.choices[0].message.content or "")
         except Exception as e:
             logger.error("Deepseek API error", error=str(e))
             raise
@@ -567,11 +649,11 @@ class DeepseekGenerator:
                 max_tokens=1024,
             )
             content = response.choices[0].message.content or "{}"
-            return json.loads(content)
+            return _scrub_structured_response(json.loads(content))
         except json.JSONDecodeError as e:
             logger.error("JSON decode error", error=str(e))
             # Fallback: try to extract JSON from the response
-            return self._extract_json_fallback(content if "content" in dir() else "{}")
+            return _scrub_structured_response(self._extract_json_fallback(content if "content" in dir() else "{}"))
         except Exception as e:
             logger.error("Deepseek structured API error", error=str(e))
             raise
@@ -619,10 +701,10 @@ class DeepseekGenerator:
                 max_tokens=2000,  # deal_items can be long
             )
             content = response.choices[0].message.content or "{}"
-            return json.loads(content)
+            return _scrub_structured_response(json.loads(content))
         except json.JSONDecodeError as e:
             logger.error("JSON decode error in deal estimate", error=str(e))
-            return self._extract_json_fallback(content if "content" in dir() else "{}")
+            return _scrub_structured_response(self._extract_json_fallback(content if "content" in dir() else "{}"))
         except Exception as e:
             logger.error("Deepseek deal estimate API error", error=str(e))
             raise

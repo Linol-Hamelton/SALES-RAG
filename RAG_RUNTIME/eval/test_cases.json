@@ -869,5 +869,82 @@
       "вывеск"
     ],
     "notes": "P12.3.D: Бейсболки bridge — малый тираж bucket (30 шт)"
+  },
+  {
+    "id": "p13_industry_01",
+    "category": "industry_knowledge",
+    "query": "Что важно учитывать при рекламе для стоматологии?",
+    "expected_direction": "Консультация",
+    "must_contain_flags": [
+      "стоматолог"
+    ],
+    "must_not_contain": [],
+    "notes": "P13.1: отраслевой бриф — дентальная клиника, должен подсветить доверие/лицензию"
+  },
+  {
+    "id": "p13_industry_02",
+    "category": "industry_knowledge",
+    "query": "Какие рекламные продукты посоветовать барбершопу?",
+    "expected_direction": "Консультация",
+    "must_contain_flags": [
+      "барбер"
+    ],
+    "must_not_contain": [],
+    "notes": "P13.1: отраслевой бриф — барбершоп"
+  },
+  {
+    "id": "p13_kp_01",
+    "category": "industry_knowledge",
+    "query": "Что входит в коммерческое предложение для магазина детских товаров?",
+    "expected_direction": "Консультация",
+    "must_contain_flags": [
+      "детск"
+    ],
+    "must_not_contain": [],
+    "notes": "P13.1: КП детский магазин — должен тянуть структуру пакета"
+  },
+  {
+    "id": "p13_kp_02",
+    "category": "industry_knowledge",
+    "query": "Подбери пакет рекламы для продуктового магазина у дома",
+    "expected_direction": "Консультация",
+    "must_contain_flags": [
+      "POS"
+    ],
+    "must_not_contain": [],
+    "notes": "P13.1: КП ритейл — POS-материалы, ценники, фасад"
+  },
+  {
+    "id": "p13_kp_03",
+    "category": "industry_knowledge",
+    "query": "Что предложить турагентству для продвижения?",
+    "expected_direction": "Консультация",
+    "must_contain_flags": [
+      "тур"
+    ],
+    "must_not_contain": [],
+    "notes": "P13.1: медиаплан турфирмы — SMM, GEO, билборды, мерч"
+  },
+  {
+    "id": "p13_merch_catalog_01",
+    "category": "industry_knowledge",
+    "query": "Топ-5 категорий мерча на новогодние корпоративные подарки",
+    "expected_direction": "Мерч",
+    "must_contain_flags": [
+      "мерч"
+    ],
+    "must_not_contain": [],
+    "notes": "P13.1: каталог мерч НГ-2026 — термокружки, футболки, пауэрбанки и т.п."
+  },
+  {
+    "id": "p13_retention_01",
+    "category": "industry_knowledge",
+    "query": "Как удерживать клиентов и увеличивать LTV?",
+    "expected_direction": "Консультация",
+    "must_contain_flags": [
+      "LTV"
+    ],
+    "must_not_contain": [],
+    "notes": "P13.1: marketing guide — retention/LTV"
   }
 ]

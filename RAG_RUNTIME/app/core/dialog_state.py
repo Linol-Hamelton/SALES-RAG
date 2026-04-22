@@ -142,6 +142,49 @@ _PRICE_ASK_RX = re.compile(
     re.IGNORECASE,
 )
 
+# Consultation intent (rule #10 from feedback): «Вы делаете X?», «Какие услуги?»,
+# «Можете рассказать», «нужна консультация», «как выбрать», «что лучше».
+# When matched, downstream pricing engines should defer in favour of presentation+discovery.
+_CONSULTATION_INTENT_RX = re.compile(
+    r"\bвы\s+делаете\b|\bвы\s+занимаетесь\b|\bкак\w*\s+услуг\w*\b|"
+    r"\bконсультаци\w+\b|\bпорекомендуй\w*\b|\bпосовет\w+\b|"
+    r"\bкак\s+выбра\w+\b|\bчто\s+лучше\b|\bрасскаж\w+\s+(?:о|про)\b|"
+    r"\bнужн\w+\s+совет\b|\bпомог\w+\s+(?:разобрат|выбра)\b",
+    re.IGNORECASE,
+)
+
+# Outdoor signage construction-type signals (rule #14): when user mentions
+# montage/ад but doesn't name a concrete construction type, gate pricing.
+_OUTDOOR_MOUNT_RX = re.compile(
+    r"\b(?:монтаж|демонтаж|установк\w+)\b.*\b(?:рекламн\w*|вывеск\w*|конструкци\w+|наружн\w+)\b|"
+    r"\b(?:наружн\w+\s+реклам\w+|нар\.\s*реклам\w+)\b",
+    re.IGNORECASE,
+)
+_SIGN_TYPE_NAMED_RX = re.compile(
+    r"\b(объ[её]мн\w+\s+букв|световой?\s+короб|неонов\w+\s+вывеск|фасадн\w+\s+вывеск|"
+    r"баннер\w*|брандмауэр\w*|лайтбокс\w*|штендер\w*|стел[аы]\w*|плёнк\w+|пиллар\w*)\b",
+    re.IGNORECASE,
+)
+
+# Mount city/address signal (rule #16): pricing must not include delivery/mount
+# until address known. Detect any RU-locality mention — even "город X" — that
+# proves the user has provided a location.
+_LOCATION_RX = re.compile(
+    r"\b(?:в\s+г\.|город\w*\s+|г\.\s*[А-ЯЁ])|"
+    r"\b(?:Махачкал|Каспийск|Дербент|Хасавюрт|Буйнакск|Кизляр|Избербаш|"
+    r"Москв|Питер|Краснодар|Ростов|Ставропол|Грозн|Нальчик)",
+    re.IGNORECASE,
+)
+_MOUNT_REQUEST_RX = re.compile(
+    r"\b(?:монтаж|демонтаж|выезд\w*|доставк\w+|установк\w+\s+на)\b",
+    re.IGNORECASE,
+)
+
+# Brandmauer format-correction signal (chat #94/282): user mentions брендмауэр
+# but assistant is suggesting volumetric letters. Brandmauer = banner on
+# building wall, NOT volumetric letters.
+_BRANDMAUER_RX = re.compile(r"\bбр[еа]ндмау[эе]р\w*\b", re.IGNORECASE)
+
 _QUOTED_PRICE_RX = re.compile(
     # `₽` is not a word char in Unicode, so a trailing `\b` after it
     # NEVER matches (₽→any = two non-word chars = no boundary). Drop it.
@@ -177,6 +220,28 @@ class DialogState:
     has_explicit_price_ask: bool = False
     """True when the LAST user turn asks for a price. Used by discovery gates."""
 
+    is_consultation_intent: bool = False
+    """True when the LAST user turn matches consultation patterns (rule #10).
+    «Вы делаете X?», «Какие услуги?», «нужна консультация», «как выбрать».
+    Pricing engines should defer in favour of presentation+discovery."""
+
+    needs_signage_height: bool = False
+    """Rule #15 gate: confirmed product is signboard/letters but no height_cm
+    in size_params. Gate pricing — first ask «какая высота букв?»."""
+
+    needs_signage_type: bool = False
+    """Rule #14 gate: query asks about outdoor advertising mount/dismount
+    without naming a concrete construction type."""
+
+    needs_mount_location: bool = False
+    """Rule #16 gate: query asks about mount/delivery but no city/address
+    is mentioned anywhere in dialog. Don't add delivery to deal_items."""
+
+    brandmauer_format_correction: bool = False
+    """chat #94/282: user mentions брендмауэр. Assistant should treat it as
+    banner/baner-on-wall, NOT volumetric letters. Used to inject a corrective
+    nudge into the system context."""
+
     turn_count: int = 0
     """Number of user+assistant messages in history (excluding current)."""
 
@@ -197,6 +262,32 @@ class DialogState:
         if not candidate_product or not self.confirmed_product:
             return False
         return candidate_product != self.confirmed_product
+
+    def discovery_question(self) -> str | None:
+        """Returns the most pressing missing parameter as a customer-facing
+        question, or None if no parametric gate is open. Caller should treat
+        this as an instruction to skip pricing and ask the question instead.
+
+        Priority: signage type > height > mount location. Only one question
+        per turn — too many at once kills conversation flow.
+        """
+        if self.needs_signage_type:
+            return (
+                "Уточните, пожалуйста, тип конструкции: объёмные буквы, "
+                "световой короб, неоновая вывеска, баннер или фасадная "
+                "вывеска? Цена сильно зависит от типа."
+            )
+        if self.needs_signage_height:
+            return (
+                "Какая высота букв планируется? Цена за букву 20 см и 80 см "
+                "отличается в 3-5 раз — без размера точная цена невозможна."
+            )
+        if self.needs_mount_location:
+            return (
+                "В каком городе/адресе нужен монтаж? От этого зависят "
+                "позиции выезда, доставки и стоимость монтажных работ."
+            )
+        return None
 
     @property
     def needs_discovery_turn(self) -> bool:
@@ -344,6 +435,35 @@ def extract(history, current_query: str = "") -> DialogState:
                     state.confirmed_product = first
                 elif first != state.confirmed_product and _is_topic_switch(q):
                     state.confirmed_product = first
+
+    # ---- New parametric gates (rules #14, #15, #16, #10) ----
+    # Aggregate text from all user turns + current query for detection scope.
+    user_text_all = " ".join(c for r, c in turns if r == "user") + " " + (q or "")
+
+    # Rule #10: consultation intent — match against the LAST user message only,
+    # since intent shifts turn-by-turn.
+    state.is_consultation_intent = bool(_CONSULTATION_INTENT_RX.search(q or ""))
+
+    # Rule #15: signage with letters/volumetric needs height. Trigger when
+    # confirmed_product is signboard/neon AND no height_cm in size_params.
+    if state.confirmed_product in {"signboard", "neon"} and "height_cm" not in state.size_params:
+        # Only gate when user actually asks for price — first-touch discovery
+        # already covers the "no specifics yet" case.
+        if state.has_explicit_price_ask or state.size_params.get("quantity"):
+            state.needs_signage_height = True
+
+    # Rule #14: outdoor mount/dismount without named construction type.
+    if _OUTDOOR_MOUNT_RX.search(user_text_all) and not _SIGN_TYPE_NAMED_RX.search(user_text_all):
+        state.needs_signage_type = True
+
+    # Rule #16: mount request without city/address.
+    if _MOUNT_REQUEST_RX.search(user_text_all) and not _LOCATION_RX.search(user_text_all):
+        state.needs_mount_location = True
+
+    # chat #94/282: брендмауэр format-correction nudge.
+    if _BRANDMAUER_RX.search(user_text_all):
+        state.brandmauer_format_correction = True
+
     return state
 
 
@@ -431,6 +551,35 @@ def build_system_context_block(
             "Короткая презентация направления и компании уместна. "
             "Оценочные диапазоны «от X ₽» допустимы, но итоговую цену — "
             "только после параметров."
+        )
+
+    if state.is_consultation_intent and not state.has_explicit_price_ask:
+        lines.append(
+            "РЕЖИМ КОНСУЛЬТАЦИИ: клиент просит совет / консультацию / спрашивает "
+            "«вы делаете X?». Это НЕ запрос сметы. Презентуй услугу, расскажи "
+            "что входит и какой результат, приведи 1 пример из практики Лабус. "
+            "НЕ считай итоговую цену, не выдавай deal_items, пока клиент сам "
+            "явно не спросит «сколько стоит». Закончи 1 уточняющим вопросом "
+            "о сфере бизнеса/задаче клиента."
+        )
+
+    # Parametric gates from active feedback rules — render as TOP-priority
+    # blockers since the LLM has been ignoring them in prod.
+    pending_question = state.discovery_question()
+    if pending_question:
+        lines.append(
+            f"⛔ ОБЯЗАТЕЛЬНЫЙ ВОПРОС ПЕРЕД РАСЧЁТОМ: «{pending_question}» "
+            f"Ответ должен быть ТОЛЬКО этим вопросом плюс короткий контекст почему "
+            f"он важен (1-2 предложения). НЕ выдавай оценочную цену, НЕ заполняй "
+            f"deal_items, НЕ упоминай готовые пакеты — пока клиент не ответит."
+        )
+
+    if state.brandmauer_format_correction:
+        lines.append(
+            "⚠ БРЕНДМАУЭР — это печать (сольвент/перфо-баннер) на торце здания. "
+            "НИКОГДА не предлагай объёмные буквы или световые конструкции для "
+            "брендмауэра — это техническая ошибка. Цена — за квадратный метр "
+            "печати + материал + монтаж на высоте."
         )
 
     if state.rejected_products:

@@ -1,7 +1,7 @@
 {
-  "built_at": "2026-04-15T16:18:49.043Z",
-  "total_categories": 124,
-  "total_deals_analyzed": 5432,
+  "built_at": "2026-04-22T01:18:19.204Z",
+  "total_categories": 125,
+  "total_deals_analyzed": 5443,
   "min_category_deals": 3,
   "freshness_half_life_days": 365,
   "categories": [
@@ -697,7 +697,7 @@
       "all_goods_in_category": [
         {
           "good_id": "4822",
-          "product_name": "Хайкот А5 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А5 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.08,
           "final": 1.67,
           "sample_size": 22
@@ -907,7 +907,7 @@
         },
         {
           "good_id": "7864",
-          "product_name": "Хайкот А3 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А3 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.02,
           "final": 6.72,
           "sample_size": 6
@@ -1083,8 +1083,8 @@
         "МХ Баннер",
         "МХ_баннер"
       ],
-      "deals_count": 265,
-      "avg_deal_value": 11848.82,
+      "deals_count": 266,
+      "avg_deal_value": 11984.63,
       "canonical_smeta": {
         "source_deal_id": "68336",
         "source_deal_type": "orders",
@@ -1218,6 +1218,13 @@
           "sample_size": 25
         },
         {
+          "good_id": "10764",
+          "product_name": "Макет баннера информационного Простой 1 решение",
+          "frequency": 0.05,
+          "final": 1277.94,
+          "sample_size": 12
+        },
+        {
           "good_id": "7984",
           "product_name": "Баннер печать интерьерный 440гр 10-20 кв.м",
           "frequency": 0.05,
@@ -1237,13 +1244,6 @@
           "frequency": 0.05,
           "final": 2215.7,
           "sample_size": 13
-        },
-        {
-          "good_id": "10764",
-          "product_name": "Макет баннера информационного Простой 1 решение",
-          "frequency": 0.04,
-          "final": 1221.14,
-          "sample_size": 11
         },
         {
           "good_id": "7954",
@@ -1347,8 +1347,8 @@
           "good_id": "7964",
           "product_name": "Баннер печать стандарт 440гр более 50 кв.м",
           "frequency": 0.02,
-          "final": 342.94,
-          "sample_size": 5
+          "final": 347.03,
+          "sample_size": 6
         },
         {
           "good_id": "7970",
@@ -1686,7 +1686,7 @@
         },
         {
           "good_id": "4630",
-          "product_name": "Хайкот А4 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А4 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.14,
           "final": 3.36,
           "sample_size": 36
@@ -1714,7 +1714,7 @@
         },
         {
           "good_id": "7864",
-          "product_name": "Хайкот А3 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А3 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.12,
           "final": 6.66,
           "sample_size": 30
@@ -1798,7 +1798,7 @@
         },
         {
           "good_id": "4822",
-          "product_name": "Хайкот А5 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А5 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.07,
           "final": 1.68,
           "sample_size": 18
@@ -2502,7 +2502,7 @@
         "ламинацией",
         "мкр."
       ],
-      "keywords_text": "Визитки. примеры заказов: Визитки матовые. Оперативная полиграфия. | Визитки эконом. Офсет. | Визитки с ламинацией 25 мкр. Оперативная полиграфия. | Визитки эконом. Оперативная полиграфия. | Визитки с ламинацией 75 мкр. Оперативная полиграфия. | Визитки с ламинацией 250 мкр. Оперативная полиграфия. | Визитки с ламинацией 250 мкр. и скругленными углами. Оперативная полиграфия. | Визитки на бумаге с бархатистой поверхностью, цвета слоновая кость. Оперативная полиграфия. | Визитки на бумаге \"Белое золото\". Оперативная полиграфия. | Визитки бумаге \"Сияние золота\". Оперативная полиграфия.. ключевые слова: визитки, оперативная, полиграфия., бумаге, рд-, матовые., ламинацией, мкр.. компоненты: Подготовка макета к производству за 1 макет; Фольгирование визитки от 120 шт 1 сторона Печатная; Хайкот бум. визитки 300 гр. 1 шт Печатная.",
+      "keywords_text": "Визитки. примеры заказов: Визитки матовые. Оперативная полиграфия. | Визитки эконом. Офсет. | Визитки с ламинацией 25 мкр. Оперативная полиграфия. | Визитки эконом. Оперативная полиграфия. | Визитки с ламинацией 75 мкр. Оперативная полиграфия. | Визитки с ламинацией 250 мкр. Оперативная полиграфия. | Визитки с ламинацией 250 мкр. и скругленными углами. Оперативная полиграфия. | Визитки на бумаге с бархатистой поверхностью, цвета слоновая кость. Оперативная полиграфия. | Визитки на бумаге \"Белое золото\". Оперативная полиграфия. | Визитки бумаге \"Сияние золота\". Оперативная полиграфия.. ключевые слова: визитки, оперативная, полиграфия., бумаге, рд-, матовые., ламинацией, мкр.. компоненты: Резка винила ручная 10-30 мп Цех; Почасовая работа с дизайнером рекламы 1 час; Ламинация с накаткой холодная глянцевая 1 кв.м; Винил интерьерная печать 1 кв.м; Визитки Печать 4+0 1-3 дня 500 Печатная.",
       "sample_titles": [
         "Визитки матовые. Оперативная полиграфия.",
         "Визитки эконом. Офсет.",
@@ -2525,79 +2525,145 @@
         "Визитки на бумаге \"Белый мрамор\". Оперативная полиграфия.",
         "Визитки и этикетки \"НА УРА\""
       ],
-      "deals_count": 224,
-      "avg_deal_value": 8977.57,
+      "deals_count": 225,
+      "avg_deal_value": 8952.92,
       "canonical_smeta": {
-        "source_deal_id": "68482",
+        "source_deal_id": "56856",
         "source_deal_type": "orders",
-        "source_title": "Визитки фольгированные",
-        "positions_count": 3,
-        "total": 4455.51,
+        "source_title": "РД-0171 Визитки И А4",
+        "positions_count": 6,
+        "total": 4827.54,
         "positions": [
           {
-            "good_id": "7352",
-            "product_name": "Подготовка макета к производству за 1 макет",
-            "section_name": "Дизайн",
-            "parent_section": "",
+            "good_id": "13786",
+            "product_name": "Резка винила ручная 10-30 мп Цех",
+            "section_name": "Резка",
+            "parent_section": "Пленки",
+            "direction": "Цех",
+            "quantity_typical": 10,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0,
+            "price_stats": {
+              "mean": 13,
+              "median": 13,
+              "weighted_mean": 13,
+              "trimmed_mean": 13,
+              "final": 13,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "13614",
+            "product_name": "Почасовая работа с дизайнером рекламы 1 час",
+            "section_name": "Почасовая работа",
+            "parent_section": "Дизайн",
             "direction": "Дизайн",
             "quantity_typical": 1,
             "unit": "шт",
             "b24_section": "Дизайн",
-            "frequency": 0.08,
+            "frequency": 0.04,
             "price_stats": {
-              "mean": 502.94,
-              "median": 500,
-              "weighted_mean": 503.81,
-              "trimmed_mean": 501.67,
-              "final": 502.1,
-              "std": 8.05,
-              "cv": 0.016,
+              "mean": 1500,
+              "median": 1500,
+              "weighted_mean": 1500,
+              "trimmed_mean": 1500,
+              "final": 1500,
+              "std": 0,
+              "cv": 0,
               "confidence": "high",
-              "sample_size": 17
+              "sample_size": 8
             }
           },
           {
-            "good_id": "8204",
-            "product_name": "Фольгирование визитки от 120 шт 1 сторона Печатная",
-            "section_name": "Фольгирование",
+            "good_id": "9134",
+            "product_name": "Ламинация с накаткой холодная глянцевая 1 кв.м",
+            "section_name": "Сольвент",
+            "parent_section": "Самоклейка",
+            "direction": "Сольвент",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Сольвент",
+            "frequency": 0.01,
+            "price_stats": {
+              "mean": 533.33,
+              "median": 450,
+              "weighted_mean": 503.67,
+              "trimmed_mean": 533.33,
+              "final": 505.09,
+              "std": 117.85,
+              "cv": 0.2333,
+              "confidence": "medium",
+              "sample_size": 3
+            }
+          },
+          {
+            "good_id": "6288",
+            "product_name": "Винил интерьерная печать 1 кв.м",
+            "section_name": "Сольвент",
+            "parent_section": "Самоклейка",
+            "direction": "Сольвент",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Сольвент",
+            "frequency": 0.01,
+            "price_stats": {
+              "mean": 845,
+              "median": 845,
+              "weighted_mean": 894.8,
+              "trimmed_mean": 845,
+              "final": 857.45,
+              "std": 145,
+              "cv": 0.1691,
+              "confidence": "medium",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "5268",
+            "product_name": "Визитки Печать 4+0 1-3 дня 500 Печатная",
+            "section_name": "Лазерная печать",
             "parent_section": "Визитки",
             "direction": "Печатная",
-            "quantity_typical": 547,
+            "quantity_typical": 500,
             "unit": "шт",
             "b24_section": "Печатная",
             "frequency": 0.04,
             "price_stats": {
-              "mean": 6.71,
-              "median": 7.5,
-              "weighted_mean": 7.19,
-              "trimmed_mean": 6.71,
-              "final": 7.03,
-              "std": 1.21,
-              "cv": 0.1727,
-              "confidence": "medium",
+              "mean": 2.73,
+              "median": 2.93,
+              "weighted_mean": 2.67,
+              "trimmed_mean": 2.73,
+              "final": 2.77,
+              "std": 0.24,
+              "cv": 0.0879,
+              "confidence": "high",
               "sample_size": 9
             }
           },
           {
-            "good_id": "20892",
-            "product_name": "Хайкот бум. визитки 300 гр. 1 шт Печатная",
+            "good_id": "5350",
+            "product_name": "НЕВИЯ Бумага визитки 250 гр. 1 шт Печатная",
             "section_name": "Бумага",
             "parent_section": "Визитки",
             "direction": "Печатная",
-            "quantity_typical": 240,
+            "quantity_typical": 500,
             "unit": "шт",
             "b24_section": "Печатная",
-            "frequency": 0.06,
+            "frequency": 0.19,
             "price_stats": {
-              "mean": 0.46,
-              "median": 0.45,
-              "weighted_mean": 0.46,
-              "trimmed_mean": 0.46,
-              "final": 0.45,
-              "std": 0.01,
-              "cv": 0.0306,
-              "confidence": "high",
-              "sample_size": 14
+              "mean": 0.98,
+              "median": 0.77,
+              "weighted_mean": 0.93,
+              "trimmed_mean": 0.92,
+              "final": 0.9,
+              "std": 0.35,
+              "cv": 0.3899,
+              "confidence": "low",
+              "sample_size": 44
             }
           }
         ]
@@ -2618,6 +2684,13 @@
           "sample_size": 44
         },
         {
+          "good_id": "5352",
+          "product_name": "НЕВИЯ бум. визитки 300 гр. 1 шт Печатная",
+          "frequency": 0.14,
+          "final": 1.27,
+          "sample_size": 31
+        },
+        {
           "good_id": "5372",
           "product_name": "Хайкот бум. визитки 230 гр. 1 шт Печатная",
           "frequency": 0.13,
@@ -2627,16 +2700,9 @@
         {
           "good_id": "0",
           "product_name": "баннер",
-          "frequency": 0.13,
+          "frequency": 0.12,
           "final": 109.34,
           "sample_size": 37
-        },
-        {
-          "good_id": "5352",
-          "product_name": "НЕВИЯ бум. визитки 300 гр. 1 шт Печатная",
-          "frequency": 0.13,
-          "final": 1.27,
-          "sample_size": 30
         },
         {
           "good_id": "5266",
@@ -2703,7 +2769,7 @@
         },
         {
           "good_id": "20892",
-          "product_name": "Хайкот бум. визитки 300 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP бум. визитки 370 гр. 1 шт Печатная",
           "frequency": 0.06,
           "final": 0.45,
           "sample_size": 14
@@ -2856,6 +2922,13 @@
           "sample_size": 5
         },
         {
+          "good_id": "5272",
+          "product_name": "Визитки Печать 4+0 1-3 дня 1000 Печатная",
+          "frequency": 0.02,
+          "final": 2.11,
+          "sample_size": 4
+        },
+        {
           "good_id": "5288",
           "product_name": "Визитки Ламинация глянцевая 25мкр 1000 Печатная",
           "frequency": 0.01,
@@ -2945,13 +3018,6 @@
           "frequency": 0.01,
           "final": 8.58,
           "sample_size": 2
-        },
-        {
-          "good_id": "5364",
-          "product_name": "Хайкот бум. визитки 270 гр. 1 шт Печатная",
-          "frequency": 0.01,
-          "final": 0.5,
-          "sample_size": 3
         }
       ]
     },
@@ -3457,14 +3523,14 @@
         "Флаер Офсет 150 гр/м2",
         "Флаер Офсет 115 гр/м2"
       ],
-      "deals_count": 198,
-      "avg_deal_value": 23512.57,
+      "deals_count": 199,
+      "avg_deal_value": 23435.58,
       "canonical_smeta": {
         "source_deal_id": "65302",
         "source_deal_type": "orders",
         "source_title": "Баблзилла - режимник, правки в меню, флаер, касса.",
         "positions_count": 15,
-        "total": 13494.68,
+        "total": 12684.48,
         "positions": [
           {
             "good_id": "0",
@@ -3477,15 +3543,15 @@
             "b24_section": "",
             "frequency": 0.04,
             "price_stats": {
-              "mean": 1601.94,
-              "median": 650,
-              "weighted_mean": 10.08,
-              "trimmed_mean": 1601.94,
-              "final": 965.99,
-              "std": 1896.61,
-              "cv": 1.9634,
+              "mean": 1373.68,
+              "median": 300,
+              "weighted_mean": 6.39,
+              "trimmed_mean": 1373.68,
+              "final": 763.44,
+              "std": 1842.79,
+              "cv": 2.4138,
               "confidence": "low",
-              "sample_size": 6
+              "sample_size": 7
             }
           },
           {
@@ -3499,15 +3565,15 @@
             "b24_section": "",
             "frequency": 0.04,
             "price_stats": {
-              "mean": 1601.94,
-              "median": 650,
-              "weighted_mean": 10.08,
-              "trimmed_mean": 1601.94,
-              "final": 965.99,
-              "std": 1896.61,
-              "cv": 1.9634,
+              "mean": 1373.68,
+              "median": 300,
+              "weighted_mean": 6.39,
+              "trimmed_mean": 1373.68,
+              "final": 763.44,
+              "std": 1842.79,
+              "cv": 2.4138,
               "confidence": "low",
-              "sample_size": 6
+              "sample_size": 7
             }
           },
           {
@@ -3565,15 +3631,15 @@
             "b24_section": "",
             "frequency": 0.04,
             "price_stats": {
-              "mean": 1601.94,
-              "median": 650,
-              "weighted_mean": 10.08,
-              "trimmed_mean": 1601.94,
-              "final": 965.99,
-              "std": 1896.61,
-              "cv": 1.9634,
+              "mean": 1373.68,
+              "median": 300,
+              "weighted_mean": 6.39,
+              "trimmed_mean": 1373.68,
+              "final": 763.44,
+              "std": 1842.79,
+              "cv": 2.4138,
               "confidence": "low",
-              "sample_size": 6
+              "sample_size": 7
             }
           },
           {
@@ -3653,15 +3719,15 @@
             "b24_section": "",
             "frequency": 0.04,
             "price_stats": {
-              "mean": 1601.94,
-              "median": 650,
-              "weighted_mean": 10.08,
-              "trimmed_mean": 1601.94,
-              "final": 965.99,
-              "std": 1896.61,
-              "cv": 1.9634,
+              "mean": 1373.68,
+              "median": 300,
+              "weighted_mean": 6.39,
+              "trimmed_mean": 1373.68,
+              "final": 763.44,
+              "std": 1842.79,
+              "cv": 2.4138,
               "confidence": "low",
-              "sample_size": 6
+              "sample_size": 7
             }
           },
           {
@@ -3957,8 +4023,8 @@
           "good_id": "0",
           "product_name": "Флаер А4 1000шт (4.16)",
           "frequency": 0.04,
-          "final": 965.99,
-          "sample_size": 6
+          "final": 763.44,
+          "sample_size": 7
         },
         {
           "good_id": "7352",
@@ -4067,7 +4133,7 @@
         },
         {
           "good_id": "5008",
-          "product_name": "Хайкот А6 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А6 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.01,
           "final": 0.65,
           "sample_size": 1
@@ -4123,7 +4189,7 @@
         },
         {
           "good_id": "20884",
-          "product_name": "Хайкот А4 бум. 300 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А4 бум. 370 гр. 1 шт Печатная",
           "frequency": 0.01,
           "final": 5.44,
           "sample_size": 1
@@ -6708,10 +6774,10 @@
             "product_name": "Резка листового материала ЧПУ 10-30 мп",
             "section_name": "Резка",
             "parent_section": "Листовые",
-            "direction": "Резка",
+            "direction": "Цех",
             "quantity_typical": 15,
             "unit": "шт",
-            "b24_section": "Резка",
+            "b24_section": "Цех",
             "frequency": 0.02,
             "price_stats": {
               "mean": 80,
@@ -6816,7 +6882,7 @@
         },
         {
           "good_id": "8692",
-          "product_name": "Резка листового материала ЧПУ до 5 мп",
+          "product_name": "Резка листового материала ЧПУ до 5 мп Цех",
           "frequency": 0.27,
           "final": 60,
           "sample_size": 36
@@ -7082,7 +7148,7 @@
         },
         {
           "good_id": "8696",
-          "product_name": "Резка листового материала ЧПУ 10-30 мп",
+          "product_name": "Резка листового материала ЧПУ 10-30 мп Цех",
           "frequency": 0.02,
           "final": 80,
           "sample_size": 2
@@ -8060,7 +8126,7 @@
         },
         {
           "good_id": "8696",
-          "product_name": "Резка листового материала ЧПУ 10-30 мп",
+          "product_name": "Резка листового материала ЧПУ 10-30 мп Цех",
           "frequency": 0.03,
           "final": 73.04,
           "sample_size": 3
@@ -8347,7 +8413,7 @@
           "good_id": "0",
           "product_name": "Карандаши брендированные синие с ластиком 100шт(40)",
           "frequency": 0.09,
-          "final": 421.33,
+          "final": 421.26,
           "sample_size": 7
         },
         {
@@ -8543,7 +8609,7 @@
           "good_id": "12384",
           "product_name": "Макет ручки брендированной Простая 1 оригинал-макет",
           "frequency": 0.02,
-          "final": 1418.28,
+          "final": 1416.79,
           "sample_size": 2
         },
         {
@@ -9910,7 +9976,7 @@
         },
         {
           "good_id": "4630",
-          "product_name": "Хайкот А4 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А4 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.07,
           "final": 3.3,
           "sample_size": 7
@@ -11048,7 +11114,7 @@
         },
         {
           "good_id": "8692",
-          "product_name": "Резка листового материала ЧПУ до 5 мп",
+          "product_name": "Резка листового материала ЧПУ до 5 мп Цех",
           "frequency": 0.23,
           "final": 66.86,
           "sample_size": 18
@@ -11146,7 +11212,7 @@
         },
         {
           "good_id": "8694",
-          "product_name": "Резка листового материала ЧПУ 5-10 мп",
+          "product_name": "Резка листового материала ЧПУ 5-10 мп Цех",
           "frequency": 0.09,
           "final": 57.79,
           "sample_size": 7
@@ -11195,7 +11261,7 @@
         },
         {
           "good_id": "8696",
-          "product_name": "Резка листового материала ЧПУ 10-30 мп",
+          "product_name": "Резка листового материала ЧПУ 10-30 мп Цех",
           "frequency": 0.06,
           "final": 58.77,
           "sample_size": 5
@@ -11413,8 +11479,8 @@
         "ААХ 0042 Бейджик Мимино",
         "Бейдж"
       ],
-      "deals_count": 77,
-      "avg_deal_value": 5735.44,
+      "deals_count": 79,
+      "avg_deal_value": 5731.05,
       "canonical_smeta": {
         "source_deal_id": "25990",
         "source_deal_type": "orders",
@@ -11582,14 +11648,14 @@
         {
           "good_id": "0",
           "product_name": "бейджи без 3д 300 (ислам)",
-          "frequency": 0.17,
-          "final": 479.02,
-          "sample_size": 17
+          "frequency": 0.19,
+          "final": 484.33,
+          "sample_size": 19
         },
         {
           "good_id": "5008",
-          "product_name": "Хайкот А6 бум. 180 гр. 1 шт Печатная",
-          "frequency": 0.12,
+          "product_name": "Синтетическая бумага UNO SP А6 бум. 160 гр. 1 шт Печатная",
+          "frequency": 0.11,
           "final": 0.84,
           "sample_size": 9
         },
@@ -11615,18 +11681,18 @@
           "sample_size": 7
         },
         {
+          "good_id": "13612",
+          "product_name": "Почасовая работа с дизайнером - художником 1 час",
+          "frequency": 0.08,
+          "final": 1012.08,
+          "sample_size": 7
+        },
+        {
           "good_id": "19032",
           "product_name": "Шнурок на резинке клип-рулетке 10 шт",
           "frequency": 0.06,
           "final": 90,
           "sample_size": 5
-        },
-        {
-          "good_id": "13612",
-          "product_name": "Почасовая работа с дизайнером - художником 1 час",
-          "frequency": 0.06,
-          "final": 1007.07,
-          "sample_size": 6
         },
         {
           "good_id": "19068",
@@ -11637,7 +11703,7 @@
         },
         {
           "good_id": "4822",
-          "product_name": "Хайкот А5 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А5 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.05,
           "final": 1.68,
           "sample_size": 4
@@ -14309,7 +14375,7 @@
         "меню.",
         "внутренней"
       ],
-      "keywords_text": "Дизайн. примеры заказов: Дизайн транспорта | Дизайн одностраничного меню. | Дизайн обложки многостраничного меню | Дизайн внутренней страницы многостраничного меню | Дизайн паттерна корпоративного | Дизайн меню-холдер | Дизайн меню борд | Дизайн евроменю | Дизайн диджитал-меню | Дизайн меню-плейсмент. ключевые слова: дизайн, меню, обложки, многостраничного, транспорта, одностраничного, меню., внутренней. компоненты: Макет визитки Средней сложности 1 сторона; Макет штендера Средней сложности 1 оригинал-макет; Макет баннера брандмауэра Простой 1 решение.",
+      "keywords_text": "Дизайн. примеры заказов: Дизайн транспорта | Дизайн одностраничного меню. | Дизайн обложки многостраничного меню | Дизайн внутренней страницы многостраничного меню | Дизайн паттерна корпоративного | Дизайн меню-холдер | Дизайн меню борд | Дизайн евроменю | Дизайн диджитал-меню | Дизайн меню-плейсмент. ключевые слова: дизайн, меню, обложки, многостраничного, транспорта, одностраничного, меню., внутренней. компоненты: 10%; Оклейка рельефной поверхности пленкой 1-3 кв.м Цех; Аппликация рельефной поверхности монтаж 1-3 кв.м Цех; Аппликация накатка на монтажную пленку более 50 кв.м Цех; Аппликация прорезка 30-50 мп Печатная.",
       "sample_titles": [
         "Дизайн транспорта",
         "Дизайн одностраничного меню.",
@@ -14332,25 +14398,25 @@
         "Дизайн",
         "дизайн этикеток"
       ],
-      "deals_count": 58,
-      "avg_deal_value": 7048.36,
+      "deals_count": 59,
+      "avg_deal_value": 8758.91,
       "canonical_smeta": {
-        "source_deal_id": "69024",
+        "source_deal_id": "59756",
         "source_deal_type": "orders",
-        "source_title": "МХ дизайн шик",
-        "positions_count": 3,
-        "total": 20000,
+        "source_title": "МХ дизайн и оклейка ларгус",
+        "positions_count": 10,
+        "total": 22792.65,
         "positions": [
           {
-            "good_id": "7292",
-            "product_name": "Макет визитки Средней сложности 1 сторона",
-            "section_name": "Визитки",
-            "parent_section": "Полиграфия",
-            "direction": "Дизайн",
+            "good_id": "0",
+            "product_name": "10%",
+            "section_name": "",
+            "parent_section": "",
+            "direction": "",
             "quantity_typical": 1,
             "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.02,
+            "b24_section": "",
+            "frequency": 0.03,
             "price_stats": {
               "mean": 2000,
               "median": 2000,
@@ -14364,21 +14430,21 @@
             }
           },
           {
-            "good_id": "12418",
-            "product_name": "Макет штендера Средней сложности 1 оригинал-макет",
-            "section_name": "Штендеры",
-            "parent_section": "Дизайн",
-            "direction": "Дизайн",
-            "quantity_typical": 2,
+            "good_id": "6506",
+            "product_name": "Оклейка рельефной поверхности пленкой 1-3 кв.м Цех",
+            "section_name": "Оклейка",
+            "parent_section": "Самоклейка",
+            "direction": "Цех",
+            "quantity_typical": 3,
             "unit": "шт",
-            "b24_section": "Дизайн",
+            "b24_section": "Цех",
             "frequency": 0.02,
             "price_stats": {
-              "mean": 4000,
-              "median": 4000,
-              "weighted_mean": 4000,
-              "trimmed_mean": 4000,
-              "final": 4000,
+              "mean": 1092,
+              "median": 1092,
+              "weighted_mean": 1092,
+              "trimmed_mean": 1092,
+              "final": 1092,
               "std": 0,
               "cv": 0,
               "confidence": "high",
@@ -14386,12 +14452,166 @@
             }
           },
           {
-            "good_id": "21334",
-            "product_name": "Макет баннера брандмауэра Простой 1 решение",
-            "section_name": "Брандмауэр",
-            "parent_section": "Баннеры",
+            "good_id": "6494",
+            "product_name": "Аппликация рельефной поверхности монтаж 1-3 кв.м Цех",
+            "section_name": "Аппликация",
+            "parent_section": "Самоклейка",
+            "direction": "Цех",
+            "quantity_typical": 3,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.02,
+            "price_stats": {
+              "mean": 1456,
+              "median": 1456,
+              "weighted_mean": 1456,
+              "trimmed_mean": 1456,
+              "final": 1456,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "6466",
+            "product_name": "Аппликация накатка на монтажную пленку более 50 кв.м Цех",
+            "section_name": "Аппликация",
+            "parent_section": "Самоклейка",
+            "direction": "Цех",
+            "quantity_typical": 3,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.02,
+            "price_stats": {
+              "mean": 400,
+              "median": 400,
+              "weighted_mean": 400,
+              "trimmed_mean": 400,
+              "final": 400,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "6450",
+            "product_name": "Аппликация прорезка 30-50 мп Печатная",
+            "section_name": "Аппликация",
+            "parent_section": "Самоклейка",
+            "direction": "Печатная",
+            "quantity_typical": 41,
+            "unit": "шт",
+            "b24_section": "Печатная",
+            "frequency": 0.02,
+            "price_stats": {
+              "mean": 16.8,
+              "median": 16.8,
+              "weighted_mean": 16.8,
+              "trimmed_mean": 16.8,
+              "final": 16.8,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "8672",
+            "product_name": "Монтажная пленка с подложкой 3-10 кв.м",
+            "section_name": "Монтажная пленка с подложкой",
+            "parent_section": "Пленки",
+            "direction": "Цех",
+            "quantity_typical": 3,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.03,
+            "price_stats": {
+              "mean": 639.6,
+              "median": 639.6,
+              "weighted_mean": 641.02,
+              "trimmed_mean": 639.6,
+              "final": 639.95,
+              "std": 15.6,
+              "cv": 0.0244,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "9134",
+            "product_name": "Ламинация с накаткой холодная глянцевая 1 кв.м",
+            "section_name": "Сольвент",
+            "parent_section": "Самоклейка",
+            "direction": "Сольвент",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Сольвент",
+            "frequency": 0.02,
+            "price_stats": {
+              "mean": 450,
+              "median": 450,
+              "weighted_mean": 450,
+              "trimmed_mean": 450,
+              "final": 450,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "6288",
+            "product_name": "Винил интерьерная печать 1 кв.м",
+            "section_name": "Сольвент",
+            "parent_section": "Самоклейка",
+            "direction": "Сольвент",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Сольвент",
+            "frequency": 0.02,
+            "price_stats": {
+              "mean": 1890,
+              "median": 1890,
+              "weighted_mean": 1890,
+              "trimmed_mean": 1890,
+              "final": 1890,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "12354",
+            "product_name": "Брендирование транспорта 1 адаптация",
+            "section_name": "Транспорт",
+            "parent_section": "Дизайн",
             "direction": "Дизайн",
             "quantity_typical": 2,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.02,
+            "price_stats": {
+              "mean": 1000,
+              "median": 1000,
+              "weighted_mean": 1000,
+              "trimmed_mean": 1000,
+              "final": 1000,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "10414",
+            "product_name": "Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение",
+            "section_name": "Логотипы",
+            "parent_section": "Брендинг",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
             "unit": "шт",
             "b24_section": "Дизайн",
             "frequency": 0.02,
@@ -14436,6 +14656,20 @@
           "product_name": "Макет евроменю Средней сложности 1 решение",
           "frequency": 0.03,
           "final": 4000,
+          "sample_size": 2
+        },
+        {
+          "good_id": "0",
+          "product_name": "10%",
+          "frequency": 0.03,
+          "final": 2000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "8672",
+          "product_name": "Монтажная пленка с подложкой 3-10 кв.м",
+          "frequency": 0.03,
+          "final": 639.95,
           "sample_size": 2
         },
         {
@@ -14745,20 +14979,6 @@
           "frequency": 0.02,
           "final": 4000,
           "sample_size": 1
-        },
-        {
-          "good_id": "0",
-          "product_name": "10%",
-          "frequency": 0.02,
-          "final": 2000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "6506",
-          "product_name": "Оклейка рельефной поверхности пленкой 1-3 кв.м Цех",
-          "frequency": 0.02,
-          "final": 1092,
-          "sample_size": 1
         }
       ]
     },
@@ -14914,7 +15134,7 @@
         },
         {
           "good_id": "4630",
-          "product_name": "Хайкот А4 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А4 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.38,
           "final": 3.36,
           "sample_size": 20
@@ -16255,7 +16475,7 @@
         },
         {
           "good_id": "20882",
-          "product_name": "Хайкот А3 бум. 300 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А3 бум. 370 гр. 1 шт Печатная",
           "frequency": 0.02,
           "final": 11.36,
           "sample_size": 1
@@ -16328,6 +16548,494 @@
           "product_name": "Ролл-ап стенд 100х200 см 4-10 шт",
           "frequency": 0.02,
           "final": 3300,
+          "sample_size": 1
+        }
+      ]
+    },
+    {
+      "category_id": "labus:Логотип",
+      "category_name": "Логотип",
+      "keywords": [
+        "логотипа",
+        "логотип",
+        "гм-",
+        "отрисовка",
+        "ручная",
+        "эскиза",
+        "разработка",
+        "авр"
+      ],
+      "keywords_text": "Логотип. примеры заказов: Отрисовка ручная с доработкой эскиза логотипа | Отрисовка ручная эскиза логотипа | Креативная графическая идея для логотипа | Разработка шрифтового логотипа | Подбор шрифта для логотипа | Редизайн логотипа | Создание брифа на разработку логотипа Labus.pro | ГГ-0061 (Логотип \"Воевода\") | ГМ-0498 (доработка слайдов примеров работ стр логотипы) | ГМ-0517 (КРЕАТИВ ДЛЯ РК ЛОГОТИПЫ). ключевые слова: логотипа, логотип, гм-, отрисовка, ручная, эскиза, разработка, авр. компоненты: Заполнение брифа для разработки логотипа 1 интервью; Креативная графическая идея для логотипа с обоснованием 1 эскиз; Правила использования логотипа 10 слайдов; Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение.",
+      "sample_titles": [
+        "Отрисовка ручная с доработкой эскиза логотипа",
+        "Отрисовка ручная эскиза логотипа",
+        "Креативная графическая идея для логотипа",
+        "Разработка шрифтового логотипа",
+        "Подбор шрифта для логотипа",
+        "Редизайн логотипа",
+        "Создание брифа на разработку логотипа Labus.pro",
+        "ГГ-0061 (Логотип \"Воевода\")",
+        "ГМ-0498 (доработка слайдов примеров работ стр логотипы)",
+        "ГМ-0517 (КРЕАТИВ ДЛЯ РК ЛОГОТИПЫ)",
+        "ГМ-0529 (КРЕАТИВЫ ДЛЯ ЛОГОТИПА)",
+        "АА 0030 Логотип",
+        "ГМ-0538 (ЛОГОТИП МАЛИКА ШИХАМИРОВА)",
+        "РД-0067 Логотип",
+        "ГМ-0542 (ПРИМЕР РАБОТ ДЛЯ КАРУСЕЛИ ЛОГОТИПЫ)",
+        "ГМ-0547 (КРЕАТИВЫ И ИЗОБРАЖЕНИЯ ДЛЯ РЕК КАМПАНИИ РАЗРАБОТКА ЛОГОТИПА)",
+        "АА 0220 Логотип ИМПЕРИАЛ",
+        "МХ0033 Логотип",
+        "ААХ 0051 Отрисовка логотипа",
+        "АВР - 0073 Видеоролик Логотип КУРАГА https://rutube.ru/shorts/1e3f6ecd29b344aad183596c8ab032d6/"
+      ],
+      "deals_count": 48,
+      "avg_deal_value": 20107.8,
+      "canonical_smeta": {
+        "source_deal_id": "21208",
+        "source_deal_type": "offers",
+        "source_title": "Разработка логотипа пакет \"Стандарт\"",
+        "positions_count": 4,
+        "total": 23186.21,
+        "positions": [
+          {
+            "good_id": "10418",
+            "product_name": "Заполнение брифа для разработки логотипа 1 интервью",
+            "section_name": "Логотипы",
+            "parent_section": "Брендинг",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.23,
+            "price_stats": {
+              "mean": 4454.55,
+              "median": 5000,
+              "weighted_mean": 3095.53,
+              "trimmed_mean": 4666.67,
+              "final": 4304.19,
+              "std": 1157.08,
+              "cv": 0.2688,
+              "confidence": "medium",
+              "sample_size": 11
+            }
+          },
+          {
+            "good_id": "10420",
+            "product_name": "Креативная графическая идея для логотипа с обоснованием 1 эскиз",
+            "section_name": "Логотипы",
+            "parent_section": "Брендинг",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 4838.24,
+              "median": 5000,
+              "weighted_mean": 4901.31,
+              "trimmed_mean": 5000,
+              "final": 4934.89,
+              "std": 711.98,
+              "cv": 0.1443,
+              "confidence": "high",
+              "sample_size": 17
+            }
+          },
+          {
+            "good_id": "10724",
+            "product_name": "Правила использования логотипа 10 слайдов",
+            "section_name": "Логотипы",
+            "parent_section": "Брендинг",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.1,
+            "price_stats": {
+              "mean": 8000,
+              "median": 10000,
+              "weighted_mean": 5754.09,
+              "trimmed_mean": 8000,
+              "final": 7938.52,
+              "std": 2449.49,
+              "cv": 0.3086,
+              "confidence": "low",
+              "sample_size": 5
+            }
+          },
+          {
+            "good_id": "10414",
+            "product_name": "Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение",
+            "section_name": "Логотипы",
+            "parent_section": "Брендинг",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.08,
+            "price_stats": {
+              "mean": 6250,
+              "median": 6250,
+              "weighted_mean": 5284.45,
+              "trimmed_mean": 6250,
+              "final": 6008.61,
+              "std": 1250,
+              "cv": 0.208,
+              "confidence": "medium",
+              "sample_size": 4
+            }
+          }
+        ]
+      },
+      "all_goods_in_category": [
+        {
+          "good_id": "10420",
+          "product_name": "Креативная графическая идея для логотипа с обоснованием 1 эскиз",
+          "frequency": 0.33,
+          "final": 4934.89,
+          "sample_size": 17
+        },
+        {
+          "good_id": "10722",
+          "product_name": "Отрисовка ручная с доработкой простого эскиза логотипа 1 векторное изображение",
+          "frequency": 0.23,
+          "final": 4529.49,
+          "sample_size": 11
+        },
+        {
+          "good_id": "10418",
+          "product_name": "Заполнение брифа для разработки логотипа 1 интервью",
+          "frequency": 0.23,
+          "final": 4304.19,
+          "sample_size": 11
+        },
+        {
+          "good_id": "21464",
+          "product_name": "Подбор шрифта для логотипа 1 решение",
+          "frequency": 0.13,
+          "final": 1517.66,
+          "sample_size": 6
+        },
+        {
+          "good_id": "10404",
+          "product_name": "Наложение макета на Простой мокап 1 изображение",
+          "frequency": 0.13,
+          "final": 217.8,
+          "sample_size": 6
+        },
+        {
+          "good_id": "21466",
+          "product_name": "Подбор шрифта для логотипа 3 решения",
+          "frequency": 0.1,
+          "final": 3500,
+          "sample_size": 5
+        },
+        {
+          "good_id": "21468",
+          "product_name": "Подбор шрифта для логотипа 5 решений",
+          "frequency": 0.1,
+          "final": 5000,
+          "sample_size": 5
+        },
+        {
+          "good_id": "10724",
+          "product_name": "Правила использования логотипа 10 слайдов",
+          "frequency": 0.1,
+          "final": 7938.52,
+          "sample_size": 5
+        },
+        {
+          "good_id": "11544",
+          "product_name": "Логобук шаблонный 10 слайдов",
+          "frequency": 0.1,
+          "final": 14246.95,
+          "sample_size": 5
+        },
+        {
+          "good_id": "10414",
+          "product_name": "Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение",
+          "frequency": 0.08,
+          "final": 6008.61,
+          "sample_size": 4
+        },
+        {
+          "good_id": "21472",
+          "product_name": "Разработка шрифтового логотипа Средней сложности 1 вариант",
+          "frequency": 0.08,
+          "final": 5000,
+          "sample_size": 4
+        },
+        {
+          "good_id": "21474",
+          "product_name": "Разработка шрифтового логотипа Сложная 1 вариант",
+          "frequency": 0.08,
+          "final": 10000,
+          "sample_size": 4
+        },
+        {
+          "good_id": "11546",
+          "product_name": "Логобук индивидуальный 10 слайдов",
+          "frequency": 0.08,
+          "final": 22111.53,
+          "sample_size": 4
+        },
+        {
+          "good_id": "22010",
+          "product_name": "Написание сценария для видеоролика от 10 сек до 300 секунд 1 идея",
+          "frequency": 0.08,
+          "final": 3000,
+          "sample_size": 4
+        },
+        {
+          "good_id": "21980",
+          "product_name": "Аудиомонтаж Средней сложности 1 час",
+          "frequency": 0.08,
+          "final": 2500,
+          "sample_size": 4
+        },
+        {
+          "good_id": "21470",
+          "product_name": "Разработка шрифтового логотипа Простая 1 вариант",
+          "frequency": 0.06,
+          "final": 2500,
+          "sample_size": 3
+        },
+        {
+          "good_id": "13614",
+          "product_name": "Почасовая работа с дизайнером рекламы 1 час",
+          "frequency": 0.06,
+          "final": 1500,
+          "sample_size": 3
+        },
+        {
+          "good_id": "11550",
+          "product_name": "Ручная отрисовка с доработкой орнамента средней сложности 1 векторное изображение",
+          "frequency": 0.06,
+          "final": 8331.23,
+          "sample_size": 3
+        },
+        {
+          "good_id": "10714",
+          "product_name": "Подбор мокапа со стоков 2 решения",
+          "frequency": 0.06,
+          "final": 507.34,
+          "sample_size": 3
+        },
+        {
+          "good_id": "10396",
+          "product_name": "Подбор мокапа со стоков 5 решений",
+          "frequency": 0.06,
+          "final": 1013.33,
+          "sample_size": 3
+        },
+        {
+          "good_id": "21550",
+          "product_name": "Подбор фирменных цветов 1 решение",
+          "frequency": 0.06,
+          "final": 2024.15,
+          "sample_size": 3
+        },
+        {
+          "good_id": "21960",
+          "product_name": "Полноформатная съемка Простая 1 час",
+          "frequency": 0.06,
+          "final": 2500,
+          "sample_size": 3
+        },
+        {
+          "good_id": "13616",
+          "product_name": "Почасовая работа с дизайнером - криэйтором 1 час",
+          "frequency": 0.06,
+          "final": 2285.41,
+          "sample_size": 3
+        },
+        {
+          "good_id": "10416",
+          "product_name": "Отрисовка ручная с доработкой сложного эскиза логотипа 1 векторное изображение",
+          "frequency": 0.04,
+          "final": 10000,
+          "sample_size": 2
+        },
+        {
+          "good_id": "10412",
+          "product_name": "Отрисовка ручная эскиза сложного логотипа 1 изображение",
+          "frequency": 0.04,
+          "final": 7768.37,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7278",
+          "product_name": "Подбор фона 2 решения",
+          "frequency": 0.04,
+          "final": 500,
+          "sample_size": 2
+        },
+        {
+          "good_id": "13612",
+          "product_name": "Почасовая работа с дизайнером - художником 1 час",
+          "frequency": 0.04,
+          "final": 1020.57,
+          "sample_size": 2
+        },
+        {
+          "good_id": "10398",
+          "product_name": "Доработка мокапа простая 1 решение",
+          "frequency": 0.04,
+          "final": 500,
+          "sample_size": 2
+        },
+        {
+          "good_id": "21400",
+          "product_name": "Макет поста для социальных сетей Простой 1 решение",
+          "frequency": 0.04,
+          "final": 1000,
+          "sample_size": 2
+        },
+        {
+          "good_id": "21972",
+          "product_name": "Видеомонтаж Простой 1 час",
+          "frequency": 0.04,
+          "final": 2000,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7290",
+          "product_name": "Макет визитки Простой 1 сторона",
+          "frequency": 0.04,
+          "final": 790.65,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7280",
+          "product_name": "Подбор фона 5 решений",
+          "frequency": 0.04,
+          "final": 1023.38,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7394",
+          "product_name": "Фотомонтаж Простой 1 объект",
+          "frequency": 0.04,
+          "final": 1023.08,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7346",
+          "product_name": "Гайдлайн Простой верстка 1 страницы",
+          "frequency": 0.04,
+          "final": 1025.28,
+          "sample_size": 2
+        },
+        {
+          "good_id": "21974",
+          "product_name": "Видеомонтаж Средней сложности 1 час",
+          "frequency": 0.04,
+          "final": 3000,
+          "sample_size": 2
+        },
+        {
+          "good_id": "10408",
+          "product_name": "Отрисовка ручная простого эскиза логотипа 1 изображение",
+          "frequency": 0.02,
+          "final": 2500,
+          "sample_size": 1
+        },
+        {
+          "good_id": "10410",
+          "product_name": "Отрисовка ручная эскиза логотипа средней сложности 1 изображение",
+          "frequency": 0.02,
+          "final": 5000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21458",
+          "product_name": "Редизайн логотипа Простой 1 решение",
+          "frequency": 0.02,
+          "final": 2500,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21460",
+          "product_name": "Редизайн логотипа Средней сложности 1 решение",
+          "frequency": 0.02,
+          "final": 5000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21462",
+          "product_name": "Редизайн логотипа Сложный 1 решение",
+          "frequency": 0.02,
+          "final": 10000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "10422",
+          "product_name": "Отрисовка ручная простого орнамента 1 векторное изображение",
+          "frequency": 0.02,
+          "final": 1000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7286",
+          "product_name": "Подбор шрифта 2 решения",
+          "frequency": 0.02,
+          "final": 200,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21190",
+          "product_name": "Макет слайда презентации со статьей простой 1 слайд",
+          "frequency": 0.02,
+          "final": 1500,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21482",
+          "product_name": "Создание эскиза логотипа с помощью нейросети Сложное 1 вариант",
+          "frequency": 0.02,
+          "final": 15000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7282",
+          "product_name": "Подбор иконки 2 решения",
+          "frequency": 0.02,
+          "final": 500,
+          "sample_size": 1
+        },
+        {
+          "good_id": "13818",
+          "product_name": "Безнал 10%",
+          "frequency": 0.02,
+          "final": 100,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21978",
+          "product_name": "Аудиомонтаж Простой 1 час",
+          "frequency": 0.02,
+          "final": 2000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "11192",
+          "product_name": "Макет иконки Сложный 1 решение",
+          "frequency": 0.02,
+          "final": 2000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7362",
+          "product_name": "Макет плаката имиджевого Простой 1 решение",
+          "frequency": 0.02,
+          "final": 2000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "13594",
+          "product_name": "Макет одноразового стаканчика Средней сложности 1 оригинал-макет",
+          "frequency": 0.02,
+          "final": 4000,
           "sample_size": 1
         }
       ]
@@ -16751,494 +17459,6 @@
       ]
     },
     {
-      "category_id": "labus:Логотип",
-      "category_name": "Логотип",
-      "keywords": [
-        "логотипа",
-        "логотип",
-        "гм-",
-        "отрисовка",
-        "ручная",
-        "эскиза",
-        "разработка",
-        "авр"
-      ],
-      "keywords_text": "Логотип. примеры заказов: Отрисовка ручная с доработкой эскиза логотипа | Отрисовка ручная эскиза логотипа | Креативная графическая идея для логотипа | Разработка шрифтового логотипа | Подбор шрифта для логотипа | Редизайн логотипа | Создание брифа на разработку логотипа Labus.pro | ГГ-0061 (Логотип \"Воевода\") | ГМ-0498 (доработка слайдов примеров работ стр логотипы) | ГМ-0517 (КРЕАТИВ ДЛЯ РК ЛОГОТИПЫ). ключевые слова: логотипа, логотип, гм-, отрисовка, ручная, эскиза, разработка, авр. компоненты: Заполнение брифа для разработки логотипа 1 интервью; Креативная графическая идея для логотипа с обоснованием 1 эскиз; Правила использования логотипа 10 слайдов; Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение.",
-      "sample_titles": [
-        "Отрисовка ручная с доработкой эскиза логотипа",
-        "Отрисовка ручная эскиза логотипа",
-        "Креативная графическая идея для логотипа",
-        "Разработка шрифтового логотипа",
-        "Подбор шрифта для логотипа",
-        "Редизайн логотипа",
-        "Создание брифа на разработку логотипа Labus.pro",
-        "ГГ-0061 (Логотип \"Воевода\")",
-        "ГМ-0498 (доработка слайдов примеров работ стр логотипы)",
-        "ГМ-0517 (КРЕАТИВ ДЛЯ РК ЛОГОТИПЫ)",
-        "ГМ-0529 (КРЕАТИВЫ ДЛЯ ЛОГОТИПА)",
-        "АА 0030 Логотип",
-        "ГМ-0538 (ЛОГОТИП МАЛИКА ШИХАМИРОВА)",
-        "РД-0067 Логотип",
-        "ГМ-0542 (ПРИМЕР РАБОТ ДЛЯ КАРУСЕЛИ ЛОГОТИПЫ)",
-        "ГМ-0547 (КРЕАТИВЫ И ИЗОБРАЖЕНИЯ ДЛЯ РЕК КАМПАНИИ РАЗРАБОТКА ЛОГОТИПА)",
-        "АА 0220 Логотип ИМПЕРИАЛ",
-        "МХ0033 Логотип",
-        "ААХ 0051 Отрисовка логотипа",
-        "АВР - 0073 Видеоролик Логотип КУРАГА https://rutube.ru/shorts/1e3f6ecd29b344aad183596c8ab032d6/"
-      ],
-      "deals_count": 47,
-      "avg_deal_value": 20064.47,
-      "canonical_smeta": {
-        "source_deal_id": "21208",
-        "source_deal_type": "offers",
-        "source_title": "Разработка логотипа пакет \"Стандарт\"",
-        "positions_count": 4,
-        "total": 23186.21,
-        "positions": [
-          {
-            "good_id": "10418",
-            "product_name": "Заполнение брифа для разработки логотипа 1 интервью",
-            "section_name": "Логотипы",
-            "parent_section": "Брендинг",
-            "direction": "Дизайн",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.23,
-            "price_stats": {
-              "mean": 4454.55,
-              "median": 5000,
-              "weighted_mean": 3095.53,
-              "trimmed_mean": 4666.67,
-              "final": 4304.19,
-              "std": 1157.08,
-              "cv": 0.2688,
-              "confidence": "medium",
-              "sample_size": 11
-            }
-          },
-          {
-            "good_id": "10420",
-            "product_name": "Креативная графическая идея для логотипа с обоснованием 1 эскиз",
-            "section_name": "Логотипы",
-            "parent_section": "Брендинг",
-            "direction": "Дизайн",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.34,
-            "price_stats": {
-              "mean": 4838.24,
-              "median": 5000,
-              "weighted_mean": 4901.31,
-              "trimmed_mean": 5000,
-              "final": 4934.89,
-              "std": 711.98,
-              "cv": 0.1443,
-              "confidence": "high",
-              "sample_size": 17
-            }
-          },
-          {
-            "good_id": "10724",
-            "product_name": "Правила использования логотипа 10 слайдов",
-            "section_name": "Логотипы",
-            "parent_section": "Брендинг",
-            "direction": "Дизайн",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.11,
-            "price_stats": {
-              "mean": 8000,
-              "median": 10000,
-              "weighted_mean": 5754.09,
-              "trimmed_mean": 8000,
-              "final": 7938.52,
-              "std": 2449.49,
-              "cv": 0.3086,
-              "confidence": "low",
-              "sample_size": 5
-            }
-          },
-          {
-            "good_id": "10414",
-            "product_name": "Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение",
-            "section_name": "Логотипы",
-            "parent_section": "Брендинг",
-            "direction": "Дизайн",
-            "quantity_typical": 1,
-            "unit": "шт",
-            "b24_section": "Дизайн",
-            "frequency": 0.09,
-            "price_stats": {
-              "mean": 6250,
-              "median": 6250,
-              "weighted_mean": 5284.45,
-              "trimmed_mean": 6250,
-              "final": 6008.61,
-              "std": 1250,
-              "cv": 0.208,
-              "confidence": "medium",
-              "sample_size": 4
-            }
-          }
-        ]
-      },
-      "all_goods_in_category": [
-        {
-          "good_id": "10420",
-          "product_name": "Креативная графическая идея для логотипа с обоснованием 1 эскиз",
-          "frequency": 0.34,
-          "final": 4934.89,
-          "sample_size": 17
-        },
-        {
-          "good_id": "10418",
-          "product_name": "Заполнение брифа для разработки логотипа 1 интервью",
-          "frequency": 0.23,
-          "final": 4304.19,
-          "sample_size": 11
-        },
-        {
-          "good_id": "10722",
-          "product_name": "Отрисовка ручная с доработкой простого эскиза логотипа 1 векторное изображение",
-          "frequency": 0.21,
-          "final": 4348.11,
-          "sample_size": 10
-        },
-        {
-          "good_id": "21464",
-          "product_name": "Подбор шрифта для логотипа 1 решение",
-          "frequency": 0.13,
-          "final": 1517.66,
-          "sample_size": 6
-        },
-        {
-          "good_id": "10404",
-          "product_name": "Наложение макета на Простой мокап 1 изображение",
-          "frequency": 0.13,
-          "final": 217.8,
-          "sample_size": 6
-        },
-        {
-          "good_id": "21466",
-          "product_name": "Подбор шрифта для логотипа 3 решения",
-          "frequency": 0.11,
-          "final": 3500,
-          "sample_size": 5
-        },
-        {
-          "good_id": "21468",
-          "product_name": "Подбор шрифта для логотипа 5 решений",
-          "frequency": 0.11,
-          "final": 5000,
-          "sample_size": 5
-        },
-        {
-          "good_id": "10724",
-          "product_name": "Правила использования логотипа 10 слайдов",
-          "frequency": 0.11,
-          "final": 7938.52,
-          "sample_size": 5
-        },
-        {
-          "good_id": "10414",
-          "product_name": "Отрисовка ручная с доработкой эскиза логотипа средней сложности 1 векторное изображение",
-          "frequency": 0.09,
-          "final": 6008.61,
-          "sample_size": 4
-        },
-        {
-          "good_id": "21472",
-          "product_name": "Разработка шрифтового логотипа Средней сложности 1 вариант",
-          "frequency": 0.09,
-          "final": 5000,
-          "sample_size": 4
-        },
-        {
-          "good_id": "21474",
-          "product_name": "Разработка шрифтового логотипа Сложная 1 вариант",
-          "frequency": 0.09,
-          "final": 10000,
-          "sample_size": 4
-        },
-        {
-          "good_id": "11546",
-          "product_name": "Логобук индивидуальный 10 слайдов",
-          "frequency": 0.09,
-          "final": 22111.53,
-          "sample_size": 4
-        },
-        {
-          "good_id": "22010",
-          "product_name": "Написание сценария для видеоролика от 10 сек до 300 секунд 1 идея",
-          "frequency": 0.09,
-          "final": 3000,
-          "sample_size": 4
-        },
-        {
-          "good_id": "21980",
-          "product_name": "Аудиомонтаж Средней сложности 1 час",
-          "frequency": 0.09,
-          "final": 2500,
-          "sample_size": 4
-        },
-        {
-          "good_id": "11544",
-          "product_name": "Логобук шаблонный 10 слайдов",
-          "frequency": 0.09,
-          "final": 13422.62,
-          "sample_size": 4
-        },
-        {
-          "good_id": "21470",
-          "product_name": "Разработка шрифтового логотипа Простая 1 вариант",
-          "frequency": 0.06,
-          "final": 2500,
-          "sample_size": 3
-        },
-        {
-          "good_id": "13614",
-          "product_name": "Почасовая работа с дизайнером рекламы 1 час",
-          "frequency": 0.06,
-          "final": 1500,
-          "sample_size": 3
-        },
-        {
-          "good_id": "11550",
-          "product_name": "Ручная отрисовка с доработкой орнамента средней сложности 1 векторное изображение",
-          "frequency": 0.06,
-          "final": 8331.23,
-          "sample_size": 3
-        },
-        {
-          "good_id": "10714",
-          "product_name": "Подбор мокапа со стоков 2 решения",
-          "frequency": 0.06,
-          "final": 507.34,
-          "sample_size": 3
-        },
-        {
-          "good_id": "10396",
-          "product_name": "Подбор мокапа со стоков 5 решений",
-          "frequency": 0.06,
-          "final": 1013.33,
-          "sample_size": 3
-        },
-        {
-          "good_id": "21550",
-          "product_name": "Подбор фирменных цветов 1 решение",
-          "frequency": 0.06,
-          "final": 2024.15,
-          "sample_size": 3
-        },
-        {
-          "good_id": "21960",
-          "product_name": "Полноформатная съемка Простая 1 час",
-          "frequency": 0.06,
-          "final": 2500,
-          "sample_size": 3
-        },
-        {
-          "good_id": "13616",
-          "product_name": "Почасовая работа с дизайнером - криэйтором 1 час",
-          "frequency": 0.06,
-          "final": 2285.41,
-          "sample_size": 3
-        },
-        {
-          "good_id": "10416",
-          "product_name": "Отрисовка ручная с доработкой сложного эскиза логотипа 1 векторное изображение",
-          "frequency": 0.04,
-          "final": 10000,
-          "sample_size": 2
-        },
-        {
-          "good_id": "10412",
-          "product_name": "Отрисовка ручная эскиза сложного логотипа 1 изображение",
-          "frequency": 0.04,
-          "final": 7768.37,
-          "sample_size": 2
-        },
-        {
-          "good_id": "7278",
-          "product_name": "Подбор фона 2 решения",
-          "frequency": 0.04,
-          "final": 500,
-          "sample_size": 2
-        },
-        {
-          "good_id": "10398",
-          "product_name": "Доработка мокапа простая 1 решение",
-          "frequency": 0.04,
-          "final": 500,
-          "sample_size": 2
-        },
-        {
-          "good_id": "21400",
-          "product_name": "Макет поста для социальных сетей Простой 1 решение",
-          "frequency": 0.04,
-          "final": 1000,
-          "sample_size": 2
-        },
-        {
-          "good_id": "21972",
-          "product_name": "Видеомонтаж Простой 1 час",
-          "frequency": 0.04,
-          "final": 2000,
-          "sample_size": 2
-        },
-        {
-          "good_id": "7290",
-          "product_name": "Макет визитки Простой 1 сторона",
-          "frequency": 0.04,
-          "final": 790.65,
-          "sample_size": 2
-        },
-        {
-          "good_id": "7280",
-          "product_name": "Подбор фона 5 решений",
-          "frequency": 0.04,
-          "final": 1023.38,
-          "sample_size": 2
-        },
-        {
-          "good_id": "7394",
-          "product_name": "Фотомонтаж Простой 1 объект",
-          "frequency": 0.04,
-          "final": 1023.08,
-          "sample_size": 2
-        },
-        {
-          "good_id": "7346",
-          "product_name": "Гайдлайн Простой верстка 1 страницы",
-          "frequency": 0.04,
-          "final": 1025.28,
-          "sample_size": 2
-        },
-        {
-          "good_id": "21974",
-          "product_name": "Видеомонтаж Средней сложности 1 час",
-          "frequency": 0.04,
-          "final": 3000,
-          "sample_size": 2
-        },
-        {
-          "good_id": "10408",
-          "product_name": "Отрисовка ручная простого эскиза логотипа 1 изображение",
-          "frequency": 0.02,
-          "final": 2500,
-          "sample_size": 1
-        },
-        {
-          "good_id": "10410",
-          "product_name": "Отрисовка ручная эскиза логотипа средней сложности 1 изображение",
-          "frequency": 0.02,
-          "final": 5000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "21458",
-          "product_name": "Редизайн логотипа Простой 1 решение",
-          "frequency": 0.02,
-          "final": 2500,
-          "sample_size": 1
-        },
-        {
-          "good_id": "21460",
-          "product_name": "Редизайн логотипа Средней сложности 1 решение",
-          "frequency": 0.02,
-          "final": 5000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "21462",
-          "product_name": "Редизайн логотипа Сложный 1 решение",
-          "frequency": 0.02,
-          "final": 10000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "10422",
-          "product_name": "Отрисовка ручная простого орнамента 1 векторное изображение",
-          "frequency": 0.02,
-          "final": 1000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "7286",
-          "product_name": "Подбор шрифта 2 решения",
-          "frequency": 0.02,
-          "final": 200,
-          "sample_size": 1
-        },
-        {
-          "good_id": "21190",
-          "product_name": "Макет слайда презентации со статьей простой 1 слайд",
-          "frequency": 0.02,
-          "final": 1500,
-          "sample_size": 1
-        },
-        {
-          "good_id": "13612",
-          "product_name": "Почасовая работа с дизайнером - художником 1 час",
-          "frequency": 0.02,
-          "final": 1000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "21482",
-          "product_name": "Создание эскиза логотипа с помощью нейросети Сложное 1 вариант",
-          "frequency": 0.02,
-          "final": 15000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "7282",
-          "product_name": "Подбор иконки 2 решения",
-          "frequency": 0.02,
-          "final": 500,
-          "sample_size": 1
-        },
-        {
-          "good_id": "13818",
-          "product_name": "Безнал 10%",
-          "frequency": 0.02,
-          "final": 100,
-          "sample_size": 1
-        },
-        {
-          "good_id": "21978",
-          "product_name": "Аудиомонтаж Простой 1 час",
-          "frequency": 0.02,
-          "final": 2000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "11192",
-          "product_name": "Макет иконки Сложный 1 решение",
-          "frequency": 0.02,
-          "final": 2000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "7362",
-          "product_name": "Макет плаката имиджевого Простой 1 решение",
-          "frequency": 0.02,
-          "final": 2000,
-          "sample_size": 1
-        },
-        {
-          "good_id": "13594",
-          "product_name": "Макет одноразового стаканчика Средней сложности 1 оригинал-макет",
-          "frequency": 0.02,
-          "final": 4000,
-          "sample_size": 1
-        }
-      ]
-    },
-    {
       "category_id": "labus:Презентации",
       "category_name": "Презентации",
       "keywords": [
@@ -17553,7 +17773,7 @@
         },
         {
           "good_id": "7864",
-          "product_name": "Хайкот А3 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А3 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.04,
           "final": 6.88,
           "sample_size": 2
@@ -18853,7 +19073,7 @@
         },
         {
           "good_id": "8692",
-          "product_name": "Резка листового материала ЧПУ до 5 мп",
+          "product_name": "Резка листового материала ЧПУ до 5 мп Цех",
           "frequency": 0.15,
           "final": 87.62,
           "sample_size": 6
@@ -18888,7 +19108,7 @@
         },
         {
           "good_id": "8694",
-          "product_name": "Резка листового материала ЧПУ 5-10 мп",
+          "product_name": "Резка листового материала ЧПУ 5-10 мп Цех",
           "frequency": 0.13,
           "final": 63.05,
           "sample_size": 5
@@ -18986,7 +19206,7 @@
         },
         {
           "good_id": "8696",
-          "product_name": "Резка листового материала ЧПУ 10-30 мп",
+          "product_name": "Резка листового материала ЧПУ 10-30 мп Цех",
           "frequency": 0.08,
           "final": 58.46,
           "sample_size": 3
@@ -21657,7 +21877,7 @@
         },
         {
           "good_id": "8694",
-          "product_name": "Резка листового материала ЧПУ 5-10 мп",
+          "product_name": "Резка листового материала ЧПУ 5-10 мп Цех",
           "frequency": 0.04,
           "final": 85,
           "sample_size": 1
@@ -21701,11 +21921,11 @@
         "неоновый",
         "подвесной",
         "светильник",
-        "неонов",
         "гм-",
-        "баннера"
+        "неоновые",
+        "вывески"
       ],
-      "keywords_text": "Неоновые вывески. примеры заказов: Неоновая вывеска \"BEAUTY STUDIO\" (96х50 см) | Неоновая вывеска \"BEAUTY BAR\" (128х65 см) | Неоновая вывеска \"CHILL-ZONE\" (156х50 см) | Неоновая вывеска \"FITNES CLUB\" (176х118 см) | Неоновая вывеска \"GOODS VIBE ONLY\" (136х80 см) | Неоновая вывеска \"JUST RELAX\" (200х66 см) | Неоновая вывеска \"LETS DANCE\" (104х40 см) | Неоновая вывеска \"NEIL STUDIO\" (74х74 см) | Неоновая вывеска \"PILATES\" (100х65 см) | Неоновый подвесной светильник \"THIS IS THE MOMENT\" (230х230 см). ключевые слова: вывеска, неоновая, неоновый, подвесной, светильник, неонов, гм-, баннера. компоненты: Блок питания 60 Вт 1 шт; Оргстекло прозрачное4 до 1 кв.м; Точечная пайка гибкого неона 10-30 шт Цех; Прокладка гибкого неона 3-10 мп Цех; Гибкий неон 8х16 мм 3-10 мп Цех.",
+      "keywords_text": "Неоновые вывески. примеры заказов: Неоновая вывеска \"BEAUTY STUDIO\" (96х50 см) | Неоновая вывеска \"BEAUTY BAR\" (128х65 см) | Неоновая вывеска \"CHILL-ZONE\" (156х50 см) | Неоновая вывеска \"FITNES CLUB\" (176х118 см) | Неоновая вывеска \"GOODS VIBE ONLY\" (136х80 см) | Неоновая вывеска \"JUST RELAX\" (200х66 см) | Неоновая вывеска \"LETS DANCE\" (104х40 см) | Неоновая вывеска \"NEIL STUDIO\" (74х74 см) | Неоновая вывеска \"PILATES\" (100х65 см) | Неоновый подвесной светильник \"THIS IS THE MOMENT\" (230х230 см). ключевые слова: вывеска, неоновая, неоновый, подвесной, светильник, гм-, неоновые, вывески. компоненты: Блок питания 60 Вт 1 шт; Оргстекло прозрачное4 до 1 кв.м; Точечная пайка гибкого неона 10-30 шт Цех; Прокладка гибкого неона 3-10 мп Цех; Гибкий неон 8х16 мм 3-10 мп Цех.",
       "sample_titles": [
         "Неоновая вывеска \"BEAUTY STUDIO\" (96х50 см)",
         "Неоновая вывеска \"BEAUTY BAR\" (128х65 см)",
@@ -21728,14 +21948,14 @@
         "Неоновая вывеска \"ЗДЕСЬ ТВОРЯТ КРАСОТУ\" (210х72 см)",
         "Неоновая вывеска \"HAIR DESIGN STUDIO\" (77х68 см)"
       ],
-      "deals_count": 23,
-      "avg_deal_value": 29115.93,
+      "deals_count": 24,
+      "avg_deal_value": 29569.43,
       "canonical_smeta": {
-        "source_deal_id": "69956",
+        "source_deal_id": "69920",
         "source_deal_type": "offers",
-        "source_title": "Неоновая вывеска \"КОФЕ\" (110х67 см)",
+        "source_title": "Неоновая вывеска \"CHILL-ZONE\" (156х50 см)",
         "positions_count": 6,
-        "total": 26215,
+        "total": 26576.82,
         "positions": [
           {
             "good_id": "8752",
@@ -21746,7 +21966,7 @@
             "quantity_typical": 1,
             "unit": "шт",
             "b24_section": "Цех",
-            "frequency": 0.52,
+            "frequency": 0.5,
             "price_stats": {
               "mean": 1092,
               "median": 1092,
@@ -21765,7 +21985,7 @@
             "section_name": "Оргстекло",
             "parent_section": "Таблички",
             "direction": "Цех",
-            "quantity_typical": 0.77,
+            "quantity_typical": 0.8,
             "unit": "шт",
             "b24_section": "Цех",
             "frequency": 0.17,
@@ -21787,10 +22007,10 @@
             "section_name": "Пайка",
             "parent_section": "Гибкий неон",
             "direction": "Цех",
-            "quantity_typical": 23,
+            "quantity_typical": 22,
             "unit": "шт",
             "b24_section": "Цех",
-            "frequency": 0.52,
+            "frequency": 0.5,
             "price_stats": {
               "mean": 668.96,
               "median": 682.5,
@@ -21809,10 +22029,10 @@
             "section_name": "Прокладка",
             "parent_section": "Гибкий неон",
             "direction": "Цех",
-            "quantity_typical": 5.5,
+            "quantity_typical": 6,
             "unit": "шт",
             "b24_section": "Цех",
-            "frequency": 0.74,
+            "frequency": 0.71,
             "price_stats": {
               "mean": 281.65,
               "median": 280,
@@ -21831,10 +22051,10 @@
             "section_name": "Гибкий неон 8х16 мм",
             "parent_section": "Гибкий неон",
             "direction": "Цех",
-            "quantity_typical": 5.5,
+            "quantity_typical": 6,
             "unit": "шт",
             "b24_section": "Цех",
-            "frequency": 0.74,
+            "frequency": 0.71,
             "price_stats": {
               "mean": 598.5,
               "median": 595,
@@ -21848,25 +22068,25 @@
             }
           },
           {
-            "good_id": "8692",
-            "product_name": "Резка листового материала ЧПУ до 5 мп",
+            "good_id": "8696",
+            "product_name": "Резка листового материала ЧПУ 10-30 мп",
             "section_name": "Резка",
             "parent_section": "Листовые",
-            "direction": "Резка",
-            "quantity_typical": 8.5,
+            "direction": "Цех",
+            "quantity_typical": 18,
             "unit": "шт",
-            "b24_section": "Резка",
-            "frequency": 0.09,
+            "b24_section": "Цех",
+            "frequency": 0.46,
             "price_stats": {
-              "mean": 60,
-              "median": 60,
-              "weighted_mean": 60,
-              "trimmed_mean": 60,
-              "final": 60,
-              "std": 0,
-              "cv": 0,
+              "mean": 52.24,
+              "median": 52,
+              "weighted_mean": 52.17,
+              "trimmed_mean": 52,
+              "final": 52.1,
+              "std": 0.75,
+              "cv": 0.0143,
               "confidence": "high",
-              "sample_size": 2
+              "sample_size": 11
             }
           }
         ]
@@ -21875,71 +22095,71 @@
         {
           "good_id": "23932",
           "product_name": "Прокладка гибкого неона 3-10 мп Цех",
-          "frequency": 0.74,
+          "frequency": 0.71,
           "final": 281.14,
           "sample_size": 17
         },
         {
           "good_id": "23944",
           "product_name": "Гибкий неон 8х16 мм 3-10 мп Цех",
-          "frequency": 0.74,
+          "frequency": 0.71,
           "final": 597.42,
           "sample_size": 17
         },
         {
           "good_id": "8752",
           "product_name": "Блок питания 60 Вт 1 шт",
-          "frequency": 0.52,
+          "frequency": 0.5,
           "final": 1092,
           "sample_size": 12
         },
         {
           "good_id": "23922",
           "product_name": "Точечная пайка гибкого неона 10-30 шт Цех",
-          "frequency": 0.52,
+          "frequency": 0.5,
           "final": 672.93,
           "sample_size": 12
         },
         {
           "good_id": "8696",
-          "product_name": "Резка листового материала ЧПУ 10-30 мп",
-          "frequency": 0.48,
+          "product_name": "Резка листового материала ЧПУ 10-30 мп Цех",
+          "frequency": 0.46,
           "final": 52.1,
           "sample_size": 11
         },
         {
           "good_id": "9928",
           "product_name": "Оргстекло прозрачное4 до 1 кв.м",
-          "frequency": 0.35,
+          "frequency": 0.33,
           "final": 5615.58,
           "sample_size": 8
         },
         {
           "good_id": "8754",
           "product_name": "Блок питания 150 Вт 1 шт",
-          "frequency": 0.35,
+          "frequency": 0.33,
           "final": 546,
           "sample_size": 8
         },
         {
           "good_id": "8694",
-          "product_name": "Резка листового материала ЧПУ 5-10 мп",
-          "frequency": 0.3,
+          "product_name": "Резка листового материала ЧПУ 5-10 мп Цех",
+          "frequency": 0.29,
           "final": 56.29,
           "sample_size": 7
         },
         {
           "good_id": "23924",
           "product_name": "Точечная пайка гибкого неона 30-60 шт Цех",
-          "frequency": 0.26,
+          "frequency": 0.25,
           "final": 626.09,
           "sample_size": 6
         },
         {
           "good_id": "9930",
           "product_name": "Оргстекло прозрачное4 1-2 кв.м",
-          "frequency": 0.26,
-          "final": 5414.18,
+          "frequency": 0.25,
+          "final": 5414.17,
           "sample_size": 6
         },
         {
@@ -21980,14 +22200,14 @@
         {
           "good_id": "23920",
           "product_name": "Точечная пайка гибкого неона 3-10 шт Цех",
-          "frequency": 0.09,
+          "frequency": 0.08,
           "final": 735,
           "sample_size": 2
         },
         {
           "good_id": "8692",
-          "product_name": "Резка листового материала ЧПУ до 5 мп",
-          "frequency": 0.09,
+          "product_name": "Резка листового материала ЧПУ до 5 мп Цех",
+          "frequency": 0.08,
           "final": 60,
           "sample_size": 2
         },
@@ -22007,7 +22227,7 @@
         },
         {
           "good_id": "8698",
-          "product_name": "Резка листового материала ЧПУ 30-60 мп",
+          "product_name": "Резка листового материала ЧПУ 30-60 мп Цех",
           "frequency": 0.04,
           "final": 50.4,
           "sample_size": 1
@@ -22038,6 +22258,20 @@
           "product_name": "3D моделирование простого объекта 1 шт",
           "frequency": 0.04,
           "final": 5000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7394",
+          "product_name": "Фотомонтаж Простой 1 объект",
+          "frequency": 0.04,
+          "final": 1000,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21234",
+          "product_name": "Макет вывески световой с визуалицией день/ночь Простой 1 макет",
+          "frequency": 0.04,
+          "final": 1000,
           "sample_size": 1
         },
         {
@@ -28858,7 +29092,7 @@
         },
         {
           "good_id": "20884",
-          "product_name": "Хайкот А4 бум. 300 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А4 бум. 370 гр. 1 шт Печатная",
           "frequency": 0.2,
           "final": 5.71,
           "sample_size": 1
@@ -29002,7 +29236,7 @@
             "price_stats": {
               "mean": 234.37,
               "median": 234.37,
-              "weighted_mean": 234.37,
+              "weighted_mean": 234.36,
               "trimmed_mean": 234.37,
               "final": 234.37,
               "std": 153.14,
@@ -29024,7 +29258,7 @@
             "price_stats": {
               "mean": 234.37,
               "median": 234.37,
-              "weighted_mean": 234.37,
+              "weighted_mean": 234.36,
               "trimmed_mean": 234.37,
               "final": 234.37,
               "std": 153.14,
@@ -29046,7 +29280,7 @@
             "price_stats": {
               "mean": 234.37,
               "median": 234.37,
-              "weighted_mean": 234.37,
+              "weighted_mean": 234.36,
               "trimmed_mean": 234.37,
               "final": 234.37,
               "std": 153.14,
@@ -30268,7 +30502,7 @@
         },
         {
           "good_id": "20882",
-          "product_name": "Хайкот А3 бум. 300 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А3 бум. 370 гр. 1 шт Печатная",
           "frequency": 0.5,
           "final": 10.88,
           "sample_size": 2
@@ -30779,7 +31013,7 @@
         },
         {
           "good_id": "20892",
-          "product_name": "Хайкот бум. визитки 300 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP бум. визитки 370 гр. 1 шт Печатная",
           "frequency": 0.25,
           "final": 0.47,
           "sample_size": 2
@@ -31706,7 +31940,7 @@
       "category_id": "0354",
       "category_name": "0354",
       "keywords": [],
-      "keywords_text": "0354. примеры заказов: 0354 | 0354(а). компоненты: Стенд из ПВХ оклеенный 5 мм 10-20 м²; Ламинация с накаткой холодная глянцевая 3-10 м²; Карманы плоские А4 3-5 шт; Карман плоский ПЭТ 1,5 мм А5 5-10 шт Цех; Резка листового материала ЧПУ 5-10 мп.",
+      "keywords_text": "0354. примеры заказов: 0354 | 0354(а). компоненты: Стенд из ПВХ оклеенный 5 мм 10-20 м²; Ламинация с накаткой холодная глянцевая 3-10 м²; Карманы плоские А4 3-5 шт; Карман плоский ПЭТ 1,5 мм А5 5-10 шт Цех; Резка листового материала ЧПУ 5-10 мп Цех.",
       "sample_titles": [
         "0354",
         "0354(а)"
@@ -31810,13 +32044,13 @@
           },
           {
             "good_id": "8694",
-            "product_name": "Резка листового материала ЧПУ 5-10 мп",
+            "product_name": "Резка листового материала ЧПУ 5-10 мп Цех",
             "section_name": "Резка",
             "parent_section": "Листовые",
-            "direction": "Резка",
+            "direction": "Цех",
             "quantity_typical": 5,
             "unit": "шт",
-            "b24_section": "Резка",
+            "b24_section": "Цех",
             "frequency": 0.33,
             "price_stats": {
               "mean": 100,
@@ -31854,13 +32088,13 @@
           },
           {
             "good_id": "8700",
-            "product_name": "Резка листового материала ЧПУ 60-100 мп",
+            "product_name": "Резка листового материала ЧПУ 60-100 мп Цех",
             "section_name": "Резка",
             "parent_section": "Листовые",
-            "direction": "Резка",
+            "direction": "Цех",
             "quantity_typical": 74,
             "unit": "шт",
-            "b24_section": "Резка",
+            "b24_section": "Цех",
             "frequency": 0.33,
             "price_stats": {
               "mean": 68,
@@ -31907,7 +32141,7 @@
         },
         {
           "good_id": "8694",
-          "product_name": "Резка листового материала ЧПУ 5-10 мп",
+          "product_name": "Резка листового материала ЧПУ 5-10 мп Цех",
           "frequency": 0.33,
           "final": 100,
           "sample_size": 1
@@ -31921,7 +32155,7 @@
         },
         {
           "good_id": "8700",
-          "product_name": "Резка листового материала ЧПУ 60-100 мп",
+          "product_name": "Резка листового материала ЧПУ 60-100 мп Цех",
           "frequency": 0.33,
           "final": 68,
           "sample_size": 1
@@ -32659,7 +32893,7 @@
         },
         {
           "good_id": "4822",
-          "product_name": "Хайкот А5 бум. 180 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А5 бум. 160 гр. 1 шт Печатная",
           "frequency": 0.33,
           "final": 2.14,
           "sample_size": 1
@@ -35881,6 +36115,909 @@
       ]
     },
     {
+      "category_id": "вывеска",
+      "category_name": "Вывеска",
+      "keywords": [
+        "вывеска",
+        "labus",
+        "дагестанавтотранс"
+      ],
+      "keywords_text": "Вывеска. примеры заказов: Вывеска Labus | МХ Вывеска для Дагестанавтотранс | Вывеска \"Село\". ключевые слова: вывеска, labus, дагестанавтотранс. компоненты: Прокладка кабеля питания к вывеске монтаж до 5 мп Цех; Подготовка макета к производству Средней сложности за 1 макет; Выезд на монтаж 1 монтажник Цех; Выезд на замеры сложный Цех; Баня.",
+      "sample_titles": [
+        "Вывеска Labus",
+        "МХ Вывеска для Дагестанавтотранс",
+        "Вывеска \"Село\""
+      ],
+      "deals_count": 3,
+      "avg_deal_value": 157683.89,
+      "canonical_smeta": {
+        "source_deal_id": "65856",
+        "source_deal_type": "orders",
+        "source_title": "МХ Вывеска для Дагестанавтотранс",
+        "positions_count": 28,
+        "total": 3921916.71,
+        "positions": [
+          {
+            "good_id": "21892",
+            "product_name": "Прокладка кабеля питания к вывеске монтаж до 5 мп Цех",
+            "section_name": "Прокладка провода к вывеске",
+            "parent_section": "Электрика",
+            "direction": "Цех",
+            "quantity_typical": 10,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 220.5,
+              "median": 220.5,
+              "weighted_mean": 220.5,
+              "trimmed_mean": 220.5,
+              "final": 220.5,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "25866",
+            "product_name": "Подготовка макета к производству Средней сложности за 1 макет",
+            "section_name": "Дизайн",
+            "parent_section": "",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 1050,
+              "median": 1050,
+              "weighted_mean": 1050,
+              "trimmed_mean": 1050,
+              "final": 1050,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "11368",
+            "product_name": "Выезд на монтаж 1 монтажник Цех",
+            "section_name": "Выезды",
+            "parent_section": "",
+            "direction": "Цех",
+            "quantity_typical": 3,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 1575,
+              "median": 1575,
+              "weighted_mean": 1575,
+              "trimmed_mean": 1575,
+              "final": 1575,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "11366",
+            "product_name": "Выезд на замеры сложный Цех",
+            "section_name": "Выезды",
+            "parent_section": "",
+            "direction": "Цех",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 3150,
+              "median": 3150,
+              "weighted_mean": 3150,
+              "trimmed_mean": 3150,
+              "final": 3150,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "13818",
+            "product_name": "Баня",
+            "section_name": "",
+            "parent_section": "",
+            "direction": "Безнал",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Безнал",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 10552.5,
+              "median": 10552.5,
+              "weighted_mean": 150.92,
+              "trimmed_mean": 10552.5,
+              "final": 7952.11,
+              "std": 10447.5,
+              "cv": 1.3138,
+              "confidence": "low",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "13818",
+            "product_name": "Безнал 10%",
+            "section_name": "",
+            "parent_section": "",
+            "direction": "Безнал",
+            "quantity_typical": 454,
+            "unit": "шт",
+            "b24_section": "Безнал",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 10552.5,
+              "median": 10552.5,
+              "weighted_mean": 150.92,
+              "trimmed_mean": 10552.5,
+              "final": 7952.11,
+              "std": 10447.5,
+              "cv": 1.3138,
+              "confidence": "low",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "8788",
+            "product_name": "Стабилизатор 1 кВт 1 шт",
+            "section_name": "Стабилизатор 1 кВт",
+            "parent_section": "Электрика",
+            "direction": "Цех",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.67,
+            "price_stats": {
+              "mean": 5478.28,
+              "median": 5478.28,
+              "weighted_mean": 5540.63,
+              "trimmed_mean": 5478.28,
+              "final": 5493.86,
+              "std": 308.28,
+              "cv": 0.0561,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "8340",
+            "product_name": "Установка Фотореле макс.нагрузка 2,2кВт 1 шт. Цех",
+            "section_name": "Свет",
+            "parent_section": "Короба",
+            "direction": "Цех",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.67,
+            "price_stats": {
+              "mean": 1435,
+              "median": 1435,
+              "weighted_mean": 1442.08,
+              "trimmed_mean": 1435,
+              "final": 1436.77,
+              "std": 35,
+              "cv": 0.0244,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "7690",
+            "product_name": "Монтаж вывески сложный 1-2 кв.м Цех",
+            "section_name": "Монтаж",
+            "parent_section": "Буквы",
+            "direction": "Цех",
+            "quantity_typical": 15,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 2646,
+              "median": 2646,
+              "weighted_mean": 2646,
+              "trimmed_mean": 2646,
+              "final": 2646,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "7520",
+            "product_name": "Монтаж буквы сложной в цеху до 3 мп Цех",
+            "section_name": "Монтаж",
+            "parent_section": "Буквы",
+            "direction": "Цех",
+            "quantity_typical": 42,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 504,
+              "median": 504,
+              "weighted_mean": 504,
+              "trimmed_mean": 504,
+              "final": 504,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "7520",
+            "product_name": "Монтаж буквы сложной в цеху до 3 мп Цех",
+            "section_name": "Монтаж",
+            "parent_section": "Буквы",
+            "direction": "Цех",
+            "quantity_typical": 18,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 504,
+              "median": 504,
+              "weighted_mean": 504,
+              "trimmed_mean": 504,
+              "final": 504,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "8212",
+            "product_name": "Сварка металлокаркаса и покраска рамка 3-10 кв.м Цех",
+            "section_name": "Сварка",
+            "parent_section": "Короба",
+            "direction": "Цех",
+            "quantity_typical": 14,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 1228.5,
+              "median": 1228.5,
+              "weighted_mean": 1228.5,
+              "trimmed_mean": 1228.5,
+              "final": 1228.5,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "8212",
+            "product_name": "Сварка металлокаркаса и покраска рамка 3-10 кв.м Цех",
+            "section_name": "Сварка",
+            "parent_section": "Короба",
+            "direction": "Цех",
+            "quantity_typical": 6,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 1228.5,
+              "median": 1228.5,
+              "weighted_mean": 1228.5,
+              "trimmed_mean": 1228.5,
+              "final": 1228.5,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "8780",
+            "product_name": "Труба профильная 20х20 1,5 мм металлическая 10-100 мп",
+            "section_name": "Трубы 20х20 1,5 мм",
+            "parent_section": "металл",
+            "direction": "Цех",
+            "quantity_typical": 90,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.67,
+            "price_stats": {
+              "mean": 131.2,
+              "median": 131.2,
+              "weighted_mean": 133.88,
+              "trimmed_mean": 131.2,
+              "final": 131.87,
+              "std": 3.2,
+              "cv": 0.0243,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "7730",
+            "product_name": "Свет для буквы лента 31-60 мп Цех",
+            "section_name": "Свет",
+            "parent_section": "Буквы",
+            "direction": "Цех",
+            "quantity_typical": 60,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.67,
+            "price_stats": {
+              "mean": 663.04,
+              "median": 663.04,
+              "weighted_mean": 638.63,
+              "trimmed_mean": 663.04,
+              "final": 656.94,
+              "std": 31.18,
+              "cv": 0.0475,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "25880",
+            "product_name": "Алюминиевый борт с гибкой 8 мм 3-10 мп Цех",
+            "section_name": "Объем",
+            "parent_section": "Буквы",
+            "direction": "Цех",
+            "quantity_typical": 60,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 325.5,
+              "median": 325.5,
+              "weighted_mean": 325.5,
+              "trimmed_mean": 325.5,
+              "final": 325.5,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "8694",
+            "product_name": "Резка листового материала ЧПУ 5-10 мп",
+            "section_name": "Резка",
+            "parent_section": "Листовые",
+            "direction": "Цех",
+            "quantity_typical": 60,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 58.8,
+              "median": 58.8,
+              "weighted_mean": 58.8,
+              "trimmed_mean": 58.8,
+              "final": 58.8,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 3
+            }
+          },
+          {
+            "good_id": "8694",
+            "product_name": "Резка листового материала ЧПУ 5-10 мп",
+            "section_name": "Резка",
+            "parent_section": "Листовые",
+            "direction": "Цех",
+            "quantity_typical": 60,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 58.8,
+              "median": 58.8,
+              "weighted_mean": 58.8,
+              "trimmed_mean": 58.8,
+              "final": 58.8,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 3
+            }
+          },
+          {
+            "good_id": "25784",
+            "product_name": "Сборка объема БОРТОГИБ до 3 мп Цех",
+            "section_name": "Объем",
+            "parent_section": "Буквы",
+            "direction": "Цех",
+            "quantity_typical": 60,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 504,
+              "median": 504,
+              "weighted_mean": 504,
+              "trimmed_mean": 504,
+              "final": 504,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "8694",
+            "product_name": "Резка листового материала ЧПУ 5-10 мп",
+            "section_name": "Резка",
+            "parent_section": "Листовые",
+            "direction": "Цех",
+            "quantity_typical": 60,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 58.8,
+              "median": 58.8,
+              "weighted_mean": 58.8,
+              "trimmed_mean": 58.8,
+              "final": 58.8,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 3
+            }
+          },
+          {
+            "good_id": "9830",
+            "product_name": "ПВХ8 более 6 кв.м",
+            "section_name": "ПВХ",
+            "parent_section": "Титульные вывески",
+            "direction": "Цех",
+            "quantity_typical": 10,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 3374.96,
+              "median": 3374.96,
+              "weighted_mean": 3374.96,
+              "trimmed_mean": 3374.96,
+              "final": 3374.96,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "9890",
+            "product_name": "Акрил цветной более 6 кв.м",
+            "section_name": "Акрил",
+            "parent_section": "Титульные вывески",
+            "direction": "Цех",
+            "quantity_typical": 10,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 4081.35,
+              "median": 4081.35,
+              "weighted_mean": 4081.35,
+              "trimmed_mean": 4081.35,
+              "final": 4081.35,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "11366",
+            "product_name": "Выезд на замеры сложный Цех",
+            "section_name": "Выезды",
+            "parent_section": "",
+            "direction": "Цех",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Цех",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 3150,
+              "median": 3150,
+              "weighted_mean": 3150,
+              "trimmed_mean": 3150,
+              "final": 3150,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 2
+            }
+          },
+          {
+            "good_id": "13614",
+            "product_name": "Почасовая работа с дизайнером рекламы 1 час",
+            "section_name": "Почасовая работа",
+            "parent_section": "Дизайн",
+            "direction": "Дизайн",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Дизайн",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 1575,
+              "median": 1575,
+              "weighted_mean": 1575,
+              "trimmed_mean": 1575,
+              "final": 1575,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "5008",
+            "product_name": "Хайкот А6 бум. 180 гр. 1 шт Печатная",
+            "section_name": "Бумага",
+            "parent_section": "А6",
+            "direction": "Печатная",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Печатная",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 0.88,
+              "median": 0.88,
+              "weighted_mean": 0.88,
+              "trimmed_mean": 0.88,
+              "final": 0.88,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "4890",
+            "product_name": "А6 Печать 4+0 8-16 шт Печатная",
+            "section_name": "Печать",
+            "parent_section": "А6",
+            "direction": "Печатная",
+            "quantity_typical": 1,
+            "unit": "шт",
+            "b24_section": "Печатная",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 10.45,
+              "median": 10.45,
+              "weighted_mean": 10.45,
+              "trimmed_mean": 10.45,
+              "final": 10.45,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "19032",
+            "product_name": "Шнурок на резинке клип-рулетке 10 шт",
+            "section_name": "На шнурке",
+            "parent_section": "Бейджи",
+            "direction": "POS",
+            "quantity_typical": 2,
+            "unit": "шт",
+            "b24_section": "POS",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 94.5,
+              "median": 94.5,
+              "weighted_mean": 94.5,
+              "trimmed_mean": 94.5,
+              "final": 94.5,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          },
+          {
+            "good_id": "19056",
+            "product_name": "Бейдж карман А2 106х88 мм 10 шт",
+            "section_name": "На шнурке",
+            "parent_section": "Бейджи",
+            "direction": "POS",
+            "quantity_typical": 2,
+            "unit": "шт",
+            "b24_section": "POS",
+            "frequency": 0.33,
+            "price_stats": {
+              "mean": 9.45,
+              "median": 9.45,
+              "weighted_mean": 9.45,
+              "trimmed_mean": 9.45,
+              "final": 9.45,
+              "std": 0,
+              "cv": 0,
+              "confidence": "high",
+              "sample_size": 1
+            }
+          }
+        ]
+      },
+      "all_goods_in_category": [
+        {
+          "good_id": "8788",
+          "product_name": "Стабилизатор 1 кВт 1 шт Цех",
+          "frequency": 0.67,
+          "final": 5493.86,
+          "sample_size": 2
+        },
+        {
+          "good_id": "8340",
+          "product_name": "Установка Фотореле макс.нагрузка 2,2кВт 1 шт. Цех",
+          "frequency": 0.67,
+          "final": 1436.77,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7730",
+          "product_name": "Свет для буквы лента 31-60 мп Цех",
+          "frequency": 0.67,
+          "final": 656.94,
+          "sample_size": 2
+        },
+        {
+          "good_id": "8780",
+          "product_name": "Труба профильная 20х20 1,5 мм металлическая 10-100 мп",
+          "frequency": 0.67,
+          "final": 131.87,
+          "sample_size": 2
+        },
+        {
+          "good_id": "23924",
+          "product_name": "Точечная пайка гибкого неона 30-60 шт Цех",
+          "frequency": 0.33,
+          "final": 600,
+          "sample_size": 1
+        },
+        {
+          "good_id": "23934",
+          "product_name": "Прокладка гибкого неона 11-50 мп Цех",
+          "frequency": 0.33,
+          "final": 260,
+          "sample_size": 1
+        },
+        {
+          "good_id": "23952",
+          "product_name": "Гибкий неон 8х16 мм более 300 мп Цех",
+          "frequency": 0.33,
+          "final": 455,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7694",
+          "product_name": "Монтаж вывески сложный 11-25 кв.м Цех",
+          "frequency": 0.33,
+          "final": 2160,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7514",
+          "product_name": "Монтаж буквы простой в цеху 51-100 мп Цех",
+          "frequency": 0.33,
+          "final": 312,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7490",
+          "product_name": "Оклейка бочины букв пленкой простые 51-100 мп Цех",
+          "frequency": 0.33,
+          "final": 408,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7794",
+          "product_name": "Сборка объема ПВХ3 простые 51-100 мп Цех",
+          "frequency": 0.33,
+          "final": 771.13,
+          "sample_size": 1
+        },
+        {
+          "good_id": "8402",
+          "product_name": "ПВХ8 более 6 кв.м",
+          "frequency": 0.33,
+          "final": 3737.5,
+          "sample_size": 1
+        },
+        {
+          "good_id": "8462",
+          "product_name": "Акрил3 молочный более 6 кв.м",
+          "frequency": 0.33,
+          "final": 3438.5,
+          "sample_size": 1
+        },
+        {
+          "good_id": "8768",
+          "product_name": "Труба профильная 20х40 1,5 мм металлическая 10-100 мп",
+          "frequency": 0.33,
+          "final": 200,
+          "sample_size": 1
+        },
+        {
+          "good_id": "8238",
+          "product_name": "Сварка металлокаркаса и покраска рамка с выпусками 10-20 кв.м Цех",
+          "frequency": 0.33,
+          "final": 1440,
+          "sample_size": 1
+        },
+        {
+          "good_id": "8324",
+          "product_name": "Монтаж подложки на каркас композит 20-50 кв.м Цех",
+          "frequency": 0.33,
+          "final": 440,
+          "sample_size": 1
+        },
+        {
+          "good_id": "15070",
+          "product_name": "Фрезировка композита 20-50 кв.м Цех",
+          "frequency": 0.33,
+          "final": 440,
+          "sample_size": 1
+        },
+        {
+          "good_id": "8426",
+          "product_name": "Композит3 матовый более 10 кв.м",
+          "frequency": 0.33,
+          "final": 2990,
+          "sample_size": 1
+        },
+        {
+          "good_id": "21892",
+          "product_name": "Прокладка кабеля питания к вывеске монтаж до 5 мп Цех",
+          "frequency": 0.33,
+          "final": 220.5,
+          "sample_size": 1
+        },
+        {
+          "good_id": "25866",
+          "product_name": "Подготовка макета к производству Средней сложности за 1 макет",
+          "frequency": 0.33,
+          "final": 1050,
+          "sample_size": 1
+        },
+        {
+          "good_id": "11368",
+          "product_name": "Выезд на монтаж 1 монтажник Цех",
+          "frequency": 0.33,
+          "final": 1575,
+          "sample_size": 1
+        },
+        {
+          "good_id": "11366",
+          "product_name": "Выезд на замеры сложный Цех",
+          "frequency": 0.33,
+          "final": 3150,
+          "sample_size": 2
+        },
+        {
+          "good_id": "13818",
+          "product_name": "Безнал 10%",
+          "frequency": 0.33,
+          "final": 7952.11,
+          "sample_size": 2
+        },
+        {
+          "good_id": "7690",
+          "product_name": "Монтаж вывески сложный 1-2 кв.м Цех",
+          "frequency": 0.33,
+          "final": 2646,
+          "sample_size": 1
+        },
+        {
+          "good_id": "7520",
+          "product_name": "Монтаж буквы сложной в цеху до 3 мп Цех",
+          "frequency": 0.33,
+          "final": 504,
+          "sample_size": 2
+        },
+        {
+          "good_id": "8212",
+          "product_name": "Сварка металлокаркаса и покраска рамка 3-10 кв.м Цех",
+          "frequency": 0.33,
+          "final": 1228.5,
+          "sample_size": 2
+        },
+        {
+          "good_id": "25880",
+          "product_name": "Алюминиевый борт с гибкой 8 мм 3-10 мп Цех",
+          "frequency": 0.33,
+          "final": 325.5,
+          "sample_size": 1
+        },
+        {
+          "good_id": "8694",
+          "product_name": "Резка листового материала ЧПУ 5-10 мп Цех",
+          "frequency": 0.33,
+          "final": 58.8,
+          "sample_size": 3
+        },
+        {
+          "good_id": "25784",
+          "product_name": "Сборка объема БОРТОГИБ до 3 мп Цех",
+          "frequency": 0.33,
+          "final": 504,
+          "sample_size": 1
+        },
+        {
+          "good_id": "9830",
+          "product_name": "ПВХ8 более 6 кв.м",
+          "frequency": 0.33,
+          "final": 3374.96,
+          "sample_size": 1
+        },
+        {
+          "good_id": "9890",
+          "product_name": "Акрил цветной более 6 кв.м",
+          "frequency": 0.33,
+          "final": 4081.35,
+          "sample_size": 1
+        },
+        {
+          "good_id": "13614",
+          "product_name": "Почасовая работа с дизайнером рекламы 1 час",
+          "frequency": 0.33,
+          "final": 1575,
+          "sample_size": 1
+        },
+        {
+          "good_id": "5008",
+          "product_name": "Синтетическая бумага UNO SP А6 бум. 160 гр. 1 шт Печатная",
+          "frequency": 0.33,
+          "final": 0.88,
+          "sample_size": 1
+        },
+        {
+          "good_id": "4890",
+          "product_name": "А6 Печать 4+0 8-16 шт Печатная",
+          "frequency": 0.33,
+          "final": 10.45,
+          "sample_size": 1
+        },
+        {
+          "good_id": "19032",
+          "product_name": "Шнурок на резинке клип-рулетке 10 шт",
+          "frequency": 0.33,
+          "final": 94.5,
+          "sample_size": 1
+        },
+        {
+          "good_id": "19056",
+          "product_name": "Бейдж карман А2 106х88 мм 10 шт",
+          "frequency": 0.33,
+          "final": 9.45,
+          "sample_size": 1
+        },
+        {
+          "good_id": "12422",
+          "product_name": "Макет вывески с визуализацией Простой 1 оригинал-макет",
+          "frequency": 0.33,
+          "final": 5250,
+          "sample_size": 1
+        }
+      ]
+    },
+    {
       "category_id": "мх_замеры",
       "category_name": "Мх_замеры",
       "keywords": [
@@ -36664,7 +37801,7 @@
         },
         {
           "good_id": "20882",
-          "product_name": "Хайкот А3 бум. 300 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А3 бум. 370 гр. 1 шт Печатная",
           "frequency": 0.67,
           "final": 10.88,
           "sample_size": 2
@@ -37494,7 +38631,7 @@
         },
         {
           "good_id": "20884",
-          "product_name": "Хайкот А4 бум. 300 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А4 бум. 370 гр. 1 шт Печатная",
           "frequency": 0.33,
           "final": 5.44,
           "sample_size": 1
@@ -38755,7 +39892,7 @@
         },
         {
           "good_id": "20882",
-          "product_name": "Хайкот А3 бум. 300 гр. 1 шт Печатная",
+          "product_name": "Синтетическая бумага UNO SP А3 бум. 370 гр. 1 шт Печатная",
           "frequency": 0.33,
           "final": 10.88,
           "sample_size": 1
@@ -40798,7 +41935,8 @@
     ],
     "4890": [
       "labus:Бейджи",
-      "меню"
+      "меню",
+      "вывеска"
     ],
     "4892": [
       "labus:Флаеры",
@@ -40812,7 +41950,8 @@
     ],
     "5008": [
       "labus:Флаеры",
-      "labus:Бейджи"
+      "labus:Бейджи",
+      "вывеска"
     ],
     "5078": [
       "labus:Флаеры",
@@ -40932,6 +42071,9 @@
     "5270": [
       "labus:Визитки"
     ],
+    "5272": [
+      "labus:Визитки"
+    ],
     "5274": [
       "labus:Визитки",
       "печать"
@@ -40970,9 +42112,6 @@
     "5352": [
       "labus:Визитки",
       "ид0410"
-    ],
-    "5364": [
-      "labus:Визитки"
     ],
     "5368": [
       "юд-0207"
@@ -41571,7 +42710,6 @@
       "юд-0023"
     ],
     "6506": [
-      "дизайн",
       "оклейка",
       "labus:Брендирование авто",
       "мх_замеры"
@@ -41837,8 +42975,8 @@
       "зм- чабата"
     ],
     "7278": [
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Презентации"
     ],
     "7280": [
@@ -41847,8 +42985,8 @@
       "изображения для"
     ],
     "7282": [
-      "labus:SMM",
-      "labus:Логотип"
+      "labus:Логотип",
+      "labus:SMM"
     ],
     "7284": [
       "labus:SMM",
@@ -42047,6 +43185,7 @@
     ],
     "7394": [
       "labus:Логотип",
+      "labus:Неоновые вывески",
       "labus:Фирменный стиль",
       "labus:Упаковка"
     ],
@@ -42082,6 +43221,9 @@
       "labus:Световые вывески",
       "labus:Панель-кронштейн"
     ],
+    "7490": [
+      "вывеска"
+    ],
     "7496": [
       "labus:Объемные буквы"
     ],
@@ -42107,6 +43249,12 @@
     "7512": [
       "labus:Световые вывески"
     ],
+    "7514": [
+      "вывеска"
+    ],
+    "7520": [
+      "вывеска"
+    ],
     "7536": [
       "labus:Объемные буквы"
     ],
@@ -42122,10 +43270,14 @@
       "юд-0023"
     ],
     "7690": [
-      "labus:Панель-кронштейн"
+      "labus:Панель-кронштейн",
+      "вывеска"
     ],
     "7692": [
       "демонтаж монтаж"
+    ],
+    "7694": [
+      "вывеска"
     ],
     "7724": [
       "labus:Световые вывески",
@@ -42146,6 +43298,9 @@
       "labus:Световые вывески",
       "labus:Световые короба",
       "labus:Панель-кронштейн"
+    ],
+    "7730": [
+      "вывеска"
     ],
     "7736": [
       "labus:Объемные буквы"
@@ -42170,6 +43325,9 @@
     ],
     "7792": [
       "labus:Световые вывески"
+    ],
+    "7794": [
+      "вывеска"
     ],
     "7812": [
       "labus:Объемные буквы",
@@ -42507,8 +43665,14 @@
     "8210": [
       "labus:Панель-кронштейн"
     ],
+    "8212": [
+      "вывеска"
+    ],
     "8222": [
       "labus:Световые короба"
+    ],
+    "8238": [
+      "вывеска"
     ],
     "8244": [
       "labus:Световые короба",
@@ -42533,9 +43697,13 @@
     "8316": [
       "labus:Панель-кронштейн"
     ],
+    "8324": [
+      "вывеска"
+    ],
     "8340": [
       "labus:Объемные буквы",
-      "labus:Световые короба"
+      "labus:Световые короба",
+      "вывеска"
     ],
     "8346": [
       "labus:Световые короба"
@@ -42560,12 +43728,18 @@
     "8396": [
       "labus:Световые вывески"
     ],
+    "8402": [
+      "вывеска"
+    ],
     "8416": [
       "labus:Световые короба",
       "labus:Панель-кронштейн",
       "labus:Штендеры",
       "светильник подвесной",
       "светильник накладной"
+    ],
+    "8426": [
+      "вывеска"
     ],
     "8452": [
       "labus:Световые вывески",
@@ -42582,6 +43756,9 @@
     ],
     "8456": [
       "labus:Световые вывески"
+    ],
+    "8462": [
+      "вывеска"
     ],
     "8464": [
       "labus:Объемные буквы",
@@ -42694,6 +43871,7 @@
       "зм- брендирование"
     ],
     "8672": [
+      "дизайн",
       "оклейка",
       "labus:Брендирование авто",
       "мх_винил",
@@ -42718,7 +43896,8 @@
       "labus:Световые короба",
       "labus:Панель-кронштейн",
       "labus:Неоновые вывески",
-      "0354"
+      "0354",
+      "вывеска"
     ],
     "8696": [
       "labus:Объемные буквы",
@@ -42761,6 +43940,9 @@
       "labus:Световые короба",
       "labus:Панель-кронштейн"
     ],
+    "8768": [
+      "вывеска"
+    ],
     "8776": [
       "labus:Панель-кронштейн"
     ],
@@ -42769,11 +43951,13 @@
       "демонтаж монтаж"
     ],
     "8780": [
-      "labus:Световые короба"
+      "labus:Световые короба",
+      "вывеска"
     ],
     "8788": [
       "labus:Световые короба",
-      "labus:Панель-кронштейн"
+      "labus:Панель-кронштейн",
+      "вывеска"
     ],
     "8792": [
       "labus:Объемные буквы"
@@ -43299,6 +44483,9 @@
       "labus:Световые короба",
       "labus:Панель-кронштейн"
     ],
+    "9830": [
+      "вывеска"
+    ],
     "9844": [
       "labus:Таблички",
       "labus:Полиграфические таблички",
@@ -43321,6 +44508,9 @@
     ],
     "9880": [
       "labus:Объемные буквы"
+    ],
+    "9890": [
+      "вывеска"
     ],
     "9892": [
       "labus:Объемные буквы"
@@ -43357,16 +44547,16 @@
     ],
     "10396": [
       "labus:Пластиковые карты",
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Фирменный стиль",
       "labus:Упаковка"
     ],
     "10398": [
       "labus:Баннеры",
       "labus:Пластиковые карты",
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Презентации",
       "labus:Пакеты",
       "labus:Фирменный стиль",
@@ -43384,8 +44574,8 @@
     "10404": [
       "labus:Листовки",
       "labus:Плакаты",
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Презентации",
       "labus:Пакеты",
       "labus:Фирменный стиль",
@@ -43535,8 +44725,8 @@
       "labus:Фотосъемка"
     ],
     "10714": [
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Презентации",
       "labus:Пакеты",
       "labus:Фирменный стиль",
@@ -43855,12 +45045,14 @@
       "мх_замеры"
     ],
     "11366": [
+      "вывеска",
       "мх_замеры",
       "зм- брендирование"
     ],
     "11368": [
       "labus:Полиграфические таблички",
       "мх_винил",
+      "вывеска",
       "зм-00153"
     ],
     "11370": [
@@ -44155,7 +45347,8 @@
       "labus:Штендеры"
     ],
     "12422": [
-      "юд-0023"
+      "юд-0023",
+      "вывеска"
     ],
     "12430": [
       "labus:Объемные буквы",
@@ -44220,8 +45413,8 @@
       "дизайн",
       "меню",
       "labus:Пресс-волл",
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "холст лакированный",
       "labus:Брендбук",
       "labus:Штендеры",
@@ -44266,15 +45459,16 @@
       "labus:Стенды",
       "labus:Пластиковые карты",
       "labus:Пресс-волл",
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Презентации",
       "labus:Фирменный стиль",
       "labus:Упаковка",
       "ид0336",
       "зм-00163",
       "юд-0207",
-      "labus:Веб-дизайн"
+      "labus:Веб-дизайн",
+      "вывеска"
     ],
     "13616": [
       "labus:Этикетки и стикеры",
@@ -44398,7 +45592,8 @@
       "юд-0023",
       "ид0186",
       "ид0211",
-      "ббб-1954"
+      "ббб-1954",
+      "вывеска"
     ],
     "13822": [
       "labus:Пластиковые карты"
@@ -44778,6 +45973,9 @@
     "15040": [
       "labus:Объемные буквы"
     ],
+    "15070": [
+      "вывеска"
+    ],
     "15134": [
       "labus:Кружки"
     ],
@@ -45146,7 +46344,8 @@
       "labus:Бейджи"
     ],
     "19032": [
-      "labus:Бейджи"
+      "labus:Бейджи",
+      "вывеска"
     ],
     "19034": [
       "labus:Бейджи"
@@ -45158,7 +46357,8 @@
       "labus:Бейджи"
     ],
     "19056": [
-      "labus:Бейджи"
+      "labus:Бейджи",
+      "вывеска"
     ],
     "19058": [
       "labus:Бейджи"
@@ -45579,8 +46779,8 @@
       "labus:Презентации"
     ],
     "21190": [
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Презентации",
       "labus:Фирменный стиль",
       "labus:Упаковка"
@@ -45631,7 +46831,8 @@
       "labus:Световые вывески"
     ],
     "21234": [
-      "labus:Световые вывески"
+      "labus:Световые вывески",
+      "labus:Неоновые вывески"
     ],
     "21236": [
       "labus:Световые вывески"
@@ -45723,8 +46924,8 @@
       "дизайн"
     ],
     "21400": [
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Фирменный стиль",
       "labus:Упаковка",
       "пины для",
@@ -45994,6 +47195,9 @@
     "21890": [
       "labus:Пластиковые карты"
     ],
+    "21892": [
+      "вывеска"
+    ],
     "21950": [
       "макет"
     ],
@@ -46011,22 +47215,22 @@
       "labus:Логотип"
     ],
     "21972": [
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Брендирование авто"
     ],
     "21974": [
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "промо ролик"
     ],
     "21978": [
-      "labus:SMM",
-      "labus:Логотип"
+      "labus:Логотип",
+      "labus:SMM"
     ],
     "21980": [
-      "labus:SMM",
       "labus:Логотип",
+      "labus:SMM",
       "labus:Брендирование авто"
     ],
     "22002": [
@@ -46596,7 +47800,8 @@
       "labus:Неоновые вывески"
     ],
     "23924": [
-      "labus:Неоновые вывески"
+      "labus:Неоновые вывески",
+      "вывеска"
     ],
     "23926": [
       "labus:Неоновые вывески"
@@ -46605,13 +47810,17 @@
       "labus:Неоновые вывески"
     ],
     "23934": [
-      "labus:Неоновые вывески"
+      "labus:Неоновые вывески",
+      "вывеска"
     ],
     "23944": [
       "labus:Неоновые вывески"
     ],
     "23946": [
       "labus:Неоновые вывески"
+    ],
+    "23952": [
+      "вывеска"
     ],
     "24064": [
       "зм- меню"
@@ -46634,10 +47843,17 @@
     "25508": [
       "печать"
     ],
+    "25784": [
+      "вывеска"
+    ],
     "25866": [
       "labus:Брендирование авто",
       "макет",
+      "вывеска",
       "стандартная печать"
+    ],
+    "25880": [
+      "вывеска"
     ]
   }
 }

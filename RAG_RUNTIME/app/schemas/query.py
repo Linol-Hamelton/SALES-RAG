@@ -3,7 +3,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field
 from app.schemas.pricing import (
     PriceBand, EstimatedPrice, BundleItem, Reference, SourceDistinction,
-    ParametricBreakdown, DealItem, SegmentedReferences,
+    ParametricBreakdown, DealItem, SegmentedReferences, HistoricalDealRef,
 )
 
 
@@ -43,6 +43,7 @@ class StructuredResponse(BaseModel):
     source_distinction: SourceDistinction = Field(default_factory=SourceDistinction)
     parametric_breakdown: ParametricBreakdown | None = None
     deal_items: list[DealItem] = []   # populated when query is a deal-estimate request
+    historical_deals: list[HistoricalDealRef] = []   # P13.3 / T7: similar closed deals from orders.csv
     latency_ms: int = 0
 
 

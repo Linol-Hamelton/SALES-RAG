@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-04-15T00:56:37.097Z",
+  "generatedAt": "2026-04-22T01:17:59.285Z",
   "repairInfo": {
     "repairedOrdersDirectionRows": 0
   },
@@ -105,7 +105,7 @@
     },
     "orders": {
       "name": "orders",
-      "rowCount": 50634,
+      "rowCount": 50817,
       "headers": [
         "DATASET",
         "ID",
@@ -142,27 +142,27 @@
         "EXECUTOR"
       ],
       "schemaMatchesExpected": false,
-      "uniqueIds": 12648,
-      "uniqueProducts": 2760,
-      "coveredByGoods": 2739,
+      "uniqueIds": 12681,
+      "uniqueProducts": 2764,
+      "coveredByGoods": 2743,
       "missingFromGoods": 21,
       "directionMissingCatalogRows": 0,
       "placeholderClientRows": 811,
       "lineGapStats": {
-        "comparableDeals": 12645,
+        "comparableDeals": 12678,
         "medianGapRatio": 0,
         "p95GapRatio": 0,
-        "dealsWithin5Pct": 12641
+        "dealsWithin5Pct": 12674
       }
     }
   },
   "crossDataset": {
     "goodsProducts": 9096,
     "offerProducts": 3699,
-    "orderProducts": 2760,
+    "orderProducts": 2764,
     "sharedOfferOrderProducts": 1033,
     "offersCoveredByGoods": 3699,
-    "ordersCoveredByGoods": 2739
+    "ordersCoveredByGoods": 2743
   },
   "issues": [
     {

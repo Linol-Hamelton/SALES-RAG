@@ -202,22 +202,77 @@ def ingest_faqs(verbose: bool) -> list[dict]:
 # reference. These get force-retrieved when the intent-detector fires.
 KNOWLEDGE_SOURCES = [
     # (filename, source_label, doc_kind, is_macro, macro_type)
-    ("Консультирование по продвижению бизнеса и рекламе для менеджеров рекламной компании.md",
-     "consulting_guide", "Консультирование по продвижению бизнеса", True, "consulting"),
+    # P13.3 / T5: Консультирование и Использование_приёмов_убеждения заменены
+    # на _structured.md копии — они структурированы по сценариям/приёмам с
+    # ## H2 заголовками, что даёт чанкеру естественные границы и улучшает
+    # ретривал для consultation / persuasion intent.
+    ("Консультирование_structured.md",
+     "consulting_guide", "Консультирование клиента (сценарии)", True, "consulting"),
     ("Часто задаваемые вопросы.md",
      "business_faq", "Часто задаваемые вопросы", False, ""),
     ("Продажа дизайна и сопровождение сделки.md",
      "design_sales_guide", "Продажа дизайна", True, "sales_script"),
-    ("Использование приемов убеждения.md",
-     "persuasion_guide", "Приёмы убеждения", True, "persuasion"),
+    ("Использование_приёмов_убеждения_structured.md",
+     "persuasion_guide", "Приёмы убеждения и защиты цены", True, "persuasion"),
     ("Брифы.md",
      "briefs_guide", "Брифы по продуктам", True, "brief"),
+    # P13.3 / T5: ROI-данные индексируем как структурированный markdown,
+    # вместо плоского txt — таблицы по направлениям лучше чанкуются и
+    # дают точные ROMI-цифры для consultation / pricing-defense.
+    ("Сбор_данных_конверсии_и_ROI_structured.md",
+     "roi_guide", "Конверсия и ROI Labus.pro", False, "roi_data"),
     ("warranty-card (1).docx",
      "warranty", "Гарантийная карта", False, ""),
     # NOTE: ROADMAPS/* файлы индексируются отдельно через ingest_roadmaps.py
     # (doc_type=roadmap, cross-link linked_product_ids/linked_smeta_category_ids).
     # Дублирование сюда удалено в P10.6 B2.
 ]
+
+
+# P13.1.B: Industry briefs and commercial offers as knowledge directories.
+# Keyed by macro_type so retrieval can be biased by industry intent later.
+# is_macro=False: these are reference material, not manager scripts — they
+# surface through dense retrieval, not forced injection.
+INDUSTRY_BRIEF_LABELS = {
+    "avtoservis.md": "Отраслевой бриф: Автосервис",
+    "barbershop.md": "Отраслевой бриф: Барбершоп",
+    "detskij_centr.md": "Отраслевой бриф: Детский центр",
+    "fitnes_klub.md": "Отраслевой бриф: Фитнес-клуб",
+    "juridicheskie_uslugi.md": "Отраслевой бриф: Юридические услуги",
+    "kofejnja.md": "Отраслевой бриф: Кофейня",
+    "magazin_rozn.md": "Отраслевой бриф: Розничный магазин",
+    "medcentr.md": "Отраслевой бриф: Медицинский центр",
+    "obrazovanie.md": "Отраслевой бриф: Образовательный центр",
+    "onlajn_magazin.md": "Отраслевой бриф: Онлайн-магазин",
+    "otel.md": "Отраслевой бриф: Отель",
+    "restoran.md": "Отраслевой бриф: Ресторан",
+    "salon_krasoty.md": "Отраслевой бриф: Салон красоты",
+    "stomatologija.md": "Отраслевой бриф: Стоматология",
+    "stroitelnaja_kompanija.md": "Отраслевой бриф: Строительная компания",
+}
+
+COMMERCIAL_OFFER_LABELS = {
+    "каталог_мерч_топ5.md": "КП: Топ-5 категорий мерча (НГ-2026)",
+    "кп_детский_магазин.md": "КП: Магазин детских товаров",
+    "кп_клиники.md": "КП: Медицинская клиника",
+    "кп_мебельный_салон.md": "КП: Мебельный салон",
+    "кп_образовательные_учреждения.md": "КП: Образовательные учреждения",
+    "кп_пункт_выдачи_заказов.md": "КП: Пункт выдачи заказов",
+    "кп_ритейл.md": "КП: Продуктовый ритейл",
+    "кп_строительный_магазин.md": "КП: Строительный магазин",
+    "кп_цветочный_бутик.md": "КП: Цветочный бутик",
+    "медиаплан_магазин_одежды.md": "Медиаплан: Магазин одежды",
+    "медиаплан_турфирма.md": "Медиаплан: Турфирма",
+}
+
+# Channels / retention guides live alongside briefs but are not per-industry.
+MARKETING_GUIDES = {
+    "Каналы_продвижения.md": ("channels_guide", "Каналы продвижения", "channel_matrix"),
+    "Удержание_и_LTV.md":    ("retention_guide", "Удержание и LTV",   "retention"),
+}
+
+INDUSTRY_BRIEFS_DIR = "Отраслевые_брифы"
+COMMERCIAL_OFFERS_DIR = "Медиапланы_md"
 
 
 def ingest_knowledge(verbose: bool) -> list[dict]:
@@ -327,6 +382,154 @@ def ingest_knowledge(verbose: bool) -> list[dict]:
             print(f"  {filename[:60]:60s}: {len(chunks)} chunks")
 
     return docs
+
+
+# ---------------------------------------------------------------------------
+# P13.1.B: Directory-based knowledge ingestion for briefs + commercial offers
+# ---------------------------------------------------------------------------
+
+def ingest_directory_knowledge(
+    dir_name: str,
+    file_map: dict[str, str],
+    source_prefix: str,
+    macro_type: str,
+    doc_counter_start: int,
+    verbose: bool,
+) -> tuple[list[dict], int]:
+    """Ingest an entire directory of markdown files as knowledge docs.
+
+    Each file must be listed in `file_map` (filename → display label). Files in
+    the directory but not in the map are skipped with a warning — this keeps
+    us explicit about what ships to the index.
+
+    Returns (docs, next_counter).
+    """
+    docs: list[dict] = []
+    counter = doc_counter_start
+    base = RAG_DATA / dir_name
+    if not base.exists():
+        print(f"  [SKIP] Directory not found: {dir_name}")
+        return docs, counter
+
+    for filename, display_label in sorted(file_map.items()):
+        path = base / filename
+        if not path.exists():
+            print(f"  [SKIP] Not found: {dir_name}/{filename}")
+            continue
+
+        text = path.read_text(encoding="utf-8")
+        if not text.strip():
+            continue
+
+        source_label = f"{source_prefix}_{path.stem}"
+        chunks = chunk_markdown(text, filename)
+
+        for chunk in chunks:
+            section = chunk["section"]
+            body = chunk["body"]
+            parent = chunk.get("parent") or display_label
+            header = f"[{display_label}]" if parent == section else f"[{display_label} → {section}]"
+            searchable = f"{header}\n\n{body}"
+            doc_id = f"knowledge_{source_label}_{counter:04d}"
+            docs.append({
+                "doc_id": doc_id,
+                "doc_type": "knowledge",
+                "searchable_text": searchable,
+                "payload": {
+                    "doc_id": doc_id,
+                    "doc_type": "knowledge",
+                    "source": source_label,
+                    "source_label": display_label,
+                    "section": section,
+                    "parent_section": parent,
+                    "content": body,
+                    "searchable_text": searchable,
+                    "is_macro": False,
+                    "macro_type": macro_type,
+                },
+                "provenance": {
+                    "source": f"{dir_name}/{filename}",
+                    "generated_at": GENERATED_AT,
+                },
+            })
+            counter += 1
+
+        if verbose:
+            print(f"  {dir_name}/{filename[:48]:48s}: {len(chunks)} chunks")
+
+    return docs, counter
+
+
+def ingest_industry_briefs(verbose: bool, counter_start: int) -> tuple[list[dict], int]:
+    """15 industry briefs — one doc per H2 section within each brief."""
+    return ingest_directory_knowledge(
+        INDUSTRY_BRIEFS_DIR, INDUSTRY_BRIEF_LABELS,
+        source_prefix="industry_brief",
+        macro_type="industry_brief",
+        doc_counter_start=counter_start,
+        verbose=verbose,
+    )
+
+
+def ingest_commercial_offers(verbose: bool, counter_start: int) -> tuple[list[dict], int]:
+    """11 KP / media-plan markdowns — one doc per H2 section."""
+    return ingest_directory_knowledge(
+        COMMERCIAL_OFFERS_DIR, COMMERCIAL_OFFER_LABELS,
+        source_prefix="commercial_offer",
+        macro_type="commercial_offer",
+        doc_counter_start=counter_start,
+        verbose=verbose,
+    )
+
+
+def ingest_marketing_guides(verbose: bool, counter_start: int) -> tuple[list[dict], int]:
+    """Channels matrix + retention/LTV — reside in INDUSTRY_BRIEFS_DIR but are
+    cross-industry. Each gets its own macro_type for future intent routing.
+    """
+    docs: list[dict] = []
+    counter = counter_start
+    base = RAG_DATA / INDUSTRY_BRIEFS_DIR
+    for filename, (source_label, display_label, macro_type) in MARKETING_GUIDES.items():
+        path = base / filename
+        if not path.exists():
+            print(f"  [SKIP] Not found: {INDUSTRY_BRIEFS_DIR}/{filename}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        if not text.strip():
+            continue
+        chunks = chunk_markdown(text, filename)
+        for chunk in chunks:
+            section = chunk["section"]
+            body = chunk["body"]
+            parent = chunk.get("parent") or display_label
+            header = f"[{display_label}]" if parent == section else f"[{display_label} → {section}]"
+            searchable = f"{header}\n\n{body}"
+            doc_id = f"knowledge_{source_label}_{counter:04d}"
+            docs.append({
+                "doc_id": doc_id,
+                "doc_type": "knowledge",
+                "searchable_text": searchable,
+                "payload": {
+                    "doc_id": doc_id,
+                    "doc_type": "knowledge",
+                    "source": source_label,
+                    "source_label": display_label,
+                    "section": section,
+                    "parent_section": parent,
+                    "content": body,
+                    "searchable_text": searchable,
+                    "is_macro": False,
+                    "macro_type": macro_type,
+                },
+                "provenance": {
+                    "source": f"{INDUSTRY_BRIEFS_DIR}/{filename}",
+                    "generated_at": GENERATED_AT,
+                },
+            })
+            counter += 1
+        if verbose:
+            print(f"  {INDUSTRY_BRIEFS_DIR}/{filename[:48]:48s}: {len(chunks)} chunks")
+    return docs, counter
 
 
 # ---------------------------------------------------------------------------
@@ -528,10 +731,23 @@ def main(verbose: bool):
     print("\n=== Ingesting Knowledge Base ===")
     knowledge_docs = ingest_knowledge(verbose)
 
+    print("\n=== Ingesting Industry Briefs ===")
+    counter = len(knowledge_docs)
+    brief_docs, counter = ingest_industry_briefs(verbose, counter)
+    print(f"  Industry brief docs: {len(brief_docs)}")
+
+    print("\n=== Ingesting Commercial Offers ===")
+    offer_docs, counter = ingest_commercial_offers(verbose, counter)
+    print(f"  Commercial offer docs: {len(offer_docs)}")
+
+    print("\n=== Ingesting Marketing Guides ===")
+    guide_docs, counter = ingest_marketing_guides(verbose, counter)
+    print(f"  Marketing guide docs: {len(guide_docs)}")
+
     print("\n=== Building Anchor Docs (critical facts) ===")
     anchor_docs = build_anchor_docs()
     print(f"  Anchor docs: {len(anchor_docs)}")
-    all_knowledge = knowledge_docs + anchor_docs
+    all_knowledge = knowledge_docs + brief_docs + offer_docs + guide_docs + anchor_docs
 
     kb_path = OUTPUT_DIR / "knowledge_docs.jsonl"
     with open(kb_path, "w", encoding="utf-8") as f:

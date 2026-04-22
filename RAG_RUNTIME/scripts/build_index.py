@@ -137,7 +137,11 @@ def upsert_to_qdrant(docs: list[dict], embeddings: np.ndarray, qdrant_url: str, 
 
         points = []
         for i, (doc, emb) in enumerate(zip(batch_docs, batch_embeddings)):
+            # Ingest scripts inconsistently use "metadata" or "payload" as the
+            # outer field name. Read both so neither set silently loses fields
+            # in Qdrant. payload wins on conflict (newer convention).
             payload = dict(doc.get("metadata", {}))
+            payload.update(doc.get("payload", {}))
             payload["doc_type"] = doc["doc_type"]
             payload["doc_id"] = doc["doc_id"]
 

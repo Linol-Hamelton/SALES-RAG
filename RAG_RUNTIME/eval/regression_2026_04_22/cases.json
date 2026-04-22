@@ -1,0 +1,101 @@
+[
+  {
+    "id": "C96_M300_school_stand",
+    "category": "T1_semantic_recall",
+    "chat": 96, "msg": 300, "original_rating": -1,
+    "query": "Мне нужен уголок потребителя, самый минимальный по комплектации, но не слишком дешевый, чтобы выглядел презентабельно но стоил недорого.",
+    "expect_phrases": ["стенд", "уголок"],
+    "forbid_phrases": ["Дагестан", "рыночные данные", "не нашёл", "не нашел"],
+    "expect_doc_types_any": ["service_page", "service_pricing_bridge", "knowledge"],
+    "expect_clickable_url": true,
+    "notes": "T1 fix: service_page index закрывает семантический пробел \"стенды для школы\". T2 strip: убрать \"Дагестан/рыночные\". Bitrix link должен быть кликабельным."
+  },
+  {
+    "id": "C95_M296_history_links",
+    "category": "T7_historical_deals",
+    "chat": 95, "msg": 296, "original_rating": -1,
+    "query": "Проведи осмечивание и дай ссылки на подобные сделки из истории заказов и из списка комплектов поставки",
+    "expect_phrases_any": ["сделка", "закрыт", "история", "похож"],
+    "forbid_phrases": [],
+    "expect_doc_types_any": ["historical_deal", "offer_profile", "deal_profile"],
+    "expect_field_nonempty": ["historical_deals"],
+    "notes": "T7 fix: historical_deals массив должен быть непустым; ссылки на orders.csv через Bitrix URL."
+  },
+  {
+    "id": "C95_M294_signage_realistic_price",
+    "category": "T2_anti_pattern_+_T4_bridge",
+    "chat": 95, "msg": 294, "original_rating": -1,
+    "query": "Мне нужна вывеска для ресторана. Высота букв 50 см с подсветкой лицевой части букв, на подложки из композита, дизайном и монтажом. Надпись: ГОГОЛЬ - МОГОЛЬ - это название ресторана.",
+    "expect_phrases_any": ["объёмные буквы", "объемные буквы", "композит", "подсвет"],
+    "expect_price_min_rub": 80000,
+    "forbid_phrases": ["Дагестан", "рыночные данные", "45000", "55000"],
+    "expect_doc_types_any": ["service_pricing_bridge", "bundle", "offer_profile"],
+    "notes": "Real expectation 122K. Range 89K-156K acceptable. T4 bridge \"Объёмные буквы\" + height_cm gate должны дать ≥80K."
+  },
+  {
+    "id": "C94_M290_brand_consultation_no_pricing_drift",
+    "category": "T3_context_switch",
+    "chat": 94, "msg": 290, "original_rating": -1,
+    "query": "По баннеру все понятно. Сейчас давай обсудим Консультацию по развитию бренда и продажам",
+    "expect_phrases_any": ["консультац", "бренд", "развит", "стратеги", "продаж"],
+    "forbid_phrases": ["плакат", "Дагестан", "рыночные данные"],
+    "expect_doc_types_any": ["knowledge", "roadmap", "service_page"],
+    "notes": "T3 dialog_state: context_switch_consultation_to_pricing должен заблокировать pricing-drift в \"плакаты\". Ответ — консультативный."
+  },
+  {
+    "id": "C94_M288_no_dagestan_pricing",
+    "category": "T2_anti_pattern",
+    "chat": 94, "msg": 288, "original_rating": -1,
+    "query": "высота 12 метров и ширина 8 метров",
+    "expect_phrases_any": ["баннер", "брендмауэр", "брандмауэр"],
+    "forbid_phrases": ["Дагестан", "рыночные данные", "региональн", "среднерыноч"],
+    "notes": "T2: формулировка \"основана на рыночных данных для Дагестана\" должна быть удалена."
+  },
+  {
+    "id": "C94_M282_brendmauer_format_correction",
+    "category": "T3_format_gate_+_T4_bridge",
+    "chat": 94, "msg": 282, "original_rating": -1,
+    "query": "Клиент представляет строительную компанию и хочет разместить брандмаур на доме который они построили, а также получить консультацию по развитию бренда и повышению продаж.",
+    "expect_phrases_any": ["баннер", "перфо", "литой"],
+    "forbid_phrases_strict": ["объёмные буквы для брендмауэр", "объемные буквы для брендмауэр"],
+    "expect_doc_types_any": ["service_pricing_bridge", "bundle"],
+    "notes": "T3 format_correction_required: брендмауэр чаще баннер/перфо, не объёмные буквы. T4 bridge \"Широкоформатная печать (включая брендмауэр)\" с format_note."
+  },
+  {
+    "id": "C94_M284_underspec_discovery_question",
+    "category": "T3_parametric_gate",
+    "chat": 94, "msg": 284, "original_rating": -1,
+    "query": "Нам нужна не вывеска, а брандмауэр из баннера на дом. Скажите делаете вы это или нет и скажите, какие услуги вы можете предложить для развития бренда и повышения продаж.",
+    "expect_phrases_any": ["размер", "ширина", "высота", "формат"],
+    "expect_doc_types_any": ["service_pricing_bridge"],
+    "notes": "T3: брендмауэр без размеров → discovery question (ширина × высота) обязателен ДО осмечивания."
+  },
+  {
+    "id": "C93_M274_visitka_not_signage",
+    "category": "T3_intent_or_image_intent",
+    "chat": 93, "msg": 274, "original_rating": -1,
+    "query": "вот логотип",
+    "expect_phrases_any": ["визитк", "логотип", "уточн"],
+    "forbid_phrases": ["вывеск"],
+    "notes": "Клиент прислал шрифт для визитки. Не предлагать вывески. Если изображение — спросить контекст."
+  },
+  {
+    "id": "C00_smoke_basic_business_card",
+    "category": "smoke",
+    "chat": 0, "msg": 0, "original_rating": 0,
+    "query": "Сколько стоят 1000 визиток?",
+    "expect_phrases_any": ["визитк"],
+    "expect_price_min_rub": 1000,
+    "expect_doc_types_any": ["service_pricing_bridge", "bundle", "product"],
+    "notes": "Smoke-тест: базовый pricing flow для визиток должен возвращать осмысленную цену."
+  },
+  {
+    "id": "C00_smoke_persuasion_advice",
+    "category": "smoke_T5_persuasion",
+    "chat": 0, "msg": 0, "original_rating": 0,
+    "query": "Клиент говорит \"у конкурентов дешевле\", как ответить?",
+    "expect_phrases_any": ["цен", "ценность", "сравн", "результат"],
+    "expect_doc_types_any": ["knowledge"],
+    "notes": "T5: persuasion_guide должен подняться. Ожидается цитирование скрипта \"переход от цены к результатам\" или аналог."
+  }
+]

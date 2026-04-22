@@ -115,8 +115,10 @@ class HybridRetriever:
 
         # Tiered retrieval for consulting: guaranteed knowledge/roadmap + open search
         if parsed.intent == "consulting":
+            # P13.3 / T1: include service_page for consultation/discovery —
+            # SEO-grade prose from xlsx closes semantic gaps (chat #96/300).
             knowledge_filter = Filter(must=[
-                FieldCondition(key="doc_type", match=MatchAny(any=["knowledge", "faq", "roadmap"]))
+                FieldCondition(key="doc_type", match=MatchAny(any=["knowledge", "faq", "roadmap", "service_page"]))
             ])
             half_k = max(top_k // 2, 5)
             try:
@@ -402,17 +404,22 @@ class HybridRetriever:
         top_k = top_k or self.settings.retrieval_top_k
         hints = hints or {}
 
+        # P13.3 / T1: service_page added to consultation/describe/underspec/product_query.
+        # Excluded from smeta_request (pricing only) and out_of_scope (no value-add).
+        # P13.3 / T7: historical_deal added to pricing-grounded intents — closed deals
+        # serve as "похожие сделки" anchors. Excluded from pure consultation (advisory).
         INTENT_STRATEGIES = {
             "smeta_request":    (["bundle", "pricing_policy", "offer_profile", "product",
-                                  "service_pricing_bridge", "offer_composition"], 15),
+                                  "service_pricing_bridge", "offer_composition", "historical_deal"], 15),
             "consultation":     (["knowledge", "pricing_policy", "service_composition", "faq", "roadmap",
-                                  "service_pricing_bridge"], 10),
+                                  "service_pricing_bridge", "service_page"], 10),
             "bundle_query":     (["bundle", "deal_profile", "offer_profile", "product", "pricing_policy",
-                                  "service_pricing_bridge", "offer_composition"], 12),
+                                  "service_pricing_bridge", "offer_composition", "historical_deal"], 12),
             "product_query":    (["product", "bundle", "pricing_policy", "offer_profile",
-                                  "service_pricing_bridge"], 12),
-            "underspec":        (["service_pricing_bridge", "pricing_policy", "knowledge", "faq", "product"], 8),
-            "describe":         (["knowledge", "faq", "roadmap", "service_pricing_bridge"], 8),
+                                  "service_pricing_bridge", "service_page", "historical_deal"], 12),
+            "underspec":        (["service_pricing_bridge", "pricing_policy", "knowledge", "faq",
+                                  "product", "service_page", "historical_deal"], 8),
+            "describe":         (["knowledge", "faq", "roadmap", "service_pricing_bridge", "service_page"], 8),
             "out_of_scope":     (["knowledge", "faq"], 5),
         }
 
