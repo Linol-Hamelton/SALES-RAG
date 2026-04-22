@@ -1875,7 +1875,14 @@ async def query_structured(req: QueryRequest, request: Request,
             except Exception as e:
                 logger.warning("Feedback context failed", error=str(e))
 
-        if decomp.is_complex and decomp.components:
+        # P13.4: historical_request/referential intents must go through std pipeline
+        # (which uses retrieve_by_intent with historical_deal doc_type filter).
+        # Parametric path uses plain retrieve() that under-ranks historical_deal docs.
+        _is_history_intent = (
+            intent_result is not None
+            and intent_result.intent in _HISTORY_INTENTS
+        )
+        if decomp.is_complex and decomp.components and not _is_history_intent:
             logger.info("Complex query detected — using parametric pipeline",
                         letter_text=decomp.letter_text,
                         letter_count=decomp.letter_count,
