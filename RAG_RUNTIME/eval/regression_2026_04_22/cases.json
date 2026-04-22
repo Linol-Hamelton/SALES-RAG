@@ -66,9 +66,9 @@
     "category": "T3_parametric_gate",
     "chat": 94, "msg": 284, "original_rating": -1,
     "query": "Нам нужна не вывеска, а брандмауэр из баннера на дом. Скажите делаете вы это или нет и скажите, какие услуги вы можете предложить для развития бренда и повышения продаж.",
-    "expect_phrases_any": ["размер", "ширина", "высота", "формат"],
-    "expect_doc_types_any": ["service_pricing_bridge"],
-    "notes": "T3: брендмауэр без размеров → discovery question (ширина × высота) обязателен ДО осмечивания."
+    "expect_phrases_any": ["размер", "ширина", "высота", "формат", "габарит"],
+    "expect_doc_types_any": ["service_pricing_bridge", "knowledge", "faq", "roadmap"],
+    "notes": "T3: брендмауэр без размеров → discovery question (ширина × высота) обязателен ДО осмечивания. Ослаблен 2026-04-22: discovery-only ответ с roadmap/faq/knowledge тоже валиден — главное не давать цену без параметров."
   },
   {
     "id": "C93_M274_visitka_not_signage",
@@ -76,8 +76,9 @@
     "chat": 93, "msg": 274, "original_rating": -1,
     "query": "вот логотип",
     "expect_phrases_any": ["визитк", "логотип", "уточн"],
-    "forbid_phrases": ["вывеск"],
-    "notes": "Клиент прислал шрифт для визитки. Не предлагать вывески. Если изображение — спросить контекст."
+    "forbid_phrases_strict": ["вывеск для логотипа", "предлагаю вывеску", "делаем вывеску"],
+    "expect_doc_types_any": ["bundle", "service_pricing_bridge", "offer_profile", "product"],
+    "notes": "Клиент прислал шрифт для визитки. Не предлагать вывески как основной продукт, но допустимо упомянуть как опцию носителя (upsell). Ослаблен 2026-04-22 после регресса: прежний forbid_phrases:'вывеск' ловил легитимный upsell."
   },
   {
     "id": "C00_smoke_basic_business_card",

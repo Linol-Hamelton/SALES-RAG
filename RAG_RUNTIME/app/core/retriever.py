@@ -408,19 +408,25 @@ class HybridRetriever:
         # Excluded from smeta_request (pricing only) and out_of_scope (no value-add).
         # P13.3 / T7: historical_deal added to pricing-grounded intents — closed deals
         # serve as "похожие сделки" anchors. Excluded from pure consultation (advisory).
+        # P13.4: historical_request + referential strategies added after chat#97/M4 —
+        # explicit user asks for past deals/examples must hit historical_deal bucket.
         INTENT_STRATEGIES = {
-            "smeta_request":    (["bundle", "pricing_policy", "offer_profile", "product",
-                                  "service_pricing_bridge", "offer_composition", "historical_deal"], 15),
-            "consultation":     (["knowledge", "pricing_policy", "service_composition", "faq", "roadmap",
-                                  "service_pricing_bridge", "service_page"], 10),
-            "bundle_query":     (["bundle", "deal_profile", "offer_profile", "product", "pricing_policy",
-                                  "service_pricing_bridge", "offer_composition", "historical_deal"], 12),
-            "product_query":    (["product", "bundle", "pricing_policy", "offer_profile",
-                                  "service_pricing_bridge", "service_page", "historical_deal"], 12),
-            "underspec":        (["service_pricing_bridge", "pricing_policy", "knowledge", "faq",
-                                  "product", "service_page", "historical_deal"], 8),
-            "describe":         (["knowledge", "faq", "roadmap", "service_pricing_bridge", "service_page"], 8),
-            "out_of_scope":     (["knowledge", "faq"], 5),
+            "smeta_request":     (["bundle", "pricing_policy", "offer_profile", "product",
+                                   "service_pricing_bridge", "offer_composition", "historical_deal"], 15),
+            "consultation":      (["knowledge", "pricing_policy", "service_composition", "faq", "roadmap",
+                                   "service_pricing_bridge", "service_page"], 10),
+            "bundle_query":      (["bundle", "deal_profile", "offer_profile", "product", "pricing_policy",
+                                   "service_pricing_bridge", "offer_composition", "historical_deal"], 12),
+            "product_query":     (["product", "bundle", "pricing_policy", "offer_profile",
+                                   "service_pricing_bridge", "service_page", "historical_deal"], 12),
+            "underspec":         (["service_pricing_bridge", "pricing_policy", "knowledge", "faq",
+                                   "product", "service_page", "historical_deal"], 8),
+            "describe":          (["knowledge", "faq", "roadmap", "service_pricing_bridge", "service_page"], 8),
+            "out_of_scope":      (["knowledge", "faq"], 5),
+            "historical_request": (["historical_deal", "deal_profile", "offer_profile",
+                                    "bundle", "service_pricing_bridge"], 12),
+            "referential":       (["historical_deal", "deal_profile", "bundle",
+                                   "offer_profile", "knowledge"], 10),
         }
 
         strategy = INTENT_STRATEGIES.get(intent_name)

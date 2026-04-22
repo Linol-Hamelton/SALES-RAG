@@ -37,7 +37,14 @@ from typing import Iterable
 PRODUCT_PATTERNS: dict[str, re.Pattern] = {
     "logo":       re.compile(r"\b(логотип\w*|лого|айдентик\w*)\b", re.IGNORECASE),
     "brandbook":  re.compile(r"\b(брендбук\w*|фирменн\w+\s+стил\w*)", re.IGNORECASE),
-    "signboard":  re.compile(r"\b(вывеск\w*|буквы?\s+объ[её]мн\w*|объ[её]мн\w+\s+букв\w*|световой?\s+короб\w*)", re.IGNORECASE),
+    "signboard":  re.compile(
+        r"\b(вывеск\w*"
+        r"|буквы?\s+объ[её]мн\w*|объ[её]мн\w+\s+букв\w*"
+        r"|(свет(ов\w+|ящ\w+|и\w+)|неонов\w+)\s+букв\w*"
+        r"|букв\w+\s+(свет(ов\w+|ящ\w+)|с\s+подсветк\w+|неонов\w+)"
+        r"|световой?\s+короб\w*)",
+        re.IGNORECASE,
+    ),
     "business_card": re.compile(r"\bвизитк\w*", re.IGNORECASE),
     "flyer":      re.compile(r"\bлистовк\w*", re.IGNORECASE),
     "banner":     re.compile(r"\bбаннер\w*", re.IGNORECASE),
@@ -273,9 +280,10 @@ class DialogState:
         """
         if self.needs_signage_type:
             return (
-                "Уточните, пожалуйста, тип конструкции: объёмные буквы, "
-                "световой короб, неоновая вывеска, баннер или фасадная "
-                "вывеска? Цена сильно зависит от типа."
+                "Уточните, пожалуйста, тип конструкции: "
+                "**вывеска** (объёмные буквы, световой короб, неоновая, фасадная) "
+                "или **наружная реклама** (баннер на фасаде/брендмауэр)? "
+                "Цена и технология сильно зависят от категории."
             )
         if self.needs_signage_height:
             return (
@@ -447,9 +455,12 @@ def extract(history, current_query: str = "") -> DialogState:
     # Rule #15: signage with letters/volumetric needs height. Trigger when
     # confirmed_product is signboard/neon AND no height_cm in size_params.
     if state.confirmed_product in {"signboard", "neon"} and "height_cm" not in state.size_params:
-        # Only gate when user actually asks for price — first-touch discovery
-        # already covers the "no specifics yet" case.
-        if state.has_explicit_price_ask or state.size_params.get("quantity"):
+        # Strict mode for letters: chat#97/M2 показал, что SmetaEngine выдавал 35K
+        # на "светящиеся буквы, сколько?" — менеджер ждал вопроса про высоту.
+        # Раз пришёл запрос про буквы без размера — сразу гейт, даже без прямого
+        # слова "стоит/цена" (implicit price ask уже заложен в "светящиеся буквы").
+        is_letters = bool(re.search(r"букв", q or "", re.IGNORECASE))
+        if state.has_explicit_price_ask or state.size_params.get("quantity") or is_letters:
             state.needs_signage_height = True
 
     # Rule #14: outdoor mount/dismount without named construction type.

@@ -24,6 +24,7 @@ INTENT_NAMES = (
     "product_query", "smeta_request", "bundle_query", "consultation",
     "describe", "underspec", "out_of_scope", "financial_modifier",
     "visualization", "referential", "empty_context_smeta", "general",
+    "historical_request",
 )
 
 PROTOTYPES_PATH = Path(__file__).parent.parent.parent / "configs" / "intent_prototypes.yaml"
@@ -177,6 +178,26 @@ def _build_tier1():
         return None
 
     rules.append(_check_referential)
+
+    # historical_request: "дайте ссылки на сделки/похожие кейсы/приведи пример"
+    # Added after chat#97/M4 where user explicitly asked for historical deal links
+    # and system replied with another price quote instead. Must be checked BEFORE
+    # generic consultation fallback so the retriever gets routed to historical_deal.
+    _historical_rx = [
+        _rx(r"(дай|пришл|покаж|приведи|сбрось)\w*\s+(ссылк|пример|кейс|сделк|референс)"),
+        _rx(r"(похож\w+|подобн\w+|аналогичн\w+)\s+(сделк|заказ|кейс|пример|проект)"),
+        _rx(r"был\w+\s+ли\s+(такие|подобные|похожие)\s+(сделк|заказ|проект)"),
+        _rx(r"(истори\w+|архив\w*)\s+(сделк|заказ|клиент|проект)"),
+        _rx(r"(ваши\s+)?(закрыт\w+|реализованн\w+|выполненн\w+)\s+(сделк|заказ|проект)"),
+        _rx(r"примеры\s+(работ|сделок|заказов|проектов)"),
+    ]
+
+    def _check_historical(q: str) -> IntentResult | None:
+        if any(rx.search(q) for rx in _historical_rx):
+            return IntentResult("historical_request", 0.90, "regex")
+        return None
+
+    rules.append(_check_historical)
 
     # describe: manager script / text generation (not pricing)
     _describe_keywords = [
