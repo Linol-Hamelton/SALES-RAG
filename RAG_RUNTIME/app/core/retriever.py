@@ -423,8 +423,10 @@ class HybridRetriever:
                                    "product", "service_page", "historical_deal"], 8),
             "describe":          (["knowledge", "faq", "roadmap", "service_pricing_bridge", "service_page"], 8),
             "out_of_scope":      (["knowledge", "faq"], 5),
-            "historical_request": (["historical_deal", "deal_profile", "offer_profile",
-                                    "bundle", "service_pricing_bridge"], 12),
+            # P13.4.4: tightened to deal-types only — when user explicitly asks for
+            # past deals, including bundle/service_pricing_bridge lets BGE-M3 fill
+            # the slate with bundles (semantically closer to «осмечивание»).
+            "historical_request": (["historical_deal", "deal_profile", "offer_profile"], 12),
             "referential":       (["historical_deal", "deal_profile", "bundle",
                                    "offer_profile", "knowledge"], 10),
         }
