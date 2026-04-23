@@ -101,6 +101,19 @@ _CATEGORY_TO_BRIDGE_SERVICE = {
     "Брендбук": "Дизайн брендбука",
 }
 
+# P13.5 (chat#97/M3): signage categories whose canonical SmetaEngine template
+# aggregates per-deal material positions (q_typical=15 etc) and cannot be
+# scaled correctly by letter_count × height_cm. For queries with explicit
+# parameters we prefer the tiered bridge_doc pricing (3 packages with
+# height-keyed price ranges) over the flat median from smeta.
+_SIGNAGE_CATEGORY_TO_BRIDGE_SERVICE = {
+    "Объемные буквы": "Объёмные буквы (вывеска)",
+    "Объёмные буквы": "Объёмные буквы (вывеска)",
+    "Световые вывески": "Объёмные буквы (вывеска)",
+    "Световые короба": "Световой короб (лайтбокс)",
+    "Титульные вывески": "Титульная вывеска (табличка на дверь / фасадная мини-вывеска)",
+}
+
 # П7.1-hotfix: минимальная сумма шаблона, при которой его разрешено отдавать
 # под under-key-запрос. Шаблон меньше — скорее всего дефектный.
 _UNDERKEY_MIN_TEMPLATE_TOTAL = 15000
@@ -2426,11 +2439,35 @@ async def query_structured(req: QueryRequest, request: Request,
             _smeta_blocked_reason = "describe/provided-smeta intent"
         elif dialog_state.needs_discovery_turn:
             _smeta_blocked_reason = "discovery turn (vague first touch)"
+        elif dialog_state.discovery_question() is not None:
+            # P13.4.5 (chat#97/M2): parametric gate (высота букв / тип конструкции /
+            # город монтажа) должен блокировать downstream SmetaEngine override
+            # наравне с pre-LLM веткой. Без этого «светящиеся буквы, сколько?»
+            # получает цену 35K по медиане шаблона вместо вопроса о высоте.
+            _smeta_blocked_reason = "pending parametric discovery question"
+        elif dialog_state.is_consultation_intent and not dialog_state.has_explicit_price_ask:
+            _smeta_blocked_reason = "consultation intent (no explicit price ask)"
         else:
             _smeta_blocked_reason = None
         if is_estimate and _smeta_blocked_reason:
             logger.info("SmetaEngine downstream override blocked",
                         reason=_smeta_blocked_reason)
+        # P13.5: derive _decomp_for_smeta outside try so it's available regardless
+        # of whether we re-used _precomputed or called build_smeta downstream.
+        # Used by the signage-bridge override below.
+        _decomp_for_smeta = None
+        try:
+            _decomp_local = locals().get("decomp")
+            if _decomp_local is not None:
+                _decomp_for_smeta = {
+                    "letter_count": getattr(_decomp_local, "letter_count", 0) or 0,
+                    "letter_text": getattr(_decomp_local, "letter_text", "") or "",
+                    "height_cm": getattr(_decomp_local, "height_cm", 0) or 0,
+                    "linear_meters": getattr(_decomp_local, "linear_meters", 0) or 0,
+                }
+        except Exception:
+            _decomp_for_smeta = None
+
         if is_estimate and not _smeta_blocked_reason:
             # PRIMARY (П7): SmetaEngine — deterministic template with price statistics.
             smeta_engine = getattr(request.app.state, "smeta_engine", None)
@@ -2441,18 +2478,6 @@ async def query_structured(req: QueryRequest, request: Request,
             elif smeta_engine is not None and smeta_engine.is_ready:
                 try:
                     q_vec_smeta = retriever.embed_query(req.query)
-                    _decomp_for_smeta = None
-                    try:
-                        _decomp_local = locals().get("decomp")
-                        if _decomp_local is not None:
-                            _decomp_for_smeta = {
-                                "letter_count": getattr(_decomp_local, "letter_count", 0) or 0,
-                                "letter_text": getattr(_decomp_local, "letter_text", "") or "",
-                                "height_cm": getattr(_decomp_local, "height_cm", 0) or 0,
-                                "linear_meters": getattr(_decomp_local, "linear_meters", 0) or 0,
-                            }
-                    except Exception:
-                        _decomp_for_smeta = None
                     smeta_result = smeta_engine.build_smeta(
                         req.query, q_vec_smeta, decomp=_decomp_for_smeta,
                     )
@@ -2474,6 +2499,27 @@ async def query_structured(req: QueryRequest, request: Request,
                     if _bridge_service_ds:
                         if _force_inject_bridge(retriever, reranked, _bridge_service_ds):
                             # P10.5-IV: подмешиваем реальные КП (G2)
+                            _inject_linked_offers_after_bridge(retriever, reranked)
+                    smeta_result = None
+                elif smeta_result.category_name in _SIGNAGE_CATEGORY_TO_BRIDGE_SERVICE \
+                        and _decomp_for_smeta \
+                        and (int(_decomp_for_smeta.get("height_cm", 0) or 0) >= 20
+                             or int(_decomp_for_smeta.get("letter_count", 0) or 0) >= 3):
+                    # P13.5 (chat#97/M3): canonical smeta для signage не масштабирует
+                    # правильно по height_cm/letter_count (q_typical=15 из deal-aggregate
+                    # + медианная unit_price). Для запросов с конкретными параметрами
+                    # (например «АБРАКАДАБРА 40 см» → letter_count=11, height_cm=40)
+                    # отдаём LLM tiered bridge_doc (85K–280K для 300–600mm), а smeta
+                    # подавляем — иначе выдаёт 44K по медиане.
+                    logger.info("SmetaEngine signage-param blocked (downstream)",
+                                category=smeta_result.category_name,
+                                height_cm=_decomp_for_smeta.get("height_cm"),
+                                letter_count=_decomp_for_smeta.get("letter_count"))
+                    _bridge_service_sg = _SIGNAGE_CATEGORY_TO_BRIDGE_SERVICE.get(
+                        smeta_result.category_name
+                    )
+                    if _bridge_service_sg:
+                        if _force_inject_bridge(retriever, reranked, _bridge_service_sg):
                             _inject_linked_offers_after_bridge(retriever, reranked)
                     smeta_result = None
                 elif _is_underkey_intent(req.query) \
