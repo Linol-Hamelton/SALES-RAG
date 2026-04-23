@@ -2201,6 +2201,30 @@ async def query_structured(req: QueryRequest, request: Request,
                                     _inject_linked_offers_after_bridge(retriever, reranked)
                                 reranked_relevant = _filter_relevant_docs(reranked)
                             _smeta_pre = None
+                        # P13.5 (chat#97/M3): signage-категории с конкретными
+                        # параметрами (height_cm/letter_count) — canonical smeta
+                        # не масштабируется по высоте, отдаём LLM tiered bridge
+                        # ДО генерации, иначе LLM видит photo_analysis top-k и
+                        # отвечает «Фото 3: КАТЕГОРИЯ...» вместо pricing.
+                        if _smeta_pre is not None and _smeta_pre.is_usable \
+                                and _smeta_pre.category_name in _SIGNAGE_CATEGORY_TO_BRIDGE_SERVICE \
+                                and _decomp_pre_dict \
+                                and (int(_decomp_pre_dict.get("height_cm", 0) or 0) >= 20
+                                     or int(_decomp_pre_dict.get("letter_count", 0) or 0) >= 3):
+                            logger.info("SmetaEngine signage-param blocked (std)",
+                                        category=_smeta_pre.category_name,
+                                        height_cm=_decomp_pre_dict.get("height_cm"),
+                                        letter_count=_decomp_pre_dict.get("letter_count"))
+                            _smeta_blocked_by = f"signage:{_smeta_pre.category_name}"
+                            _bridge_service_sg_pre = _SIGNAGE_CATEGORY_TO_BRIDGE_SERVICE.get(
+                                _smeta_pre.category_name
+                            )
+                            if _bridge_service_sg_pre:
+                                if _force_inject_bridge(retriever, reranked, _bridge_service_sg_pre):
+                                    _bridge_forced = True
+                                    _inject_linked_offers_after_bridge(retriever, reranked)
+                                reranked_relevant = _filter_relevant_docs(reranked)
+                            _smeta_pre = None
                         if _smeta_pre is not None and _smeta_pre.is_usable \
                                 and _is_underkey_intent(req.query) \
                                 and (_smeta_pre.total or 0) < _UNDERKEY_MIN_TEMPLATE_TOTAL:
