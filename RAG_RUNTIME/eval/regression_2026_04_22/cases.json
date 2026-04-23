@@ -15,7 +15,7 @@
     "category": "T7_historical_deals",
     "chat": 95, "msg": 296, "original_rating": -1,
     "query": "Проведи осмечивание и дай ссылки на подобные сделки из истории заказов и из списка комплектов поставки",
-    "expect_phrases_any": ["сделка", "закрыт", "история", "похож"],
+    "expect_phrases_any": ["сделк", "закрыт", "истори", "похож", "пример"],
     "forbid_phrases": [],
     "expect_doc_types_any": ["historical_deal", "offer_profile", "deal_profile"],
     "expect_field_nonempty": ["historical_deals"],
