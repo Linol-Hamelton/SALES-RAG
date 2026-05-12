@@ -1953,6 +1953,7 @@ async def query_structured(req: QueryRequest, request: Request,
                 or dialog_state.needs_discovery_turn
                 or (dialog_state.is_consultation_intent and not dialog_state.has_explicit_price_ask)
                 or _pending_q is not None
+                or dialog_state.is_meta_consultation
             )
             if _force_llm:
                 logger.info("SmetaEngine skipped (complex)",
@@ -2138,6 +2139,7 @@ async def query_structured(req: QueryRequest, request: Request,
                 or dialog_state.needs_discovery_turn
                 or (dialog_state.is_consultation_intent and not dialog_state.has_explicit_price_ask)
                 or _pending_q_std is not None
+                or dialog_state.is_meta_consultation
             )
             if _force_llm:
                 logger.info("SmetaEngine skipped (std)",
@@ -2475,6 +2477,10 @@ async def query_structured(req: QueryRequest, request: Request,
             _smeta_blocked_reason = "pending parametric discovery question"
         elif dialog_state.is_consultation_intent and not dialog_state.has_explicit_price_ask:
             _smeta_blocked_reason = "consultation intent (no explicit price ask)"
+        elif dialog_state.is_meta_consultation:
+            # P14 Rec #1: «как мне ответить / объяснить / выяснить» — НЕ pricing-запрос.
+            # Полностью блокируем SmetaEngine downstream; LLM использует knowledge-docs.
+            _smeta_blocked_reason = "meta-consultation (manager-advice intent)"
         else:
             _smeta_blocked_reason = None
         if is_estimate and _smeta_blocked_reason:

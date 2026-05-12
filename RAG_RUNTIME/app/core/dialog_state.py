@@ -192,6 +192,21 @@ _MOUNT_REQUEST_RX = re.compile(
 # building wall, NOT volumetric letters.
 _BRANDMAUER_RX = re.compile(r"\bбр[еа]ндмау[эе]р\w*\b", re.IGNORECASE)
 
+# P14 Rec #1: meta-consultation signals — менеджер просит совет «как мне
+# выяснить / объяснить / ответить / обосновать», а не запрашивает цену.
+# Pricing engines должны deferить → LLM использует knowledge/faq.
+_META_CONSULTATION_RX = re.compile(
+    r"как\s+(мне\s+|нам\s+)?(ответить|объяснить|обоснов\w+|выяснить|уточнить|"
+    r"спросить|задать|сравнить|продать|снять\s+возраж|аргументир\w+|"
+    r"расска[зж]ать|преподнести|подвести|выйти\s+из)"
+    r"|какие\s+(вопросы|уточнения|параметры)\s+(задать|задавать|нужн\w+)"
+    r"|почему\s+(у\s+нас\s+|наша\s+|наш\s+)?(дороже|выше|больше)"
+    r"|чем\s+(наша\s+|мы\s+)\w*\s*(лучше|отличаемся)"
+    r"|что\s+(мне\s+)?(сказать|ответить|написать)\s+клиенту"
+    r"|как\s+(мне\s+)?(преподнести|представить|переориентировать)",
+    re.IGNORECASE,
+)
+
 _QUOTED_PRICE_RX = re.compile(
     # `₽` is not a word char in Unicode, so a trailing `\b` after it
     # NEVER matches (₽→any = two non-word chars = no boundary). Drop it.
@@ -248,6 +263,12 @@ class DialogState:
     """chat #94/282: user mentions брендмауэр. Assistant should treat it as
     banner/baner-on-wall, NOT volumetric letters. Used to inject a corrective
     nudge into the system context."""
+
+    is_meta_consultation: bool = False
+    """P14 Rec #1: manager (or client) задаёт мета-вопрос: «как мне ответить»,
+    «как объяснить разницу», «как выяснить параметры», «почему наша цена выше».
+    В этих случаях pricing engines (SmetaEngine, bridge inject, height-based)
+    должны полностью deferить — LLM отдаёт ответ из knowledge/faq без цифр."""
 
     turn_count: int = 0
     """Number of user+assistant messages in history (excluding current)."""
@@ -475,6 +496,9 @@ def extract(history, current_query: str = "") -> DialogState:
     if _BRANDMAUER_RX.search(user_text_all):
         state.brandmauer_format_correction = True
 
+    # P14 Rec #1: meta-consultation detect (last user turn — intent shifts).
+    state.is_meta_consultation = bool(_META_CONSULTATION_RX.search(q or ""))
+
     return state
 
 
@@ -572,6 +596,16 @@ def build_system_context_block(
             "НЕ считай итоговую цену, не выдавай deal_items, пока клиент сам "
             "явно не спросит «сколько стоит». Закончи 1 уточняющим вопросом "
             "о сфере бизнеса/задаче клиента."
+        )
+
+    if state.is_meta_consultation:
+        lines.append(
+            "⛔ МЕТА-КОНСУЛЬТАЦИЯ: менеджер просит совет «как мне ответить / "
+            "объяснить / выяснить / обосновать / сравнить» — это НЕ pricing-запрос. "
+            "ЗАПРЕЩЕНО выдавать estimated_price, deal_items, total_value, price_band. "
+            "Отвечай аргументами / discovery-вопросами / скриптом возражений из "
+            "knowledge-документов. Если в контексте есть persuasion_guide или "
+            "objection_script — цитируй его. Не подменяй ответ ценой."
         )
 
     # Parametric gates from active feedback rules — render as TOP-priority

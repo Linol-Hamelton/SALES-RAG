@@ -25,6 +25,10 @@ INTENT_NAMES = (
     "describe", "underspec", "out_of_scope", "financial_modifier",
     "visualization", "referential", "empty_context_smeta", "general",
     "historical_request",
+    # P14 Rec #2: три новых intent для manager-workflows
+    "discovery_assist",       # «как выяснить параметры», «какие уточнения задать»
+    "objection_arguments",    # «как ответить на возражение», «почему мы дороже»
+    "category_clarify",       # «делаете ли вы X», «можете изготовить»
 )
 
 PROTOTYPES_PATH = Path(__file__).parent.parent.parent / "configs" / "intent_prototypes.yaml"
@@ -51,6 +55,8 @@ class IntentResult:
             "consultation", "describe", "out_of_scope",
             "financial_modifier", "visualization", "referential",
             "empty_context_smeta",
+            # P14 Rec #2: meta-workflow intents — без pricing-engine
+            "objection_arguments", "discovery_assist", "category_clarify",
         )
 
 
@@ -178,6 +184,66 @@ def _build_tier1():
         return None
 
     rules.append(_check_referential)
+
+    # P14 Rec #2a: objection_arguments — «как ответить на возражение»,
+    # «как обосновать цену», «почему мы дороже». Manager-workflow:
+    # ответ требует persuasion_guide / objection_script, НЕ цены.
+    _objection_arguments_rx = [
+        _rx(r"как\s+(мне\s+|нам\s+)?ответить\s+(на\s+возраж|клиенту|на\s+вопрос)"),
+        _rx(r"как\s+(объяснить|обосновать|аргументировать)\s+(цену|стоимость|разниц)"),
+        # «почему наша цена выше», «почему у нас дороже» — допускаем 0-3 слова между подлежащим и сказуемым
+        _rx(r"почему\s+(у\s+нас\s+|наш(а|и|е)?\s+)?\w*\s*\w*\s*(дороже|выше|больше|выше\s+чем)"),
+        _rx(r"чем\s+(наша\s+|мы\s+)\w*\s*(лучше|отличаемся)"),
+        _rx(r"как\s+(закрыть|снять|обработать|парировать)\s+возраж"),
+        _rx(r"что\s+(мне\s+)?(сказать|написать)\s+клиенту\s+(на|про|о|об)"),
+    ]
+
+    def _check_objection_arguments(q: str) -> IntentResult | None:
+        if any(rx.search(q) for rx in _objection_arguments_rx):
+            return IntentResult("objection_arguments", 0.92, "regex")
+        return None
+
+    rules.append(_check_objection_arguments)
+
+    # P14 Rec #2b: discovery_assist — «как мне выяснить параметры»,
+    # «какие уточнения задать». Manager-workflow: ответ — список discovery-
+    # вопросов из roadmap/faq, НЕ pricing.
+    _discovery_assist_rx = [
+        _rx(r"как\s+(мне\s+|нам\s+)?(выяснить|узнать|уточнить|спросить)"),
+        _rx(r"какие\s+(вопросы|уточнения|параметры|данные)\s+(задать|задавать|нужн\w+|собрать)"),
+        _rx(r"как\s+(правильно\s+)?осметить\s+(без|если)\s+парам"),
+        _rx(r"что\s+(мне\s+)?(спросить|уточнить)\s+у\s+клиент"),
+    ]
+
+    def _check_discovery_assist(q: str) -> IntentResult | None:
+        if any(rx.search(q) for rx in _discovery_assist_rx):
+            return IntentResult("discovery_assist", 0.92, "regex")
+        return None
+
+    rules.append(_check_discovery_assist)
+
+    # P14 Rec #2c: category_clarify — «делаете ли вы X», «занимаетесь ли».
+    # Близко к consultation, но шире — клиент может прямо спрашивать категорию.
+    _category_clarify_rx = [
+        _rx(r"(делаете\s+ли|занимаетесь\s+ли|производите\s+ли|изготавлива\w+\s+ли)\s+\w+"),
+        _rx(r"можете\s+(ли\s+)?(сделать|изготовить|произвести|выполнить|выпуст|собрать)\s+\w+"),
+        _rx(r"\bу\s+вас\s+есть\s+(услуг|товар|категори|направлени)"),
+        _rx(r"(работает|трудитесь)\s+ли\s+с\s+\w+"),
+    ]
+    # Word-boundary'ed price keywords — иначе «косметики» содержит «смет» как
+    # подстроку и блокирует category_clarify.
+    _price_kw_strict_rx = _rx(
+        r"\b(стоимост\w*|стоит|стоят|цен[аеуыёо]\b|расценк\w*|прайс\w*|"
+        r"смет\w*|бюджет\w*|сколько)"
+    )
+
+    def _check_category_clarify(q: str) -> IntentResult | None:
+        if any(rx.search(q) for rx in _category_clarify_rx):
+            if not _price_kw_strict_rx.search(q):
+                return IntentResult("category_clarify", 0.90, "regex")
+        return None
+
+    rules.append(_check_category_clarify)
 
     # historical_request: "дайте ссылки на сделки/похожие кейсы/приведи пример"
     # Added after chat#97/M4 where user explicitly asked for historical deal links

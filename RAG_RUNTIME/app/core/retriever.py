@@ -30,6 +30,48 @@ def generate_sparse_vector(text: str):
     return SparseVector(indices=indices, values=values)
 
 
+# P14 Rec #3: product-token stems для validation в historical_request.
+# Каждый stem — самый короткий суффикс, который однозначно идентифицирует
+# продуктовую категорию во всех словоформах. Длинные stems (брендмауэр)
+# идут раньше своих коротких форм (бренд) чтобы не сматчиться неправильно.
+_PRODUCT_STEMS = (
+    "брендмауэр", "брендмаур", "брандмауэр", "брандмаур",
+    "брендбук", "брендинг", "фирменн",
+    "логотип", "айдентик",
+    "визитк",
+    "листовк", "флаер",
+    "буклет",
+    "наклейк", "стикер", "плёнк", "пленк",
+    "баннер",
+    "вывеск", "объёмн", "объемн", "светов",
+    "короб", "лайтбокс",
+    "штендер",
+    "табличк", "стенд",
+    "брошюр",
+    "каталог",
+    "меню",
+    "плакат", "афиш", "постер",
+    "ролап", "ролл-ап",
+    "упаковк",
+    "флагшток", "флажок",
+    "пиллар", "стел", "стелл",
+    "футболк", "кружк", "бейсболк", "ручк", "блокнот",
+    "сувенир", "мерч",
+    "печат", "широкоформат", "офсет", "цифровой",
+)
+
+
+def _extract_product_tokens(query: str) -> set[str]:
+    """Return product-category stems present in `query` (lowercase).
+
+    Used by historical_request filter — drops deal docs whose searchable_text
+    doesn't mention any of the extracted stems.
+    """
+    q_lower = query.lower()
+    hits = {stem for stem in _PRODUCT_STEMS if stem in q_lower}
+    return hits
+
+
 class HybridRetriever:
     """
     Hybrid retriever using Qdrant native hybrid search (dense + sparse tf-idf) + Reciprocal Rank Fusion.
@@ -429,6 +471,12 @@ class HybridRetriever:
             "historical_request": (["historical_deal", "deal_profile", "offer_profile"], 12),
             "referential":       (["historical_deal", "deal_profile", "bundle",
                                    "offer_profile", "knowledge"], 10),
+            # P14 Rec #2: manager-workflow intents — приоритет knowledge / faq / roadmap.
+            # Pricing-doc-типы (bundle/service_pricing_bridge/product) исключены, чтобы
+            # LLM не получал прайс-контекст для «как мне ответить / выяснить».
+            "objection_arguments": (["knowledge", "faq", "roadmap", "service_page"], 8),
+            "discovery_assist":    (["knowledge", "faq", "roadmap", "service_page"], 8),
+            "category_clarify":    (["service_page", "knowledge", "faq"], 6),
         }
 
         strategy = INTENT_STRATEGIES.get(intent_name)
@@ -461,6 +509,26 @@ class HybridRetriever:
             logger.warning("Intent-aware retrieval failed, falling back to standard",
                            intent=intent_name, error=str(e))
             return self.retrieve(query, top_k=top_k)
+
+        # P14 Rec #3: для historical_request валидируем, что вернувшиеся deal-docs
+        # реально упоминают продукт из запроса. БGE-M3 семантика часто матчит «дай
+        # ссылки на сделки про каталоги» с баннерными сделками просто потому что
+        # historical_deal буцет богат на баннеры. Фильтруем по подстрокам в
+        # payload.searchable_text — если ни один deal не упоминает product, оставляем
+        # исходный список (не блокируем retrieval полностью).
+        if intent_name == "historical_request":
+            q_products = _extract_product_tokens(query)
+            if q_products:
+                filtered = [
+                    p for p in results
+                    if any(prod in (p.payload.get("searchable_text") or "").lower()
+                           for prod in q_products)
+                ]
+                if filtered:
+                    logger.info("historical_request product-token filter",
+                                products=list(q_products),
+                                kept=len(filtered), dropped=len(results) - len(filtered))
+                    results = filtered
 
         parsed = parse_query(query)
 
