@@ -200,7 +200,7 @@ _META_CONSULTATION_RX = re.compile(
     r"спросить|задать|сравнить|продать|снять\s+возраж|аргументир\w+|"
     r"расска[зж]ать|преподнести|подвести|выйти\s+из)"
     r"|какие\s+(вопросы|уточнения|параметры)\s+(задать|задавать|нужн\w+)"
-    r"|почему\s+(у\s+нас\s+|наша\s+|наш\s+)?(дороже|выше|больше)"
+    r"|почему\s+(?:\S+\s+){0,8}(дороже|выше|больше|дорог|подорож)"
     r"|чем\s+(наша\s+|мы\s+)\w*\s*(лучше|отличаемся)"
     r"|что\s+(мне\s+)?(сказать|ответить|написать)\s+клиенту"
     r"|как\s+(мне\s+)?(преподнести|представить|переориентировать)",
@@ -497,7 +497,21 @@ def extract(history, current_query: str = "") -> DialogState:
         state.brandmauer_format_correction = True
 
     # P14 Rec #1: meta-consultation detect (last user turn — intent shifts).
-    state.is_meta_consultation = bool(_META_CONSULTATION_RX.search(q or ""))
+    # P14.3.2: НЕ ставить meta-флаг, если в запросе одновременно есть
+    # price-signal И product-mention — это «hybrid» запрос («А почему ваши цены
+    # на буклеты выше? Можете рассчитать на 1000 штук?»), и pricing pipeline
+    # должен отработать. Закрывает client RAG-drop -8.5pp из v1→v2.
+    _has_meta = bool(_META_CONSULTATION_RX.search(q or ""))
+    _has_price_signal = state.has_explicit_price_ask
+    # Используем расширенный _PRODUCT_STEMS из retriever.py (там «печать»,
+    # «широкоформат», «футболк» и т.д., чего нет в локальном PRODUCT_PATTERNS).
+    # Lazy-import чтобы избежать circular dependency.
+    try:
+        from app.core.retriever import _extract_product_tokens
+        _has_product_signal = bool(_extract_product_tokens(q or "")) or bool(_find_products(q or ""))
+    except Exception:
+        _has_product_signal = bool(_find_products(q or ""))
+    state.is_meta_consultation = _has_meta and not (_has_price_signal and _has_product_signal)
 
     return state
 

@@ -8,11 +8,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import os
 ROOT = Path(__file__).resolve().parent.parent.parent
 DATA = ROOT / "SOFT_TUNE_DATA"
-SCORES = DATA / "scores.jsonl"
-RAG = DATA / "answers_rag.jsonl"
-OUT = DATA / "few_shot_examples.jsonl"
+SUFFIX = os.environ.get("RUN_SUFFIX", "")
+SCORES = DATA / f"scores{SUFFIX}.jsonl"
+RAG = DATA / f"answers_rag{SUFFIX}.jsonl"
+OUT = DATA / f"few_shot_examples{SUFFIX}.jsonl"
 
 
 def main():

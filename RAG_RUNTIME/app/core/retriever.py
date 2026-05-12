@@ -530,6 +530,28 @@ class HybridRetriever:
                                 kept=len(filtered), dropped=len(results) - len(filtered))
                     results = filtered
 
+        # P14.3.1: для pricing-intents — soft rerank (не drop): доки с product-stem
+        # из запроса идут впереди, остальные — позже. Закрывает регресс print_flyer
+        # (-21pp в v2), где BGE-M3 матчил «буклеты» → «листовки» (близкая семантика).
+        # Drop рискует получить пустой top-k для близких категорий, поэтому soft.
+        _PRICING_INTENTS_REORDER = {"product_query", "smeta_request", "bundle_query"}
+        if intent_name in _PRICING_INTENTS_REORDER:
+            q_products = _extract_product_tokens(query)
+            if q_products:
+                matched = []
+                unmatched = []
+                for p in results:
+                    payload_text = (p.payload.get("searchable_text") or "").lower()
+                    if any(prod in payload_text for prod in q_products):
+                        matched.append(p)
+                    else:
+                        unmatched.append(p)
+                if matched and unmatched:
+                    logger.info("pricing-intent product-token soft rerank",
+                                intent=intent_name, products=list(q_products),
+                                promoted=len(matched), demoted=len(unmatched))
+                    results = matched + unmatched
+
         parsed = parse_query(query)
 
         # P10.6 D3 + P11 R1: roadmap boost parameters

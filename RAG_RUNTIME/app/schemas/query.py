@@ -44,6 +44,7 @@ class StructuredResponse(BaseModel):
     parametric_breakdown: ParametricBreakdown | None = None
     deal_items: list[DealItem] = []   # populated when query is a deal-estimate request
     historical_deals: list[HistoricalDealRef] = []   # P13.3 / T7: similar closed deals from orders.csv
+    estimated_lead_time: str | None = None   # P14.3.3: «3-5 рабочих дней», «1-2 недели», «до завтра»
     latency_ms: int = 0
 
 

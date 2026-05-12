@@ -191,8 +191,8 @@ def _build_tier1():
     _objection_arguments_rx = [
         _rx(r"как\s+(мне\s+|нам\s+)?ответить\s+(на\s+возраж|клиенту|на\s+вопрос)"),
         _rx(r"как\s+(объяснить|обосновать|аргументировать)\s+(цену|стоимость|разниц)"),
-        # «почему наша цена выше», «почему у нас дороже» — допускаем 0-3 слова между подлежащим и сказуемым
-        _rx(r"почему\s+(у\s+нас\s+|наш(а|и|е)?\s+)?\w*\s*\w*\s*(дороже|выше|больше|выше\s+чем)"),
+        # «почему [любая фраза] (дороже|выше|больше)» — lazy match, до 8 слов между.
+        _rx(r"почему\s+(?:\S+\s+){0,8}(дороже|выше|больше|дорог|подорож)"),
         _rx(r"чем\s+(наша\s+|мы\s+)\w*\s*(лучше|отличаемся)"),
         _rx(r"как\s+(закрыть|снять|обработать|парировать)\s+возраж"),
         _rx(r"что\s+(мне\s+)?(сказать|написать)\s+клиенту\s+(на|про|о|об)"),
@@ -200,6 +200,13 @@ def _build_tier1():
 
     def _check_objection_arguments(q: str) -> IntentResult | None:
         if any(rx.search(q) for rx in _objection_arguments_rx):
+            # P14.3.2: hybrid query («почему цена выше? рассчитайте на 1000 шт»)
+            # — пускаем pricing pipeline вместо meta-only ответа.
+            from app.core.retriever import _extract_product_tokens
+            has_price = bool(_price_kw_rx.search(q))
+            has_product = bool(_extract_product_tokens(q))
+            if has_price and has_product:
+                return IntentResult("product_query", 0.85, "regex_hybrid")
             return IntentResult("objection_arguments", 0.92, "regex")
         return None
 
@@ -239,7 +246,13 @@ def _build_tier1():
 
     def _check_category_clarify(q: str) -> IntentResult | None:
         if any(rx.search(q) for rx in _category_clarify_rx):
-            if not _price_kw_strict_rx.search(q):
+            # P14.3.2: «Делаете ли вы X? Сколько за 5 букв?» — есть и category-q,
+            # и price-q → product_query (получит цену + reference на сделки).
+            if _price_kw_strict_rx.search(q):
+                from app.core.retriever import _extract_product_tokens
+                if _extract_product_tokens(q):
+                    return IntentResult("product_query", 0.85, "regex_hybrid")
+            else:
                 return IntentResult("category_clarify", 0.90, "regex")
         return None
 

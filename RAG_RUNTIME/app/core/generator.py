@@ -60,12 +60,32 @@ def _scrub_structured_response(payload: dict) -> dict:
     P14: с увеличенным max_tokens LLM иногда возвращает estimated_price/price_band
     как bare number вместо объекта {value, basis}. Coerce numeric → object,
     чтобы pydantic StructuredResponse не упал на validation.
+
+    P14.3.3: estimated_lead_time может прийти как dict {value: "X", basis: ...},
+    bare number (days), или string. Нормализуем к string или None.
     """
     if not isinstance(payload, dict):
         return payload
     for key in ("summary", "reasoning"):
         if key in payload and isinstance(payload[key], str):
             payload[key] = _scrub_forbidden_phrases(payload[key])
+
+    # estimated_lead_time: coerce non-string forms to readable string
+    lt = payload.get("estimated_lead_time")
+    if isinstance(lt, dict):
+        # Common LLM forms: {"value": "3-5 дней"}, {"days": 5}, {"min": 3, "max": 5}
+        if "value" in lt:
+            payload["estimated_lead_time"] = str(lt["value"])
+        elif "days" in lt:
+            payload["estimated_lead_time"] = f"{lt['days']} раб. дн."
+        elif "min" in lt and "max" in lt:
+            payload["estimated_lead_time"] = f"{lt['min']}-{lt['max']} раб. дн."
+        else:
+            payload["estimated_lead_time"] = None
+    elif isinstance(lt, (int, float)):
+        payload["estimated_lead_time"] = f"{int(lt)} раб. дн."
+    elif lt is not None and not isinstance(lt, str):
+        payload["estimated_lead_time"] = None
 
     # estimated_price: bare number → {value: <n>, basis: ""}
     ep = payload.get("estimated_price")
