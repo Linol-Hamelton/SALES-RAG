@@ -25,8 +25,12 @@ import httpx
 ROOT = Path(__file__).resolve().parent.parent.parent
 OUT_DIR = ROOT / "SOFT_TUNE_DATA"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
-OUT_CLIENT = OUT_DIR / "questions_client.jsonl"
-OUT_MANAGER = OUT_DIR / "questions_manager.jsonl"
+import os
+SCALE = int(os.environ.get("QGEN_SCALE", "1"))  # 1=100/100, 2=200/200, etc.
+SUFFIX = "_v2" if SCALE >= 2 else ""
+
+OUT_CLIENT = OUT_DIR / f"questions_client{SUFFIX}.jsonl"
+OUT_MANAGER = OUT_DIR / f"questions_manager{SUFFIX}.jsonl"
 
 PROD_URL = "https://62.217.178.117/query_no_rag"
 HOST_HEADER = "ai.labus.pro"
@@ -155,28 +159,28 @@ async def generate_for_topic(
 
 
 async def main():
+    target_client = 100 * SCALE
+    target_manager = 100 * SCALE
     async with httpx.AsyncClient(verify=False) as client:
-        # CLIENT: 12 topics × ~8 questions = 100
-        per_client = 100 // len(CLIENT_TOPICS)  # 8
-        extra_client = 100 - per_client * len(CLIENT_TOPICS)  # 4
-        print(f"=== CLIENT: {per_client}×{len(CLIENT_TOPICS)} + {extra_client} = 100 ===", flush=True)
+        per_client = target_client // len(CLIENT_TOPICS)
+        extra_client = target_client - per_client * len(CLIENT_TOPICS)
+        print(f"=== CLIENT: {per_client}×{len(CLIENT_TOPICS)} + {extra_client} = {target_client} ===", flush=True)
         client_tasks = []
         for i, (label, key) in enumerate(CLIENT_TOPICS):
             n = per_client + (1 if i < extra_client else 0)
             client_tasks.append(generate_for_topic(client, "client", label, key, n, CLIENT_SYSTEM))
         client_results = await asyncio.gather(*client_tasks)
-        client_rows = [row for batch in client_results for row in batch][:100]
+        client_rows = [row for batch in client_results for row in batch][:target_client]
 
-        # MANAGER: 10 topics × 10
-        per_manager = 100 // len(MANAGER_TOPICS)
-        extra_manager = 100 - per_manager * len(MANAGER_TOPICS)
-        print(f"\n=== MANAGER: {per_manager}×{len(MANAGER_TOPICS)} + {extra_manager} = 100 ===", flush=True)
+        per_manager = target_manager // len(MANAGER_TOPICS)
+        extra_manager = target_manager - per_manager * len(MANAGER_TOPICS)
+        print(f"\n=== MANAGER: {per_manager}×{len(MANAGER_TOPICS)} + {extra_manager} = {target_manager} ===", flush=True)
         manager_tasks = []
         for i, (label, key) in enumerate(MANAGER_TOPICS):
             n = per_manager + (1 if i < extra_manager else 0)
             manager_tasks.append(generate_for_topic(client, "manager", label, key, n, MANAGER_SYSTEM))
         manager_results = await asyncio.gather(*manager_tasks)
-        manager_rows = [row for batch in manager_results for row in batch][:100]
+        manager_rows = [row for batch in manager_results for row in batch][:target_manager]
 
     with OUT_CLIENT.open("w", encoding="utf-8") as f:
         for row in client_rows:

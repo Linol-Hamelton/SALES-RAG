@@ -22,12 +22,14 @@ from pathlib import Path
 
 import httpx
 
+import os
 ROOT = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = ROOT / "SOFT_TUNE_DATA"
-IN_RAG = DATA_DIR / "answers_rag.jsonl"
-IN_NO_RAG = DATA_DIR / "answers_no_rag.jsonl"
-OUT_SCORES = DATA_DIR / "scores.jsonl"
-OUT_RECOMMENDATIONS = DATA_DIR / "recommendations.md"
+SUFFIX = os.environ.get("RUN_SUFFIX", "")
+IN_RAG = DATA_DIR / f"answers_rag{SUFFIX}.jsonl"
+IN_NO_RAG = DATA_DIR / f"answers_no_rag{SUFFIX}.jsonl"
+OUT_SCORES = DATA_DIR / f"scores{SUFFIX}.jsonl"
+OUT_RECOMMENDATIONS = DATA_DIR / f"recommendations{SUFFIX}.md"
 
 BASE = "https://62.217.178.117"
 HOST = "ai.labus.pro"

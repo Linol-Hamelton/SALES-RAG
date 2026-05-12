@@ -20,10 +20,14 @@ from pathlib import Path
 
 import httpx
 
+import os
 ROOT = Path(__file__).resolve().parent.parent.parent
 DATA_DIR = ROOT / "SOFT_TUNE_DATA"
-OUT_RAG = DATA_DIR / "answers_rag.jsonl"
-OUT_NO_RAG = DATA_DIR / "answers_no_rag.jsonl"
+SUFFIX = os.environ.get("RUN_SUFFIX", "")   # "" → v1, "_v2" → second run
+OUT_RAG = DATA_DIR / f"answers_rag{SUFFIX}.jsonl"
+OUT_NO_RAG = DATA_DIR / f"answers_no_rag{SUFFIX}.jsonl"
+Q_CLIENT = DATA_DIR / f"questions_client{SUFFIX}.jsonl"
+Q_MANAGER = DATA_DIR / f"questions_manager{SUFFIX}.jsonl"
 
 BASE = "https://62.217.178.117"
 HOST = "ai.labus.pro"
@@ -36,8 +40,7 @@ TIMEOUT = 180.0
 
 def load_questions() -> list[dict]:
     rows: list[dict] = []
-    for fname in ("questions_client.jsonl", "questions_manager.jsonl"):
-        p = DATA_DIR / fname
+    for p in (Q_CLIENT, Q_MANAGER):
         if not p.exists():
             print(f"!! {p} missing — run generate_questions.py first")
             sys.exit(1)
