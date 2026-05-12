@@ -47,6 +47,36 @@ class StructuredResponse(BaseModel):
     latency_ms: int = 0
 
 
+class NoRagRequest(BaseModel):
+    """P14: pure-LLM bypass — no retrieval, no SmetaEngine, no dialog_state.
+    Used by SOFT_TUNE_DATA evaluator to measure RAG-uplift quantitatively."""
+    query: str = Field(..., min_length=1, max_length=10000)
+    mode: Literal["human", "structured"] = "structured"
+    system_prompt_mode: Literal["full", "minimal", "custom"] = "full"
+    """`full` = тот же system prompt что у /query_structured (изолирует вклад retrieval).
+    `minimal` = generic Russian assistant prompt (показывает baseline без любого SALES_RAG приминга).
+    `custom` = используй custom_system_prompt (для evaluator-сценариев типа генерации вопросов)."""
+    custom_system_prompt: str | None = Field(default=None, max_length=20000)
+    history: list[ChatMessage] = Field(default_factory=list)
+    model_override: str | None = Field(default=None, max_length=128,
+        description="Использовать другую DeepSeek-модель (например 'deepseek-reasoner' для evaluator-фаз).")
+    response_format_override: Literal["json", "text"] | None = Field(default=None,
+        description="Принудительно задать response_format. По умолчанию: structured=json, human=text.")
+    temperature: float = Field(default=0.15, ge=0.0, le=2.0)
+    max_tokens_override: int | None = Field(default=None, ge=1, le=32000,
+        description="Если задан — переопределяет max_tokens из settings (для длинных генераций).")
+
+
+class NoRagResponse(BaseModel):
+    summary: str
+    raw_response: str = ""
+    model: str = ""
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
+    latency_ms: int = 0
+    system_prompt_mode: str = "full"
+
+
 class RebuildIndexRequest(BaseModel):
     doc_types: list[Literal["product", "bundle", "policy", "support"]] | None = None
     recreate_collection: bool = False

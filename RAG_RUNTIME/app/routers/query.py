@@ -1,10 +1,14 @@
 """Query endpoints: /query and /query_structured."""
+import json
 import re
 import time
 from collections import OrderedDict
 from threading import Lock
 from fastapi import APIRouter, Request, HTTPException, Depends
-from app.schemas.query import QueryRequest, HumanQueryResponse, StructuredResponse, ChatMessage
+from app.schemas.query import (
+    QueryRequest, HumanQueryResponse, StructuredResponse, ChatMessage,
+    NoRagRequest, NoRagResponse,
+)
 from app.schemas.pricing import (
     PriceBand, EstimatedPrice, BundleItem, Reference, SourceDistinction,
     ParametricBreakdown, ParametricLineItem, DealItem,
@@ -3104,3 +3108,107 @@ async def query_structured(req: QueryRequest, request: Request,
     except Exception as e:
         logger.error("Structured query failed", error=str(e), query=req.query[:100])
         raise HTTPException(500, f"Structured query failed: {str(e)}")
+
+
+# ---------------------------------------------------------------------------
+# P14: /query_no_rag — pure-LLM bypass для offline-сравнения с RAG-ответами.
+#
+# Эндпоинт НЕ дёргает retriever, dialog_state, SmetaEngine, bridge-инжектор.
+# Только LLM-call: system_prompt + (optional history) + user query.
+#
+# Используется evaluator-скриптами в SOFT_TUNE_DATA/ для измерения RAG-uplift.
+# НЕ предназначен для prod-трафика клиентов: ответы могут содержать галлюцинации,
+# так как у модели нет доступа к корпоративным данным (orders.csv, bridges, и т.д.).
+# ---------------------------------------------------------------------------
+
+_NO_RAG_MINIMAL_SYSTEM_PROMPT = (
+    "Ты — менеджер по продажам полиграфии, рекламы, дизайна и сувенирной "
+    "продукции в Махачкале. Отвечай по-русски, профессионально, лаконично. "
+    "Если не знаешь точную цену — дай разумную оценку диапазона и попроси "
+    "уточняющие параметры (тираж, размер, материал)."
+)
+
+
+@router.post("/query_no_rag", response_model=NoRagResponse)
+async def query_no_rag(req: NoRagRequest, request: Request) -> NoRagResponse:
+    """Pure-LLM ответ без retrieval. См. модульный docstring выше."""
+    t0 = time.monotonic()
+
+    generator = request.app.state.generator
+    if generator is None or getattr(generator, "_client", None) is None:
+        # Lazy-init если ещё не загружен
+        try:
+            generator.load()
+        except Exception as e:
+            raise HTTPException(503, f"Generator not ready: {e}")
+
+    # Pick system prompt
+    if req.system_prompt_mode == "minimal":
+        system_prompt = _NO_RAG_MINIMAL_SYSTEM_PROMPT
+    elif req.system_prompt_mode == "custom" and req.custom_system_prompt:
+        system_prompt = req.custom_system_prompt
+    else:
+        # Full prod system prompt — изолирует вклад retrieval от вклада promptа
+        system_prompt = generator._prompts.get("system", _NO_RAG_MINIMAL_SYSTEM_PROMPT)
+
+    # Build messages: system + history + user (без context-блока)
+    messages: list[dict] = [{"role": "system", "content": system_prompt}]
+    for m in (req.history or [])[-6:]:
+        role = getattr(m, "role", None) or (m.get("role") if isinstance(m, dict) else None)
+        content = getattr(m, "content", None) or (m.get("content") if isinstance(m, dict) else None)
+        if role and content:
+            messages.append({"role": role, "content": content})
+    messages.append({"role": "user", "content": req.query})
+
+    # Use the same model + max_tokens that prod uses for the corresponding mode
+    if req.mode == "structured":
+        max_tokens = generator.settings.max_tokens_structured
+        response_format: dict | None = {"type": "json_object"}
+    else:
+        max_tokens = generator.settings.max_tokens_human
+        response_format = None
+
+    # P14: per-request overrides
+    if req.max_tokens_override:
+        max_tokens = req.max_tokens_override
+    if req.response_format_override == "json":
+        response_format = {"type": "json_object"}
+    elif req.response_format_override == "text":
+        response_format = None
+
+    model_to_use = req.model_override or generator.settings.deepseek_model
+
+    try:
+        kwargs = dict(
+            model=model_to_use,
+            messages=messages,
+            temperature=req.temperature,
+            max_tokens=max_tokens,
+        )
+        if response_format:
+            kwargs["response_format"] = response_format
+        resp = await generator._client.chat.completions.create(**kwargs)
+    except Exception as e:
+        logger.error("Deepseek no-rag call failed", error=str(e), query=req.query[:100])
+        raise HTTPException(500, f"LLM call failed: {e}")
+
+    raw = resp.choices[0].message.content or ""
+    # For structured mode extract summary field; for human mode raw IS the summary.
+    summary = raw
+    if req.mode == "structured":
+        try:
+            parsed = json.loads(raw)
+            summary = parsed.get("summary") or raw
+        except json.JSONDecodeError:
+            summary = raw
+
+    usage = getattr(resp, "usage", None)
+    return NoRagResponse(
+        summary=summary,
+        raw_response=raw,
+        model=model_to_use,
+        prompt_tokens=getattr(usage, "prompt_tokens", 0) or 0,
+        completion_tokens=getattr(usage, "completion_tokens", 0) or 0,
+        latency_ms=int((time.monotonic() - t0) * 1000),
+        system_prompt_mode=req.system_prompt_mode,
+    )

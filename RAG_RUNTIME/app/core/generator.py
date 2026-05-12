@@ -612,7 +612,7 @@ class DeepseekGenerator:
                     self._prompts.get("system", ""), history, user_prompt
                 ),
                 temperature=0.15,
-                max_tokens=1000,
+                max_tokens=self.settings.max_tokens_human,
             )
             return _scrub_forbidden_phrases(response.choices[0].message.content or "")
         except Exception as e:
@@ -646,7 +646,7 @@ class DeepseekGenerator:
                     self._prompts.get("system", ""), history, user_prompt
                 ),
                 temperature=0.1,
-                max_tokens=1024,
+                max_tokens=self.settings.max_tokens_structured,
             )
             content = response.choices[0].message.content or "{}"
             return _scrub_structured_response(json.loads(content))
@@ -698,7 +698,7 @@ class DeepseekGenerator:
                     self._prompts.get("system", ""), history, user_prompt
                 ),
                 temperature=0.1,
-                max_tokens=2000,  # deal_items can be long
+                max_tokens=self.settings.max_tokens_deal,
             )
             content = response.choices[0].message.content or "{}"
             return _scrub_structured_response(json.loads(content))

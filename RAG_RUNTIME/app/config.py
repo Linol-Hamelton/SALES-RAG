@@ -55,6 +55,18 @@ class Settings(BaseSettings):
     rerank_top_n: int = Field(default=8, alias="RERANK_TOP_N")
     rrf_alpha: float = Field(default=0.7, alias="RRF_ALPHA")
 
+    # P14: generation token limits (x4 от P13 baseline).
+    # max_tokens_human: краткий /query (was 1000)
+    # max_tokens_structured: детальный /query_structured (was 1024)
+    # max_tokens_deal: deal_estimate с deal_items (was 2000)
+    max_tokens_human: int = Field(default=4000, alias="MAX_TOKENS_HUMAN")
+    max_tokens_structured: int = Field(default=4096, alias="MAX_TOKENS_STRUCTURED")
+    max_tokens_deal: int = Field(default=8000, alias="MAX_TOKENS_DEAL")
+
+    # P14: separate judge model for offline evaluator scripts (Phase E).
+    # Used only by SOFT_TUNE_DATA/scripts/*, NOT by prod runtime.
+    deepseek_judge_model: str = Field(default="deepseek-reasoner", alias="DEEPSEEK_JUDGE_MODEL")
+
     @property
     def project_root(self) -> Path:
         """RAG_RUNTIME root directory."""
