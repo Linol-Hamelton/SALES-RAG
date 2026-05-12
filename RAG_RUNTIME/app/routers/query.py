@@ -2966,7 +2966,11 @@ async def query_structured(req: QueryRequest, request: Request,
                 logger.info("Height-based signage pricing override",
                             height=_hbp["height"], n_letters=_hbp["n_letters"],
                             total_mid=_hbp["total_mid"], query=req.query[:80])
-                estimated_price = _hbp["total_mid"]
+                # P14.1: wrap as EstimatedPrice (was bare float, broke schema)
+                estimated_price = EstimatedPrice(
+                    value=float(_hbp["total_mid"]),
+                    basis=f"height-based расчёт ({_hbp['height']} см × {_hbp['n_letters']} букв)",
+                )
                 price_band = PriceBand(
                     min=_hbp["total_min"],
                     max=_hbp["total_max"],
