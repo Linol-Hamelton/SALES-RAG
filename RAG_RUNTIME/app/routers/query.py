@@ -3158,7 +3158,14 @@ async def query_no_rag(req: NoRagRequest, request: Request) -> NoRagResponse:
         content = getattr(m, "content", None) or (m.get("content") if isinstance(m, dict) else None)
         if role and content:
             messages.append({"role": role, "content": content})
-    messages.append({"role": "user", "content": req.query})
+    # DeepSeek API требует слово 'json' в промпте если response_format=json_object.
+    # Если user/system промпт его не содержит, добавляем явное указание.
+    user_content = req.query
+    if req.mode == "structured" or req.response_format_override == "json":
+        combined = system_prompt + " " + req.query
+        if "json" not in combined.lower():
+            user_content = req.query + "\n\nОтветь валидным JSON-объектом."
+    messages.append({"role": "user", "content": user_content})
 
     # Use the same model + max_tokens that prod uses for the corresponding mode
     if req.mode == "structured":

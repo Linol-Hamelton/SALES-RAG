@@ -55,15 +55,40 @@ def _scrub_forbidden_phrases(text: str) -> str:
 
 
 def _scrub_structured_response(payload: dict) -> dict:
-    """Apply phrase scrubbing to all string fields of a structured response."""
+    """Apply phrase scrubbing + normalise fields LLM может вернуть в разных формах.
+
+    P14: с увеличенным max_tokens LLM иногда возвращает estimated_price/price_band
+    как bare number вместо объекта {value, basis}. Coerce numeric → object,
+    чтобы pydantic StructuredResponse не упал на validation.
+    """
     if not isinstance(payload, dict):
         return payload
     for key in ("summary", "reasoning"):
         if key in payload and isinstance(payload[key], str):
             payload[key] = _scrub_forbidden_phrases(payload[key])
+
+    # estimated_price: bare number → {value: <n>, basis: ""}
     ep = payload.get("estimated_price")
-    if isinstance(ep, dict) and isinstance(ep.get("basis"), str):
+    if isinstance(ep, (int, float)):
+        payload["estimated_price"] = {"value": float(ep), "basis": ""}
+    elif isinstance(ep, str):
+        try:
+            payload["estimated_price"] = {"value": float(ep.replace(" ", "").replace(",", ".")), "basis": ""}
+        except (ValueError, TypeError):
+            payload["estimated_price"] = None
+    elif isinstance(ep, dict) and isinstance(ep.get("basis"), str):
         ep["basis"] = _scrub_forbidden_phrases(ep["basis"])
+
+    # price_band: bare number → {min: <n>, max: <n>}; list[2] → same
+    pb = payload.get("price_band")
+    if isinstance(pb, (int, float)):
+        payload["price_band"] = {"min": float(pb), "max": float(pb)}
+    elif isinstance(pb, list) and len(pb) == 2:
+        try:
+            payload["price_band"] = {"min": float(pb[0]), "max": float(pb[1])}
+        except (ValueError, TypeError):
+            payload["price_band"] = {}
+
     flags = payload.get("flags")
     if isinstance(flags, list):
         payload["flags"] = [_scrub_forbidden_phrases(f) if isinstance(f, str) else f for f in flags]
