@@ -135,8 +135,9 @@ def main():
                 seen.add(q)
         data[intent] = merged
 
-    # Cap describe at 30 (most generic script-drafting examples first)
-    data["describe"] = redistributed["describe"][:30]
+    # P14.7.B: relax describe cap 30 → 45 для better OOD coverage
+    # (v6 показал что cap=30 даёт overfit на v3 → −25pp discovery, −17pp print_flyer)
+    data["describe"] = redistributed["describe"][:45]
 
     # P14.6.B: rebalance underspec — расширенный set v3 был загрязнён
     # discovery_assist / smeta_request / product_query примерами.
@@ -165,8 +166,9 @@ def main():
                 seen.add(q)
         data[intent] = merged
 
-    # Cap underspec at 20 (must stay narrow)
-    data["underspec"] = redist_u["underspec"][:20]
+    # P14.7.B: relax underspec cap 20 → 40 для better OOD coverage
+    # (v6 показал что cap=20 даёт overfit на v3 → потеря на новых underspec patterns)
+    data["underspec"] = redist_u["underspec"][:40]
 
     print("\nFinal counts:")
     for intent in sorted(data.keys()):
