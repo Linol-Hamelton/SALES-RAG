@@ -1,5 +1,6 @@
 """Query endpoints: /query and /query_structured."""
 import json
+import os
 import re
 import time
 from collections import OrderedDict
@@ -1241,6 +1242,66 @@ def _format_pricing_breakdown(pr) -> str:
 _HISTORY_INTENTS = {"historical_request", "referential"}
 _HISTORY_DOC_TYPES = {"historical_deal", "deal_profile", "offer_profile"}
 
+# P14.7.C: HyDE (Hypothetical Document Embeddings)
+# Для ambiguous intents — LLM генерит «идеальный ответ», query+hypothesis embeddим
+# для retrieval. Закрывает OOD-регрессы discovery (-25pp) / print_flyer (-17pp).
+_HYDE_INTENTS = {"discovery_assist", "category_clarify", "consultation"}
+_HYDE_ENABLED = os.environ.get("HYDE_ENABLED", "0") == "1"
+_HYDE_CACHE: dict[str, str] = {}
+_HYDE_CACHE_MAX = 1000
+
+
+async def _hyde_enrich_query(query: str, intent: str, generator) -> str:
+    """P14.7.C: enrich query with LLM-generated hypothetical answer.
+
+    Returns enriched query (original + hypothesis) for retrieval embedding.
+    Original query unchanged for final LLM answer generation. No-op if:
+    - HYDE_ENABLED env != "1"
+    - intent not in _HYDE_INTENTS
+    - generator unavailable
+    - LLM call fails
+
+    Cached per-query (LRU-ish, cleared at _HYDE_CACHE_MAX).
+    """
+    if not _HYDE_ENABLED or intent not in _HYDE_INTENTS:
+        return query
+    if not query or not query.strip():
+        return query
+    cached = _HYDE_CACHE.get(query)
+    if cached:
+        return cached
+    if generator is None or getattr(generator, "_client", None) is None:
+        return query
+    prompt = (
+        "Кратко напиши идеальный ответ менеджера агентства полиграфии, рекламы, "
+        "дизайна и сувенирной продукции в Махачкале. 2-3 предложения. Конкретно: "
+        "цена/диапазон, состав, срок, уточняющий вопрос. Не задавай вопросы про "
+        "сам процесс.\n\n"
+        f"Вопрос клиента/менеджера: {query}"
+    )
+    try:
+        resp = await generator._client.chat.completions.create(
+            model=generator.settings.deepseek_model,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.2,
+            max_tokens=250,
+        )
+        hypothesis = (resp.choices[0].message.content or "").strip()
+        if not hypothesis:
+            return query
+        enriched = f"{query}\n[Гипотетический ответ для retrieval]: {hypothesis}"
+        # Bounded cache — clear if too big (no LRU, simple drop)
+        if len(_HYDE_CACHE) >= _HYDE_CACHE_MAX:
+            _HYDE_CACHE.clear()
+        _HYDE_CACHE[query] = enriched
+        logger.info("HyDE query enriched",
+                    intent=intent, hypothesis_chars=len(hypothesis),
+                    query=query[:80])
+        return enriched
+    except Exception as e:
+        logger.warning("HyDE LLM call failed", error=str(e), query=query[:80])
+        return query
+
 
 def _build_references(docs: list[dict], intent: str | None = None) -> list[Reference]:
     """Build Reference objects from retrieved docs. Only show relevant ones."""
@@ -2074,14 +2135,23 @@ async def query_structured(req: QueryRequest, request: Request,
 
         else:
             # --- Standard pipeline for simple queries ---
+            # P14.7.C: HyDE — для ambiguous intents (discovery/category_clarify/
+            # consultation) генерируем гипотетический ответ и enriching query
+            # перед embedding. Повышает retrieval recall на OOD queries.
+            # Toggle через env HYDE_ENABLED=1.
+            _retrieval_query = req.query
+            if intent_result is not None:
+                _retrieval_query = await _hyde_enrich_query(
+                    req.query, intent_result.intent, generator,
+                )
             # Use intent-aware retrieval when classifier is active
             if _use_intent and intent_result is not None and intent_result.confidence >= 0.75:
                 candidates = retriever.retrieve_by_intent(
-                    req.query, intent_result.intent,
+                    _retrieval_query, intent_result.intent,
                     hints=intent_result.hints, top_k=req.top_k * 2,
                 )
             else:
-                candidates = retriever.retrieve(req.query, top_k=req.top_k * 2)
+                candidates = retriever.retrieve(_retrieval_query, top_k=req.top_k * 2)
             if not candidates:
                 return StructuredResponse(
                     summary="По вашему запросу не найдено подходящих товаров/услуг.",
