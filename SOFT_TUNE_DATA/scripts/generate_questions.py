@@ -26,8 +26,9 @@ ROOT = Path(__file__).resolve().parent.parent.parent
 OUT_DIR = ROOT / "SOFT_TUNE_DATA"
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 import os
-SCALE = int(os.environ.get("QGEN_SCALE", "1"))  # 1=100/100, 2=200/200, etc.
-SUFFIX = "_v2" if SCALE >= 2 else ""
+SCALE = int(os.environ.get("QGEN_SCALE", "1"))  # 1=100/100, 2=200/200, 4=400/400, etc.
+# RUN_SUFFIX overrides SCALE-based naming when explicitly set (e.g. "_v4")
+SUFFIX = os.environ.get("RUN_SUFFIX") or ("_v2" if SCALE >= 2 else "")
 
 OUT_CLIENT = OUT_DIR / f"questions_client{SUFFIX}.jsonl"
 OUT_MANAGER = OUT_DIR / f"questions_manager{SUFFIX}.jsonl"
