@@ -3076,6 +3076,13 @@ async def query_structured(req: QueryRequest, request: Request,
         except Exception as _e_drift:
             logger.debug("Price-drift check skipped", error=str(_e_drift))
 
+        # P14.6.C: lead_time из scrubbed raw_json (LLM + post-processor fallback)
+        _lead_time = None
+        if isinstance(raw_json, dict):
+            _lt = raw_json.get("estimated_lead_time")
+            if isinstance(_lt, str) and _lt.strip():
+                _lead_time = _lt.strip()
+
         response = StructuredResponse(
             summary=summary,
             suggested_bundle=_build_suggested_bundle(bundle_pool),
@@ -3094,6 +3101,7 @@ async def query_structured(req: QueryRequest, request: Request,
             parametric_breakdown=parametric_breakdown_schema,
             deal_items=deal_items,
             historical_deals=_build_historical_deals(reranked, intent=(intent_result.intent if intent_result else None)),
+            estimated_lead_time=_lead_time,
             latency_ms=int((time.monotonic() - t0) * 1000),
         )
 
