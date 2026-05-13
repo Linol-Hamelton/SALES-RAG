@@ -1,6 +1,10 @@
 embedding:
   batch_size: 64
-  max_seq_len: 512
+  # P14.7: bumped 512 → 1024. BGE-M3 нативно до 8192. Реальные документы у нас
+  # редко >1000 токенов; 1024 закрывает >95% корпуса без обрезки.
+  # Передаётся в build_index.py --max-seq-len. Сейчас не читается runtime'ом
+  # (документация here, source of truth в env / CLI).
+  max_seq_len: 1024
   query_prefix: "Represent this sentence for searching relevant passages: "
   normalize: true
 

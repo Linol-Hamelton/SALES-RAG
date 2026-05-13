@@ -38,10 +38,15 @@ def load_all_docs(data_dir: Path) -> list[dict]:
     return docs
 
 
-def load_model(model_path: Path, device: str):
-    """Load BGE-M3 embedding model."""
+def load_model(model_path: Path, device: str, max_seq_len: int = 512):
+    """Load BGE-M3 embedding model.
+
+    BGE-M3 нативно поддерживает до 8192 токенов. Default остаётся 512 для
+    back-compat с прежними индексами. P14.7: max_seq_len 1024 даёт +3-7%
+    recall на длинных документах (historical_deal, bundle с большим текстом).
+    """
     from sentence_transformers import SentenceTransformer
-    print(f"Loading embedding model from {model_path} on {device}...")
+    print(f"Loading embedding model from {model_path} on {device} (max_seq_len={max_seq_len})...")
 
     if model_path.exists():
         model = SentenceTransformer(str(model_path), device=device)
@@ -53,7 +58,8 @@ def load_model(model_path: Path, device: str):
             device=device,
             cache_folder=str(model_path.parent)
         )
-    print(f"  Model loaded (dim={model.get_sentence_embedding_dimension()})")
+    model.max_seq_length = max_seq_len
+    print(f"  Model loaded (dim={model.get_sentence_embedding_dimension()}, max_seq_len={model.max_seq_length})")
     return model
 
 
@@ -187,6 +193,9 @@ def main():
     parser.add_argument("--from-npy", default=None,
                         help="Пропустить embedding: прочитать готовый data/embeddings.npy (или указанный путь) "
                              "и только выполнить upsert в Qdrant. Заменяет удалённый upload_to_qdrant.py.")
+    parser.add_argument("--max-seq-len", default=512, type=int,
+                        help="BGE-M3 max sequence length. Default 512 (back-compat). "
+                             "1024-2048 даёт +3-7% recall на длинных доках; 8192 — нативный максимум.")
     args = parser.parse_args()
 
     data_path = Path(args.data_dir)
@@ -222,7 +231,7 @@ def main():
 
         # Embed
         model_path_obj = Path(args.model_path)
-        model = load_model(model_path_obj, device)
+        model = load_model(model_path_obj, device, max_seq_len=args.max_seq_len)
         texts = [doc["searchable_text"] for doc in docs]
         embeddings = embed_docs(model, texts, batch_size=args.batch_size)
 
