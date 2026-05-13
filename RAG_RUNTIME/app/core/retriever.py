@@ -72,6 +72,65 @@ def _extract_product_tokens(query: str) -> set[str]:
     return hits
 
 
+# P14.4.2: hard category-collision filter — BGE-M3 семантически склеивает близкие
+# категории, soft-rerank помогает но не закрывает на 100%. Для строго определённых
+# пар запрос-категория drop'аем docs, упоминающие коллизионную категорию.
+# Каждая «target» категория — set стемов охватывающих все падежные формы,
+# включая gen.pl с fleeting vowel (визиток, листовок, кружек).
+_CATEGORY_COLLISIONS: dict[str, set[str]] = {
+    "буклет":   {"листовк", "листовок", "флаер"},
+    "брошюр":   {"листовк", "листовок", "флаер"},
+    "каталог":  {"листовк", "листовок", "флаер", "буклет"},
+    "флагшток": {"флаер", "штендер"},
+    "брендмауэр": {"вывеск", "объёмн", "объемн"},
+    "брандмауэр": {"вывеск", "объёмн", "объемн"},
+}
+
+
+def _apply_category_collision_filter(
+    results: list, q_products: set[str]
+) -> tuple[list, list[str]]:
+    """P14.4.2: hard drop docs упоминающих коллизионные категории.
+
+    Возвращает (filtered_results, dropped_collisions_log).
+    Применяется к pricing-intent results AFTER soft product-token rerank.
+
+    Логика: если запрос про «буклет», документ упоминает «листовок» и при этом
+    НЕ упоминает «буклет» — это false-positive retrieval, дропаем.
+    """
+    if not q_products:
+        return results, []
+    # Найти активные коллизионные правила. category_targets — только те стемы
+    # из q_products, которые имеют collision-правило (буклет, каталог и т.д.).
+    # Generic stems типа «печат», «широкоформат» НЕ считаются "mixed-doc-target".
+    category_targets: set[str] = set()
+    active_collisions: set[str] = set()
+    for stem in q_products:
+        if stem in _CATEGORY_COLLISIONS:
+            category_targets.add(stem)
+            active_collisions |= _CATEGORY_COLLISIONS[stem]
+    if not active_collisions:
+        return results, []
+    filtered = []
+    dropped_stems: list[str] = []
+    for p in results:
+        text = (p.payload.get("searchable_text") or "").lower()
+        # Если документ упоминает category-target — это смешанный, оставляем.
+        # Иначе если упоминает коллизию — дропаем.
+        if any(target in text for target in category_targets):
+            filtered.append(p)
+            continue
+        collision_hit = next((coll for coll in active_collisions if coll in text), None)
+        if collision_hit:
+            dropped_stems.append(collision_hit)
+        else:
+            filtered.append(p)
+    # Если фильтр выгреб всё — не блокируем retrieval, возвращаем исходное
+    if not filtered:
+        return results, []
+    return filtered, dropped_stems
+
+
 class HybridRetriever:
     """
     Hybrid retriever using Qdrant native hybrid search (dense + sparse tf-idf) + Reciprocal Rank Fusion.
@@ -538,6 +597,17 @@ class HybridRetriever:
         if intent_name in _PRICING_INTENTS_REORDER:
             q_products = _extract_product_tokens(query)
             if q_products:
+                # P14.4.2: hard drop коллизионных категорий (буклет ≠ листовка).
+                results_pre = list(results)
+                results, dropped_log = _apply_category_collision_filter(results, q_products)
+                if dropped_log:
+                    logger.info("pricing-intent category-collision filter",
+                                intent=intent_name, products=list(q_products),
+                                dropped=len(dropped_log),
+                                dropped_stems=sorted(set(dropped_log)),
+                                kept=len(results), original=len(results_pre))
+
+                # Soft rerank: matched product-stem → top, rest → bottom
                 matched = []
                 unmatched = []
                 for p in results:

@@ -54,6 +54,52 @@ def _scrub_forbidden_phrases(text: str) -> str:
     return out
 
 
+_LEAD_TIME_DEFAULTS: list[tuple[re.Pattern, str]] = [
+    # P14.4.1b: fallback lead_time по категории — если LLM не заполнил, scrub
+    # выводит из summary/reasoning по ключевым словам категории.
+    # Порядок важен: специфичные категории идут перед общими.
+    # Стемы охватывают gen.pl формы (визиток, листовок, кружек) через \w*|альтформы.
+    (re.compile(r"брендбук\w*|фирменн\w+\s+стил", re.IGNORECASE), "10-21 рабочий день"),
+    (re.compile(r"логотип\w*|айдентик\w*", re.IGNORECASE), "3-5 рабочих дней"),
+    (re.compile(r"объ[её]мн\w+\s+букв|световая?\s+вывеск|световой?\s+короб|неонов\w+\s+вывеск", re.IGNORECASE),
+     "7-14 рабочих дней + согласование 3-5 дней"),
+    (re.compile(r"вывеск\w*|табличк\w*|штендер\w*|стенд\w*", re.IGNORECASE), "5-10 рабочих дней"),
+    (re.compile(r"брендмауэр\w*|брандмауэр\w*|широкоформат\w*|баннер\w*", re.IGNORECASE), "2-5 рабочих дней"),
+    (re.compile(r"визитк\w*|визиток\b", re.IGNORECASE), "1-3 рабочих дня"),
+    (re.compile(r"листовк\w*|листовок\b|флаер\w*|буклет\w*|брошюр\w*|каталог\w*", re.IGNORECASE), "1-3 рабочих дня"),
+    (re.compile(r"\bменю\w*", re.IGNORECASE), "2-5 рабочих дней"),
+    (re.compile(r"наклейк\w*|наклеек\b|стикер\w*|пл[её]нк\w*", re.IGNORECASE), "1-3 рабочих дня"),
+    (re.compile(r"футболк\w*|футболок\b|кружк\w*|кружек\b|бейсболк\w*|бейсболок\b|сувенир\w*|мерч\w*", re.IGNORECASE),
+     "3-7 рабочих дней"),
+    (re.compile(r"упаковк\w*|упаковок\b", re.IGNORECASE), "5-10 рабочих дней"),
+]
+
+
+def _infer_lead_time(payload: dict) -> str | None:
+    """P14.4.1b: вывести стандартный lead_time из текста ответа, если LLM
+    его не заполнил. Сканируем summary + reasoning + первый deal_item.product_name
+    по таблице категорий выше."""
+    parts: list[str] = []
+    for key in ("summary", "reasoning"):
+        v = payload.get(key)
+        if isinstance(v, str):
+            parts.append(v)
+    di = payload.get("deal_items") or []
+    if isinstance(di, list):
+        for item in di[:3]:
+            if isinstance(item, dict):
+                name = item.get("product_name") or ""
+                if name:
+                    parts.append(name)
+    haystack = " ".join(parts)
+    if not haystack.strip():
+        return None
+    for rx, default in _LEAD_TIME_DEFAULTS:
+        if rx.search(haystack):
+            return default
+    return None
+
+
 def _scrub_structured_response(payload: dict) -> dict:
     """Apply phrase scrubbing + normalise fields LLM может вернуть в разных формах.
 
@@ -63,6 +109,9 @@ def _scrub_structured_response(payload: dict) -> dict:
 
     P14.3.3: estimated_lead_time может прийти как dict {value: "X", basis: ...},
     bare number (days), или string. Нормализуем к string или None.
+
+    P14.4.1b: если LLM не заполнил estimated_lead_time, но в ответе есть pricing
+    (estimated_price) — выводим стандартный lead_time из категории по тексту.
     """
     if not isinstance(payload, dict):
         return payload
@@ -86,6 +135,16 @@ def _scrub_structured_response(payload: dict) -> dict:
         payload["estimated_lead_time"] = f"{int(lt)} раб. дн."
     elif lt is not None and not isinstance(lt, str):
         payload["estimated_lead_time"] = None
+
+    # P14.4.1b: fallback fill when LLM omitted the field but pricing was given
+    if not payload.get("estimated_lead_time"):
+        ep = payload.get("estimated_price")
+        has_price = (isinstance(ep, dict) and ep.get("value")) or isinstance(ep, (int, float))
+        has_deal_items = bool(payload.get("deal_items"))
+        if has_price or has_deal_items:
+            inferred = _infer_lead_time(payload)
+            if inferred:
+                payload["estimated_lead_time"] = inferred
 
     # estimated_price: bare number → {value: <n>, basis: ""}
     ep = payload.get("estimated_price")
