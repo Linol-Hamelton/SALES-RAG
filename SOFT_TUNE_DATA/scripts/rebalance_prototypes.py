@@ -56,6 +56,31 @@ SMETA_ASSIST_PATTERNS = [
     re.compile(r"low-?spec\s+альтернатив", re.IGNORECASE),
 ]
 
+# P14.6.B: underspec — должен быть ОЧЕНЬ узким: только короткие вопросы без
+# параметров, без конкретного продукта. Длинные manager-workflow или smeta-
+# requests с params — отдельные intents.
+
+# Underspec → discovery_assist when manager asks «как выяснить параметры»
+UNDERSPEC_TO_DISCOVERY_PATTERNS = [
+    re.compile(r"как\s+(мне\s+|корректно\s+)?(запросить|задать|уточнить|выяснить)", re.IGNORECASE),
+    re.compile(r"какие\s+(вопрос|параметр|уточнен|данные|специф)", re.IGNORECASE),
+    re.compile(r"клиент\s+не\s+(указал|сказал|знает|говорит)", re.IGNORECASE),
+    re.compile(r"помог\w+\s+заполнить\s+пробел", re.IGNORECASE),
+    re.compile(r"как\s+узнать\s+эти\s+парам", re.IGNORECASE),
+]
+# Underspec → smeta_request when explicit «осмети с параметрами»
+UNDERSPEC_TO_SMETA_PATTERNS = [
+    re.compile(r"^\s*осмет\w+", re.IGNORECASE),
+    re.compile(r"срочно\s+осмет\w+", re.IGNORECASE),
+    re.compile(r"осмет\w+\s+(монтаж|вывеск|букв|короб|баннер|стенд)", re.IGNORECASE),
+    re.compile(r"осмет\w+\s+под\s+клиент", re.IGNORECASE),
+]
+# Underspec → product_query when concrete product + parameters
+UNDERSPEC_TO_PRODUCT_PATTERNS = [
+    re.compile(r"\d+\s*[xх×]\s*\d+", re.IGNORECASE),  # 3x6, 2х1, 800х600
+    re.compile(r"\bвысот[аы]\s+\d+|размер\s+\d+|тираж\s+\d+", re.IGNORECASE),
+]
+
 
 def classify(query: str) -> str:
     """Return target intent for a query currently in describe."""
@@ -66,6 +91,17 @@ def classify(query: str) -> str:
     if any(rx.search(query) for rx in SMETA_ASSIST_PATTERNS):
         return "smeta_request"
     return "describe"
+
+
+def classify_underspec(query: str) -> str:
+    """Return target intent for a query currently in underspec."""
+    if any(rx.search(query) for rx in UNDERSPEC_TO_DISCOVERY_PATTERNS):
+        return "discovery_assist"
+    if any(rx.search(query) for rx in UNDERSPEC_TO_SMETA_PATTERNS):
+        return "smeta_request"
+    if any(rx.search(query) for rx in UNDERSPEC_TO_PRODUCT_PATTERNS):
+        return "product_query"
+    return "underspec"
 
 
 def main():
@@ -101,6 +137,36 @@ def main():
 
     # Cap describe at 30 (most generic script-drafting examples first)
     data["describe"] = redistributed["describe"][:30]
+
+    # P14.6.B: rebalance underspec — расширенный set v3 был загрязнён
+    # discovery_assist / smeta_request / product_query примерами.
+    underspec = data.get("underspec", [])
+    print(f"\nLoaded underspec: {len(underspec)} prototypes")
+    redist_u = {
+        "underspec": [],
+        "discovery_assist": [],
+        "smeta_request": [],
+        "product_query": [],
+    }
+    for q in underspec:
+        target = classify_underspec(q)
+        redist_u[target].append(q)
+    print("Underspec redistribution:")
+    for intent, queries in redist_u.items():
+        print(f"  {intent}: {len(queries)}")
+
+    for intent in ("discovery_assist", "smeta_request", "product_query"):
+        existing = data.get(intent, [])
+        merged = list(existing)
+        seen = set(existing)
+        for q in redist_u[intent]:
+            if q not in seen:
+                merged.append(q)
+                seen.add(q)
+        data[intent] = merged
+
+    # Cap underspec at 20 (must stay narrow)
+    data["underspec"] = redist_u["underspec"][:20]
 
     print("\nFinal counts:")
     for intent in sorted(data.keys()):
