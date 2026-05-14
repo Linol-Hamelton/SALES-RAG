@@ -973,6 +973,74 @@ def _force_inject_roadmap(retriever, reranked: list[dict], query: str) -> bool:
         return False
 
 
+def _force_inject_historical_for_objection(retriever, reranked: list[dict], query: str) -> bool:
+    """P15.E: force-inject historical_deal docs for objection_arguments intent.
+
+    v11 diagnosed: для direct customer objections («почему дорого», «верните деньги»)
+    retrieval даёт historical_deal/bundle (P15.A strategy extension), но cross-encoder
+    reranker дропает их в favor of knowledge text. LLM получает generic context
+    без real deal references → ответы остаются abstract.
+
+    Force-inject top-3 historical_deal docs after reranker to give LLM
+    concrete deal references for grounding objection responses.
+
+    Идемпотентна: если historical_deal уже в top-5 — promote.
+    """
+    if retriever is None or not getattr(retriever, "is_ready", False) or not query:
+        return False
+
+    # Check if already in top-5
+    top5_types = [(d.get("payload") or {}).get("doc_type") for d in reranked[:5]]
+    if "historical_deal" in top5_types:
+        return True
+
+    # Already exist somewhere — promote
+    hd_idxs = [i for i, d in enumerate(reranked)
+               if (d.get("payload") or {}).get("doc_type") == "historical_deal"]
+    if hd_idxs:
+        hd_docs = [reranked.pop(i) for i in sorted(hd_idxs, reverse=True)]
+        for doc in reversed(hd_docs[:3]):
+            reranked.insert(0, doc)
+        logger.info("hist force-inject for objection: promoted existing",
+                    count=len(hd_docs[:3]), query=query[:60])
+        return True
+
+    # Fetch via standard retrieve filtered by doc_type
+    try:
+        from qdrant_client.models import Filter, FieldCondition, MatchValue
+        flt = Filter(must=[FieldCondition(key="doc_type", match=MatchValue(value="historical_deal"))])
+        q_vec = retriever.embed_query(query)
+        scroll_res, _ = retriever._client.scroll(
+            collection_name=retriever.settings.qdrant_collection,
+            scroll_filter=flt,
+            limit=3,
+            with_payload=True,
+            with_vectors=False,
+        )
+        if not scroll_res:
+            return False
+        top_score = (reranked[0].get("rrf_score") or reranked[0].get("final_score") or 1.0) \
+            if reranked else 1.0
+        synthetic_base = float(top_score) + 0.4
+        for i, pt in enumerate(scroll_res[:3]):
+            reranked.insert(i, {
+                "doc_id": pt.payload.get("doc_id", f"hist_{pt.id}"),
+                "score": synthetic_base - i * 0.05,
+                "rrf_score": synthetic_base - i * 0.05,
+                "final_score": synthetic_base - i * 0.05,
+                "bm25_score": 0.0,
+                "payload": pt.payload,
+                "forced_objection_hist": True,
+            })
+        logger.info("hist force-injected for objection",
+                    count=len(scroll_res[:3]), query=query[:60])
+        return True
+    except Exception as e:
+        logger.warning("force_inject_historical_for_objection failed",
+                       query=query[:60], error=str(e))
+        return False
+
+
 def _fetch_linked_offers(retriever, offer_ids: list[int], limit_per_type: int = 3) -> list[dict]:
     """P10.5-IV: достать offer_composition / offer_profile по списку offer_id.
 
@@ -2163,6 +2231,10 @@ async def query_structured(req: QueryRequest, request: Request,
             reranked = reranker.rerank(req.query, candidates, top_n=req.top_k)
             _force_inject_roadmap(retriever, reranked, req.query)  # P11-R1
             _force_inject_macro(retriever, reranked, req.query)    # P12.3.C
+            # P15.E: для objection_arguments intent force-inject historical_deal
+            # — иначе reranker дропает их в favor of generic knowledge text.
+            if intent_result and intent_result.intent == "objection_arguments":
+                _force_inject_historical_for_objection(retriever, reranked, req.query)
             # P13.4: when user explicitly asked for past deals, the cross-encoder
             # under-ranks deal-text against meta-queries («дай ссылки на сделки»).
             # Re-inject any historical_deal/deal_profile/offer_profile candidates
