@@ -533,7 +533,11 @@ class HybridRetriever:
             # P14 Rec #2: manager-workflow intents — приоритет knowledge / faq / roadmap.
             # Pricing-doc-типы (bundle/service_pricing_bridge/product) исключены, чтобы
             # LLM не получал прайс-контекст для «как мне ответить / выяснить».
-            "objection_arguments": (["knowledge", "faq", "roadmap", "service_page"], 8),
+            # P15.A: objection_arguments расширен — добавлен historical_deal +
+            # bundle для конкретных ценовых аргументов («у нас сделка #X по такой
+            # же цене с гарантией»). Чистый knowledge даёт generic ответы.
+            "objection_arguments": (["knowledge", "faq", "roadmap", "service_page",
+                                     "historical_deal", "bundle"], 10),
             "discovery_assist":    (["knowledge", "faq", "roadmap", "service_page"], 8),
             "category_clarify":    (["service_page", "knowledge", "faq"], 6),
         }
