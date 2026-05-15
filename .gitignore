@@ -78,3 +78,11 @@ get-pip.py
 .mcp.json
 .claude/settings.local.json
 .claude/scheduled_tasks.lock
+
+# ─── Reranker fine-tune artefacts (heavy) ────────────────────────────────────
+# Fine-tuned model weights (2GB+ per version) — собираются скриптом, в репо не нужны
+SOFT_TUNE_DATA/reranker_finetuned*/
+# Training pairs (multi-MB jsonl) — пересоздаются prep-скриптом
+SOFT_TUNE_DATA/reranker_training_pairs*.jsonl
+# Staging data для reindex — собирается из RAG_DATA
+RAG_RUNTIME/data_v*_staging/
