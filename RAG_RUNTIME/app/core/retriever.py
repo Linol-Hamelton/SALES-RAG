@@ -190,6 +190,28 @@ class HybridRetriever:
             return 0.1
         return 0.0
 
+    def _lexical_match_boost(self, payload: dict, query_tokens: list[str]) -> float:
+        """P16.A.8: post-RRF lexical boost when payload product_name shares tokens with query.
+
+        Qdrant native RRF combines dense+sparse by rank, not by score magnitude. For
+        product-token-heavy queries (визитка А4, буклет 100шт, ...), exact lexical match
+        in product_name is a strong signal — boost it post-fusion.
+        """
+        if not query_tokens:
+            return 0.0
+        product_name = (payload.get("product_name") or "").lower()
+        if not product_name:
+            return 0.0
+        q_set = set(t.lower() for t in query_tokens if len(t) >= 3)
+        if not q_set:
+            return 0.0
+        # Count token matches (case-insensitive substring)
+        matches = sum(1 for t in q_set if t in product_name)
+        if matches == 0:
+            return 0.0
+        # 0.05 per match, capped at 0.2 (≈ 4 token overlap)
+        return min(matches * 0.05, 0.2)
+
     def retrieve(self, query: str, top_k: int | None = None) -> list[dict]:
         """
         Retrieve top-k relevant docs using Qdrant Native RRF fusion.
@@ -287,10 +309,11 @@ class HybridRetriever:
         for p in db_results:
             payload = p.payload
             boost = self._direction_boost(payload, parsed.direction)
+            lex_boost = self._lexical_match_boost(payload, parsed.tokens)
             candidates.append({
                 "doc_id": payload.get("doc_id", f"id_{p.id}"),
                 "payload": payload,
-                "rrf_score": p.score + boost,
+                "rrf_score": p.score + boost + lex_boost,
                 "parsed_query": parsed,
                 "qdrant_id": p.id,
                 "dense_rank": None,

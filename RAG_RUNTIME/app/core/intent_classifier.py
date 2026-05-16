@@ -31,7 +31,16 @@ INTENT_NAMES = (
     "category_clarify",       # «делаете ли вы X», «можете изготовить»
 )
 
-PROTOTYPES_PATH = Path(__file__).parent.parent.parent / "configs" / "intent_prototypes.yaml"
+# Canonical: RAG_RUNTIME/configs/intent_prototypes.yaml (prod /app/configs/).
+# Fallback: SALES_RAG/configs/intent_prototypes.yaml (git-tracked at repo root).
+_CANDIDATE_PROTOTYPES_PATHS = [
+    Path(__file__).parent.parent.parent / "configs" / "intent_prototypes.yaml",
+    Path(__file__).parent.parent.parent.parent / "configs" / "intent_prototypes.yaml",
+]
+PROTOTYPES_PATH = next(
+    (p for p in _CANDIDATE_PROTOTYPES_PATHS if p.exists()),
+    _CANDIDATE_PROTOTYPES_PATHS[0],
+)
 
 
 @dataclass

@@ -28,6 +28,13 @@ class Settings(BaseSettings):
     # Model paths (relative to RAG_RUNTIME root)
     embedding_model_path: str = Field(default="models/embeddings/BAAI_bge-m3", alias="EMBEDDING_MODEL_PATH")
     reranker_model_path: str = Field(default="models/reranker/BAAI_bge-reranker-v2-m3", alias="RERANKER_MODEL_PATH")
+    # P16.A.1/A.2: fine-tuned reranker (loaded preferentially if present).
+    # Default is v3 (collision-aware, post-P16.A.2 train). Fallback chain in
+    # reranker.py: this path → reranker_model_path (base) → HF download.
+    reranker_finetuned_path: str = Field(
+        default="models/reranker_finetuned_v3",
+        alias="RERANKER_FINETUNED_PATH",
+    )
 
     # Data dirs
     data_dir: str = Field(default="data", alias="DATA_DIR")
@@ -91,6 +98,10 @@ class Settings(BaseSettings):
     @property
     def reranker_model_full_path(self) -> Path:
         return self.project_root / self.reranker_model_path
+
+    @property
+    def reranker_finetuned_full_path(self) -> Path:
+        return self.project_root / self.reranker_finetuned_path
 
 
 settings = Settings()

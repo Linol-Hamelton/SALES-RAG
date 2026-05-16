@@ -55,6 +55,35 @@ def _get_intent_instruction(intent: str) -> str:
     return _load().get(intent, "")
 
 
+# P16.A.4: intents that benefit from few-shot RAG-wins injection.
+# These are the topics where v12 scored ≥75% RAG win-rate AND deal_id-grounded
+# answers are the expected pattern.
+_FEW_SHOT_INTENTS = {
+    "historical_request",       # "дай ссылку на сделку"
+    "objection_arguments",      # "обоснуй цену через ROI"
+    "smeta_request",            # high-spec / низкий spec smeta
+    "product_query",            # pricing-grounded queries
+}
+
+
+def _get_few_shot_block() -> str:
+    """P16.A.4: Load few-shot examples block from prompts.yaml (cached)."""
+    import yaml
+    from functools import lru_cache
+
+    @lru_cache(maxsize=1)
+    def _load():
+        from pathlib import Path
+        p = Path(__file__).parent.parent.parent / "configs" / "prompts.yaml"
+        if p.exists():
+            with open(p, encoding="utf-8") as f:
+                cfg = yaml.safe_load(f) or {}
+            return cfg.get("few_shot_examples", "")
+        return ""
+
+    return _load()
+
+
 MIN_RELEVANT_SCORE = 0.005  # below this = cross-encoder deems irrelevant, don't use for pricing
 
 _ESTIMATE_KEYWORDS = [
@@ -1205,6 +1234,115 @@ def _parse_deal_items(raw_json: dict) -> list[DealItem]:
     return result
 
 
+# P16.A.6: direction → fallback lead-time. Used only when LLM didn't fill estimated_lead_time
+# AND we already have an estimated_price (i.e. it's a pricing answer). Conservative defaults
+# matching prompts.yaml directives.
+_DIRECTION_LEAD_TIMES = {
+    "design": "3-5 рабочих дней",
+    "design_logo": "5-10 рабочих дней",
+    "design_brand": "10-14 рабочих дней",
+    "polygraphy": "1-3 рабочих дня",
+    "print": "1-3 рабочих дня",
+    "signboard": "7-14 рабочих дней",
+    "signage": "7-14 рабочих дней",
+    "ad_signboard": "7-14 рабочих дней",
+    "ad_banner": "2-4 рабочих дня",
+    "merch": "5-10 рабочих дней",
+    "stickers": "2-3 рабочих дня",
+    "branding": "5-10 рабочих дней",
+}
+_DEFAULT_LEAD_TIME = "5-7 рабочих дней"
+
+
+def _infer_direction(reranked: list[dict], intent: str | None) -> str:
+    """Pick the most-represented direction among top-5 reranked candidates."""
+    from collections import Counter
+    dirs = []
+    for cand in reranked[:5]:
+        d = (cand.get("payload", {}).get("direction") or "").strip().lower()
+        if d:
+            dirs.append(d)
+    if not dirs:
+        return ""
+    most_common = Counter(dirs).most_common(1)
+    return most_common[0][0] if most_common else ""
+
+
+def _ensure_lead_time_filled(
+    current_lead_time: str | None,
+    estimated_price: "EstimatedPrice | None",
+    deal_items: list[DealItem],
+    reranked: list[dict],
+    intent: str | None,
+) -> str | None:
+    """P16.A.6: guarantee estimated_lead_time fill when there's a pricing answer.
+
+    Triggered when LLM didn't return lead_time but the answer contains pricing.
+    Uses direction inferred from top-5 reranked candidates with conservative defaults.
+    """
+    if current_lead_time and current_lead_time.strip():
+        return current_lead_time
+    # Only fill when there's actually a pricing answer (avoid filling discovery turns).
+    has_price = (estimated_price is not None and getattr(estimated_price, "value", None))
+    has_items = bool(deal_items)
+    if not (has_price or has_items):
+        return current_lead_time
+    direction = _infer_direction(reranked, intent)
+    return _DIRECTION_LEAD_TIMES.get(direction, _DEFAULT_LEAD_TIME)
+
+
+def _ensure_deal_items_filled(
+    current_items: list[DealItem],
+    estimated_price: "EstimatedPrice | None",
+    reranked: list[dict],
+) -> list[DealItem]:
+    """P16.A.5: guarantee deal_items present when there's an estimated_price.
+
+    Triggered when LLM returned a price but didn't itemize the basis.
+    Extracts up to 3 items from top reranked candidates with product_name + total > 0.
+    Conservative: only fills if estimated_price is present, otherwise leaves untouched.
+    """
+    if current_items:
+        return current_items
+    has_price = (estimated_price is not None and getattr(estimated_price, "value", None))
+    if not has_price:
+        return current_items
+
+    extracted: list[DealItem] = []
+    seen_names: set[str] = set()
+    for cand in reranked[:10]:
+        payload = cand.get("payload", {}) or {}
+        name = (payload.get("product_name") or "").strip()
+        if not name or name.lower() in seen_names:
+            continue
+        try:
+            line_total = float(payload.get("line_total") or payload.get("price_value") or 0.0)
+            qty = float(payload.get("order_rows") or payload.get("quantity") or 1.0)
+        except (TypeError, ValueError):
+            continue
+        if line_total <= 0:
+            continue
+        unit_price = round(line_total / max(qty, 1.0), 2) if qty else line_total
+        src_id = str(payload.get("deal_id") or payload.get("offer_id") or "").strip()
+        extracted.append(DealItem(
+            product_name=name[:200],
+            quantity=qty,
+            unit=str(payload.get("unit") or "шт"),
+            unit_price=unit_price,
+            total=line_total,
+            b24_section=str(payload.get("b24_section") or payload.get("direction") or ""),
+            notes="auto-filled from reference",
+            source_deal_id=src_id or None,
+            source_deal_url=build_deal_url(src_id) if src_id else None,
+        ))
+        seen_names.add(name.lower())
+        if len(extracted) >= 3:
+            break
+    if extracted:
+        logger.info("deal_items auto-filled from refs", count=len(extracted))
+    return extracted
+
+
 def _build_size_context(decomp: "QueryDecomposition") -> str:
     """Build size-aware pricing context when query has letter/height/tiraж/area info."""
     # P12.3.B3: tiraж / area / material — параметры для печати, мерча, баннеров
@@ -1310,28 +1448,32 @@ def _format_pricing_breakdown(pr) -> str:
 _HISTORY_INTENTS = {"historical_request", "referential"}
 _HISTORY_DOC_TYPES = {"historical_deal", "deal_profile", "offer_profile"}
 
-# P14.7.C: HyDE (Hypothetical Document Embeddings)
+# P14.7.C / P16.A.7: HyDE (Hypothetical Document Embeddings)
 # Для ambiguous intents — LLM генерит «идеальный ответ», query+hypothesis embeddим
-# для retrieval. Закрывает OOD-регрессы discovery (-25pp) / print_flyer (-17pp).
-_HYDE_INTENTS = {"discovery_assist", "category_clarify", "consultation"}
-_HYDE_ENABLED = os.environ.get("HYDE_ENABLED", "0") == "1"
+# для retrieval. Закрывает OOD-регрессы discovery (-25pp) / print_flyer (-17pp) /
+# objection_handling (-5pp в v12) / objections (-6.1pp в v12).
+#
+# P16.A.7: добавлен objection_arguments + default flip ON (HYDE_ENABLED=0 теперь
+# полностью отключает, но дефолт — ON для всех intents из _HYDE_INTENTS).
+_HYDE_INTENTS = {"discovery_assist", "category_clarify", "consultation", "objection_arguments"}
+_HYDE_DISABLED = os.environ.get("HYDE_ENABLED", "1") == "0"
 _HYDE_CACHE: dict[str, str] = {}
-_HYDE_CACHE_MAX = 1000
+_HYDE_CACHE_MAX = 5000
 
 
 async def _hyde_enrich_query(query: str, intent: str, generator) -> str:
-    """P14.7.C: enrich query with LLM-generated hypothetical answer.
+    """P14.7.C / P16.A.7: enrich query with LLM-generated hypothetical answer.
 
     Returns enriched query (original + hypothesis) for retrieval embedding.
     Original query unchanged for final LLM answer generation. No-op if:
-    - HYDE_ENABLED env != "1"
+    - HYDE_ENABLED=0 (explicit kill-switch — default is ON in P16)
     - intent not in _HYDE_INTENTS
     - generator unavailable
     - LLM call fails
 
     Cached per-query (LRU-ish, cleared at _HYDE_CACHE_MAX).
     """
-    if not _HYDE_ENABLED or intent not in _HYDE_INTENTS:
+    if _HYDE_DISABLED or intent not in _HYDE_INTENTS:
         return query
     if not query or not query.strip():
         return query
@@ -1992,6 +2134,15 @@ async def query_structured(req: QueryRequest, request: Request,
             )
             intent_instruction = (intent_instruction + "\n\n" + macro_hint).strip() \
                 if intent_instruction else macro_hint
+
+        # P16.A.4: append few-shot RAG-wins block for high-win-rate intents.
+        # Only injected for historical_request / objection_arguments / smeta_request /
+        # product_query to avoid diluting other intent patterns.
+        if intent_result and intent_result.intent in _FEW_SHOT_INTENTS:
+            _fs = _get_few_shot_block()
+            if _fs:
+                intent_instruction = (intent_instruction + "\n\n" + _fs).strip() \
+                    if intent_instruction else _fs
 
         # --- Decompose query: detect complex multi-component requests ---
         decomp = decompose(req.query)
@@ -3224,6 +3375,18 @@ async def query_structured(req: QueryRequest, request: Request,
             _lt = raw_json.get("estimated_lead_time")
             if isinstance(_lt, str) and _lt.strip():
                 _lead_time = _lt.strip()
+
+        # P16.A.5: ensure deal_items present when pricing answer
+        deal_items = _ensure_deal_items_filled(deal_items, estimated_price, reranked)
+
+        # P16.A.6: ensure lead_time filled when pricing answer
+        _lead_time = _ensure_lead_time_filled(
+            _lead_time,
+            estimated_price,
+            deal_items,
+            reranked,
+            intent_result.intent if intent_result else None,
+        )
 
         response = StructuredResponse(
             summary=summary,

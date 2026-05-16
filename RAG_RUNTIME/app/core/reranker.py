@@ -30,23 +30,45 @@ class CrossEncoderReranker:
         self._loaded = False
 
     def load(self):
-        """Load cross-encoder model."""
+        """Load cross-encoder model.
+
+        P16.A.1: Fallback chain — fine-tuned v2/v3 preferred, base as fallback,
+        HF download as last resort. First path that exists wins.
+        """
         if self._loaded:
             return
 
-        model_path = Path(self.settings.reranker_model_path)
+        base_path = self.settings.reranker_model_full_path
+        finetuned_path = self.settings.reranker_finetuned_full_path
+
+        candidate_paths = [finetuned_path, base_path]
+
         try:
             from sentence_transformers import CrossEncoder
-            if model_path.exists():
-                logger.info("Loading reranker", path=str(model_path))
-                self._model = CrossEncoder(str(model_path), device="cpu", max_length=512)
-            else:
-                logger.info("Downloading bge-reranker-v2-m3")
+            loaded = False
+            weight_files = ("model.safetensors", "pytorch_model.bin", "tf_model.h5")
+            for path in candidate_paths:
+                if not path or not path.exists():
+                    continue
+                if not (path / "config.json").exists():
+                    continue
+                has_weights = any((path / wf).exists() for wf in weight_files)
+                if not has_weights:
+                    logger.info("Skipping reranker path (no weights)", path=str(path))
+                    continue
+                logger.info("Loading reranker", path=str(path), source="local")
+                self._model = CrossEncoder(str(path), device="cpu", max_length=512)
+                loaded = True
+                break
+
+            if not loaded:
+                logger.info("Downloading bge-reranker-v2-m3 from HF")
+                import os
+                os.environ.setdefault("HF_HOME", str(base_path.parent))
                 self._model = CrossEncoder(
                     "BAAI/bge-reranker-v2-m3",
                     device="cpu",
                     max_length=512,
-                    cache_folder=str(model_path.parent),
                 )
             logger.info("Reranker loaded")
         except Exception as e:
