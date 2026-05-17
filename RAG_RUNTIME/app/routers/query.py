@@ -84,6 +84,35 @@ def _get_few_shot_block() -> str:
     return _load()
 
 
+# P17.alt: intent-based model routing. v14 measure showed deepseek-reasoner
+# helps reasoning-intensive intents (+4-7pp on signage_specs, logistics, design_logo,
+# objection_handling) but HURTS simple/direct intents (-9 to -20pp on stickers,
+# consultation, vocabulary). Hybrid: reasoner for COMPLEX, chat for everything else.
+_COMPLEX_INTENTS = {
+    "objection_arguments",   # требует argumentation chain (objection_handling +4pp)
+    "discovery_assist",      # multi-step thinking
+    "historical_request",    # filter + ranking refs
+    "bundle_query",          # multi-product composition
+    "smeta_request",         # multi-line breakdown
+}
+
+
+def _pick_model_for_intent(intent: str | None, settings) -> str | None:
+    """P17.alt: pick model per intent. Returns None to use settings default (chat).
+
+    Returns "deepseek-reasoner" only for intents that demonstrably benefit from
+    Chain-of-Thought (per v14 ablation). All other intents use the default
+    model (deepseek-chat in P17.alt config), which is faster + better calibrated
+    on simple direct queries.
+    """
+    if not intent:
+        return None
+    if intent in _COMPLEX_INTENTS:
+        # Override to reasoner regardless of default
+        return getattr(settings, "deepseek_reasoner_model", "deepseek-reasoner")
+    return None  # use settings.deepseek_model default
+
+
 MIN_RELEVANT_SCORE = 0.005  # below this = cross-encoder deems irrelevant, don't use for pricing
 
 _ESTIMATE_KEYWORDS = [
@@ -2032,6 +2061,8 @@ async def query_human(req: QueryRequest, request: Request,
         summary = await generator.generate(
             req.query, reranked, pricing_resolution,
             history=req.history, extra_context=extra_ctx,
+            model_override=_pick_model_for_intent(
+                intent_result.intent if intent_result else None, app_settings),
         )
 
         # Turn deal/offer mentions into clickable Bitrix24 links for the manager.
@@ -2347,12 +2378,16 @@ async def query_structured(req: QueryRequest, request: Request,
                         req.query, reranked, pr_obj,
                         extra_context=full_extra, history=req.history,
                         intent_instruction=intent_instruction,
+                        model_override=_pick_model_for_intent(
+                            intent_result.intent if intent_result else None, app_settings),
                     )
             else:
                 raw_json = await generator.generate_structured(
                     req.query, reranked, pr_obj,
                     extra_context=full_extra, history=req.history,
                     intent_instruction=intent_instruction,
+                    model_override=_pick_model_for_intent(
+                        intent_result.intent if intent_result else None, app_settings),
                 )
 
         else:
@@ -2606,6 +2641,8 @@ async def query_structured(req: QueryRequest, request: Request,
                         req.query, reranked_relevant, pr,
                         extra_context=vision_extra, history=req.history,
                         intent_instruction=intent_instruction,
+                        model_override=_pick_model_for_intent(
+                            intent_result.intent if intent_result else None, app_settings),
                     )
             else:
                 _emit_request_trace(
@@ -2624,6 +2661,8 @@ async def query_structured(req: QueryRequest, request: Request,
                     req.query, reranked_relevant, pr,
                     extra_context=vision_extra, history=req.history,
                     intent_instruction=intent_instruction,
+                    model_override=_pick_model_for_intent(
+                        intent_result.intent if intent_result else None, app_settings),
                 )
 
         # --- Build unified response ---

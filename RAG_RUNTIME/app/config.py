@@ -20,6 +20,11 @@ class Settings(BaseSettings):
     deepseek_model: str = Field(default="deepseek-reasoner", alias="DEEPSEEK_MODEL")
     # P17.4: HyDE uses cheaper/faster model (chat) by default. Override via env.
     deepseek_hyde_model: str = Field(default="deepseek-chat", alias="DEEPSEEK_HYDE_MODEL")
+    # P17.alt: reasoner model name for hybrid intent-based routing.
+    # Used for COMPLEX_INTENTS (objection_arguments, smeta_request, historical_request,
+    # bundle_query, discovery_assist) where Chain-of-Thought demonstrably helps.
+    # Simple intents continue using deepseek_model default (chat).
+    deepseek_reasoner_model: str = Field(default="deepseek-reasoner", alias="DEEPSEEK_REASONER_MODEL")
 
     # Vision API (for image analysis — OpenAI-compatible)
     vision_api_key: str = Field(default="", alias="VISION_API_KEY")

@@ -680,8 +680,12 @@ class DeepseekGenerator:
         messages.append({"role": "user", "content": user_prompt})
         return messages
 
-    async def generate(self, query: str, docs: list[dict], pricing_resolution=None, history: list = None, extra_context: str = "", intent_instruction: str = "") -> str:
-        """Generate a human-readable response."""
+    async def generate(self, query: str, docs: list[dict], pricing_resolution=None, history: list = None, extra_context: str = "", intent_instruction: str = "", model_override: str | None = None) -> str:
+        """Generate a human-readable response.
+
+        P17.alt: model_override allows per-call model selection (e.g. reasoner
+        for complex intents, chat for simple). Falls back to settings.deepseek_model.
+        """
         if self._client is None:
             self.load()
 
@@ -716,7 +720,7 @@ class DeepseekGenerator:
 
         try:
             response = await self._client.chat.completions.create(
-                model=self.settings.deepseek_model,
+                model=model_override or self.settings.deepseek_model,
                 messages=self._build_messages(
                     self._prompts.get("system", ""), history, user_prompt
                 ),
@@ -728,8 +732,11 @@ class DeepseekGenerator:
             logger.error("Deepseek API error", error=str(e))
             raise
 
-    async def generate_structured(self, query: str, docs: list[dict], pricing_resolution=None, extra_context: str = "", history: list = None, intent_instruction: str = "") -> dict:
-        """Generate structured JSON response."""
+    async def generate_structured(self, query: str, docs: list[dict], pricing_resolution=None, extra_context: str = "", history: list = None, intent_instruction: str = "", model_override: str | None = None) -> dict:
+        """Generate structured JSON response.
+
+        P17.alt: model_override allows per-intent model selection.
+        """
         if self._client is None:
             self.load()
 
@@ -749,7 +756,7 @@ class DeepseekGenerator:
 
         try:
             response = await self._client.chat.completions.create(
-                model=self.settings.deepseek_model,
+                model=model_override or self.settings.deepseek_model,
                 response_format={"type": "json_object"},
                 messages=self._build_messages(
                     self._prompts.get("system", ""), history, user_prompt
@@ -783,8 +790,12 @@ class DeepseekGenerator:
         extra_context: str = "",
         history: list = None,
         intent_instruction: str = "",
+        model_override: str | None = None,
     ) -> dict:
-        """Generate a structured JSON response with deal_items for Bitrix24 estimate."""
+        """Generate a structured JSON response with deal_items for Bitrix24 estimate.
+
+        P17.alt: model_override allows per-intent model selection.
+        """
         if self._client is None:
             self.load()
 
@@ -809,7 +820,7 @@ class DeepseekGenerator:
 
         try:
             response = await self._client.chat.completions.create(
-                model=self.settings.deepseek_model,
+                model=model_override or self.settings.deepseek_model,
                 response_format={"type": "json_object"},
                 messages=self._build_messages(
                     self._prompts.get("system", ""), history, user_prompt
