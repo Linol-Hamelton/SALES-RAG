@@ -14,7 +14,12 @@ class Settings(BaseSettings):
     # Deepseek API
     deepseek_api_key: str = Field(default="", alias="DEEPSEEK_API_KEY")
     deepseek_base_url: str = Field(default="https://api.deepseek.com", alias="DEEPSEEK_BASE_URL")
-    deepseek_model: str = Field(default="deepseek-chat", alias="DEEPSEEK_MODEL")
+    # P17.1: runtime model switched to deepseek-reasoner for better instruction-following
+    # and intent disambiguation. Has internal reasoning_content (~4s p50 latency).
+    # Override to deepseek-chat via DEEPSEEK_MODEL env if needed for rollback.
+    deepseek_model: str = Field(default="deepseek-reasoner", alias="DEEPSEEK_MODEL")
+    # P17.4: HyDE uses cheaper/faster model (chat) by default. Override via env.
+    deepseek_hyde_model: str = Field(default="deepseek-chat", alias="DEEPSEEK_HYDE_MODEL")
 
     # Vision API (for image analysis — OpenAI-compatible)
     vision_api_key: str = Field(default="", alias="VISION_API_KEY")

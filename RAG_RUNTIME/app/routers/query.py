@@ -1490,8 +1490,11 @@ async def _hyde_enrich_query(query: str, intent: str, generator) -> str:
         f"Вопрос клиента/менеджера: {query}"
     )
     try:
+        # P17.4: HyDE uses cheaper/faster model (chat) regardless of main runtime model.
+        # Reasoner для HyDE избыточен — гипотеза должна быть быстрой и дешёвой.
+        hyde_model = getattr(generator.settings, "deepseek_hyde_model", generator.settings.deepseek_model)
         resp = await generator._client.chat.completions.create(
-            model=generator.settings.deepseek_model,
+            model=hyde_model,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=250,

@@ -3,6 +3,7 @@ LLM generation via Deepseek API (OpenAI-compatible).
 Handles both human-readable and structured JSON responses.
 """
 import json
+import os
 import re
 import yaml
 from pathlib import Path
@@ -646,15 +647,19 @@ class DeepseekGenerator:
         # P9: bridge-документы делают контекст длиннее → LLM дольше генерирует.
         # Дефолт AsyncOpenAI = 60s приводил к "Request timed out" на логотипных
         # запросах. Поднято до 120s.
+        # P17.2: deepseek-reasoner generates CoT before content (p50 ~10s, p99 ~60s
+        # на сложных задачах с длинным контекстом). Timeout 240s — safety margin.
         self._client = AsyncOpenAI(
             api_key=self.settings.deepseek_api_key,
             base_url=self.settings.deepseek_base_url,
-            timeout=120.0,
+            timeout=240.0,
         )
         self._prompts = _load_prompts(self.settings)
         logger.info("Deepseek generator initialized",
                     model=self.settings.deepseek_model,
-                    base_url=self.settings.deepseek_base_url)
+                    hyde_model=self.settings.deepseek_hyde_model,
+                    base_url=self.settings.deepseek_base_url,
+                    timeout_s=240)
 
     def _build_history_text(self, history: list) -> str:
         """Format chat history for prompt injection."""
@@ -752,7 +757,15 @@ class DeepseekGenerator:
                 temperature=0.1,
                 max_tokens=self.settings.max_tokens_structured,
             )
-            content = response.choices[0].message.content or "{}"
+            msg = response.choices[0].message
+            content = msg.content or "{}"
+            # P17.3: deepseek-reasoner returns reasoning_content separately. Log for debug
+            # (env DEBUG_REASONING=1) but do NOT include in final response — it's CoT trace.
+            reasoning = getattr(msg, "reasoning_content", None)
+            if reasoning and os.environ.get("DEBUG_REASONING") == "1":
+                logger.debug("LLM reasoning trace",
+                             reasoning_chars=len(reasoning),
+                             reasoning_preview=reasoning[:300])
             return _scrub_structured_response(json.loads(content))
         except json.JSONDecodeError as e:
             logger.error("JSON decode error", error=str(e))
