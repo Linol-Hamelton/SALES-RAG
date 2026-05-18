@@ -232,9 +232,37 @@ class HybridRetriever:
         sparse_vec = generate_sparse_vector(query)
 
         query_filter = None
+        must_conditions = []
         if parsed.intent not in ("consulting", "general", "timeline") and \
            parsed.high_confidence_direction and parsed.direction != "Безнал":
-            query_filter = Filter(must=[FieldCondition(key="direction", match=MatchValue(value=parsed.direction))])
+            must_conditions.append(
+                FieldCondition(key="direction", match=MatchValue(value=parsed.direction))
+            )
+
+        # P21.A: subcategory hard filter. Если query явно про конкретный продукт
+        # (буклет, листовка, неон, ...) — режем docs с конфликтующей subcategory.
+        # IsEmptyCondition пропускает docs где subcategory не определена (knowledge,
+        # faq, общие refs) — backward compatible, нет потери relevant context.
+        if parsed.detected_subcategory and parsed.intent not in ("consulting", "general", "timeline"):
+            from qdrant_client.models import IsEmptyCondition, PayloadField
+            subcat_filter = Filter(should=[
+                FieldCondition(
+                    key="subcategory",
+                    match=MatchValue(value=parsed.detected_subcategory),
+                ),
+                IsEmptyCondition(is_empty=PayloadField(key="subcategory")),
+            ])
+            # Merge: top-level filter requires both direction AND subcategory(or empty)
+            if must_conditions:
+                query_filter = Filter(must=must_conditions + [subcat_filter])
+            else:
+                query_filter = subcat_filter
+            logger.info("Subcategory hard filter applied",
+                        subcategory=parsed.detected_subcategory,
+                        direction=parsed.direction,
+                        intent=parsed.intent)
+        elif must_conditions:
+            query_filter = Filter(must=must_conditions)
 
         # Tiered retrieval for consulting: guaranteed knowledge/roadmap + open search
         if parsed.intent == "consulting":
