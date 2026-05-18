@@ -603,6 +603,19 @@ class HybridRetriever:
         query_vec = self.embed_query(query)
         sparse_vec = generate_sparse_vector(query)
 
+        # P21.A.6: subcategory detection for hard filter on pricing intents.
+        # parse_query даёт detected_subcategory (buklet/listovka/signboard_box/...).
+        # Apply hard filter ТОЛЬКО для pricing-relevant intents — knowledge/objection
+        # intents должны видеть все docs независимо от subcategory query.
+        from app.core.query_parser import parse_query
+        parsed = parse_query(query)
+        _PRICING_INTENTS = {"smeta_request", "bundle_query", "product_query",
+                            "underspec", "historical_request", "referential"}
+        apply_subcat = (
+            parsed.detected_subcategory
+            and intent_name in _PRICING_INTENTS
+        )
+
         must_conditions = []
         if doc_types:
             must_conditions.append(FieldCondition(key="doc_type", match=MatchAny(any=doc_types)))
@@ -614,6 +627,21 @@ class HybridRetriever:
                 key="letter_height_cm",
                 range=Range(gte=h * 0.7, lte=h * 1.3),
             ))
+
+        if apply_subcat:
+            from qdrant_client.models import IsEmptyCondition, PayloadField, MatchValue
+            subcat_filter = Filter(should=[
+                FieldCondition(
+                    key="subcategory",
+                    match=MatchValue(value=parsed.detected_subcategory),
+                ),
+                IsEmptyCondition(is_empty=PayloadField(key="subcategory")),
+            ])
+            must_conditions.append(subcat_filter)
+            logger.info("Subcategory hard filter applied (intent-aware)",
+                        subcategory=parsed.detected_subcategory,
+                        intent=intent_name,
+                        confidence_method="tier2")
 
         query_filter = Filter(must=must_conditions) if must_conditions else None
 
