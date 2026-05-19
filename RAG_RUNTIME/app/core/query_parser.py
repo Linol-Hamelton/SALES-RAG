@@ -2,24 +2,14 @@
 Query parser: extracts intent, direction, and budget from Russian/English queries.
 Mirrors tokenizeText logic from RAG_ANALYTICS/lib/common.mjs.
 """
-import sys
 from dataclasses import dataclass, field
-from pathlib import Path
 from app.utils.text import (
     tokenize_ru, detect_direction, detect_bundle_intent, extract_budget, DIRECTION_ALIASES
 )
 
-# P21.A: subcategory detection (buklet|listovka|signboard_box|...). Reuse the
-# same inference module that build_index.py uses, so query subcategory matches
-# doc subcategory taxonomy 1:1.
-_SCRIPTS_DIR = Path(__file__).resolve().parent.parent.parent / "scripts"
-if str(_SCRIPTS_DIR) not in sys.path:
-    sys.path.insert(0, str(_SCRIPTS_DIR))
-try:
-    from enrich_subcategory import detect_query_subcategory  # type: ignore
-except ImportError:
-    def detect_query_subcategory(query: str) -> str | None:  # type: ignore
-        return None
+# P22.0: subcategory detection rolled back — P21 inference was too noisy
+# (offer_profile/bundle docs got false-tagged based on text mentions of related
+# products). P22.A replaces filter-based approach with embedded context.
 
 
 @dataclass
@@ -31,10 +21,6 @@ class ParsedQuery:
     intent: str = "general"   # "product" | "bundle" | "policy" | "timeline" | "consulting" | "general"
     budget: float | None = None
     needs_clarification: bool = False
-    # P21.A: detected product subcategory (buklet, listovka, signboard_box, etc.)
-    # None если query ambiguous OR не упоминает specific product. Используется
-    # retriever.py для hard-filter в pricing-intents.
-    detected_subcategory: str | None = None
 
     @property
     def has_direction(self) -> bool:
@@ -131,10 +117,6 @@ def parse_query(raw_query: str) -> ParsedQuery:
     elif direction is not None and confidence < 0.5:
         needs_clarification = True
 
-    # P21.A: detect product subcategory из query (буклет/листовка/неон/...)
-    # Используется retriever.py для hard-filter в pricing-intents.
-    detected_subcategory = detect_query_subcategory(raw_query)
-
     return ParsedQuery(
         raw=raw_query,
         tokens=tokens,
@@ -143,5 +125,4 @@ def parse_query(raw_query: str) -> ParsedQuery:
         intent=intent,
         budget=budget,
         needs_clarification=needs_clarification,
-        detected_subcategory=detected_subcategory,
     )

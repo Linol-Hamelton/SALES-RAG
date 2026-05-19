@@ -17,7 +17,8 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.utils.text import tokenize_ru
-from scripts.enrich_subcategory import infer_subcategory  # P21.A: subcategory enrichment
+# P22.0: subcategory enrichment removed (P21 inference too noisy).
+# P22.A uses embedded contextual prefixes instead.
 
 
 SKIP_FILES = {"photo_analysis_raw.jsonl", "bridge_unresolved.jsonl"}  # raw/debug files, not for indexing
@@ -119,9 +120,6 @@ def upsert_to_qdrant(docs: list[dict], embeddings: np.ndarray, qdrant_url: str, 
     indexed_fields = [
         "doc_type", "direction", "price_mode", "confidence_tier",
         "category", "roadmap_title",
-        # P21.A: subcategory KEYWORD index для hard-filter в retriever
-        # (буклет vs листовка, объёмные буквы vs неон, etc.)
-        "subcategory",
         # Cross-link id-поля (P10.6):
         "offer_id", "good_ids",
         "linked_product_ids", "linked_smeta_category_ids",
@@ -157,11 +155,6 @@ def upsert_to_qdrant(docs: list[dict], embeddings: np.ndarray, qdrant_url: str, 
 
             full_text = doc.get("searchable_text", "")
             payload["searchable_text"] = full_text[:4000]
-
-            # P21.A: infer subcategory (buklet|listovka|signboard_box|...) для
-            # hard-filter в retriever. None = ambiguous → MatchAny([detected, None])
-            # пропустит этот doc независимо от query subcategory.
-            payload["subcategory"] = infer_subcategory(payload)
 
             tokens = tokenize_ru(full_text)
             counts = Counter(tokens)

@@ -231,38 +231,12 @@ class HybridRetriever:
         query_vec = self.embed_query(query)
         sparse_vec = generate_sparse_vector(query)
 
+        # P22.0: subcategory filter removed (P21 was too noisy on classification).
+        # Replaced by embedded contextual chunks in P22.A.
         query_filter = None
-        must_conditions = []
         if parsed.intent not in ("consulting", "general", "timeline") and \
            parsed.high_confidence_direction and parsed.direction != "Безнал":
-            must_conditions.append(
-                FieldCondition(key="direction", match=MatchValue(value=parsed.direction))
-            )
-
-        # P21.A: subcategory hard filter. Если query явно про конкретный продукт
-        # (буклет, листовка, неон, ...) — режем docs с конфликтующей subcategory.
-        # IsEmptyCondition пропускает docs где subcategory не определена (knowledge,
-        # faq, общие refs) — backward compatible, нет потери relevant context.
-        if parsed.detected_subcategory and parsed.intent not in ("consulting", "general", "timeline"):
-            from qdrant_client.models import IsEmptyCondition, PayloadField
-            subcat_filter = Filter(should=[
-                FieldCondition(
-                    key="subcategory",
-                    match=MatchValue(value=parsed.detected_subcategory),
-                ),
-                IsEmptyCondition(is_empty=PayloadField(key="subcategory")),
-            ])
-            # Merge: top-level filter requires both direction AND subcategory(or empty)
-            if must_conditions:
-                query_filter = Filter(must=must_conditions + [subcat_filter])
-            else:
-                query_filter = subcat_filter
-            logger.info("Subcategory hard filter applied",
-                        subcategory=parsed.detected_subcategory,
-                        direction=parsed.direction,
-                        intent=parsed.intent)
-        elif must_conditions:
-            query_filter = Filter(must=must_conditions)
+            query_filter = Filter(must=[FieldCondition(key="direction", match=MatchValue(value=parsed.direction))])
 
         # Tiered retrieval for consulting: guaranteed knowledge/roadmap + open search
         if parsed.intent == "consulting":
@@ -603,19 +577,7 @@ class HybridRetriever:
         query_vec = self.embed_query(query)
         sparse_vec = generate_sparse_vector(query)
 
-        # P21.A.6: subcategory detection for hard filter on pricing intents.
-        # parse_query даёт detected_subcategory (buklet/listovka/signboard_box/...).
-        # Apply hard filter ТОЛЬКО для pricing-relevant intents — knowledge/objection
-        # intents должны видеть все docs независимо от subcategory query.
-        from app.core.query_parser import parse_query
-        parsed = parse_query(query)
-        _PRICING_INTENTS = {"smeta_request", "bundle_query", "product_query",
-                            "underspec", "historical_request", "referential"}
-        apply_subcat = (
-            parsed.detected_subcategory
-            and intent_name in _PRICING_INTENTS
-        )
-
+        # P22.0: subcategory filter rollback. Replaced by embedded context in P22.A.
         must_conditions = []
         if doc_types:
             must_conditions.append(FieldCondition(key="doc_type", match=MatchAny(any=doc_types)))
@@ -627,21 +589,6 @@ class HybridRetriever:
                 key="letter_height_cm",
                 range=Range(gte=h * 0.7, lte=h * 1.3),
             ))
-
-        if apply_subcat:
-            from qdrant_client.models import IsEmptyCondition, PayloadField, MatchValue
-            subcat_filter = Filter(should=[
-                FieldCondition(
-                    key="subcategory",
-                    match=MatchValue(value=parsed.detected_subcategory),
-                ),
-                IsEmptyCondition(is_empty=PayloadField(key="subcategory")),
-            ])
-            must_conditions.append(subcat_filter)
-            logger.info("Subcategory hard filter applied (intent-aware)",
-                        subcategory=parsed.detected_subcategory,
-                        intent=intent_name,
-                        confidence_method="tier2")
 
         query_filter = Filter(must=must_conditions) if must_conditions else None
 
