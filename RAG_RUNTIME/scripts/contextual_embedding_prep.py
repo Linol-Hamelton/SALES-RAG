@@ -109,8 +109,12 @@ async def llm_context(
     client: httpx.AsyncClient,
     doc_text: str,
     sem: asyncio.Semaphore,
+    max_retries: int = 3,
 ) -> str | None:
-    """Generate LLM-based context via DeepSeek-chat."""
+    """Generate LLM-based context via DeepSeek-chat.
+
+    Retries on transient 5xx (502 Bad Gateway, 503/504) with exponential backoff.
+    """
     # Truncate doc_text to avoid token blowup
     doc_text = doc_text[:2000]
     payload = {
@@ -122,24 +126,36 @@ async def llm_context(
         "max_tokens_override": MAX_CONTEXT_TOKENS + 20,
     }
     async with sem:
-        try:
-            resp = await client.post(
-                PROD_URL,
-                json=payload,
-                headers={"Host": HOST_HEADER},
-                timeout=TIMEOUT,
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            ctx = (data.get("summary") or "").strip()
-            # Strip common boilerplate
-            for prefix in ("Контекст для поиска:", "Контекст:", "Контекст -"):
-                if ctx.lower().startswith(prefix.lower()):
-                    ctx = ctx[len(prefix):].strip()
-            return ctx[:500] if ctx else None
-        except Exception as e:
-            print(f"  LLM context error: {type(e).__name__}: {e}", flush=True)
-            return None
+        for attempt in range(max_retries):
+            try:
+                resp = await client.post(
+                    PROD_URL,
+                    json=payload,
+                    headers={"Host": HOST_HEADER},
+                    timeout=TIMEOUT,
+                )
+                # Retry on transient 5xx (do NOT raise yet)
+                if resp.status_code in (500, 502, 503, 504):
+                    if attempt < max_retries - 1:
+                        await asyncio.sleep(2 ** attempt)
+                        continue
+                resp.raise_for_status()
+                data = resp.json()
+                ctx = (data.get("summary") or "").strip()
+                for prefix in ("Контекст для поиска:", "Контекст:", "Контекст -"):
+                    if ctx.lower().startswith(prefix.lower()):
+                        ctx = ctx[len(prefix):].strip()
+                return ctx[:500] if ctx else None
+            except (httpx.TimeoutException, httpx.NetworkError) as e:
+                if attempt < max_retries - 1:
+                    await asyncio.sleep(2 ** attempt)
+                    continue
+                print(f"  LLM context error: {type(e).__name__}: {e}", flush=True)
+                return None
+            except Exception as e:
+                print(f"  LLM context error: {type(e).__name__}: {e}", flush=True)
+                return None
+        return None
 
 
 async def process_doc(

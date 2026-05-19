@@ -1,0 +1,217 @@
+# P22.B.1: Topic-specific schemas — что ОБЯЗАТЕЛЬНО упомянуть в summary для каждого
+# topic + intent. НЕ строгий JSON schema (LLM не должен ломать структурированный
+# output), а **must_mention checklist** который injected в structured_query prompt
+# для focus'а LLM на extraction конкретных полей из refs.
+#
+# Используется query.py: после intent classification → topic lookup → schema injection.
+# CRAG verification (_verify_grounding) проверяет что упомянутые prices/deal_ids
+# реально в refs payload.
+
+# === CLIENT TOPICS ===
+
+design_logo:
+  intent_match: [product_query, smeta_request, consultation]
+  must_mention:
+    - "Пакет (Стандарт/Базовый/Креативная группа) с конкретной ценой"
+    - "Состав пакета (бриф, концепции, отрисовка, правила использования)"
+    - "Источник цены (deal #XXXX или 'медиана N сделок')"
+    - "Срок изготовления (estimated_lead_time)"
+  forbidden:
+    - "общие диапазоны 'от X до Y' без указания пакета"
+    - "цены без deal_id или 'медиана'"
+
+design_brand:
+  intent_match: [product_query, smeta_request, consultation, bundle_query]
+  must_mention:
+    - "Пакет брендбука (Базовый/Стандарт/Премиум) с конкретной ценой"
+    - "Что входит (логотип, фирстиль, носители, гайдлайны)"
+    - "Источник цены"
+    - "Срок изготовления"
+
+ad_signboard:
+  intent_match: [product_query, smeta_request]
+  must_mention:
+    - "Тип вывески (объёмные буквы / световой короб / неон / лайтбокс)"
+    - "Размеры (высота букв или габариты короба)"
+    - "Цена под ключ (производство + монтаж + каркас + дизайн)"
+    - "Источник цены (Набор #XXXX или рыночный ориентир)"
+    - "Срок изготовления"
+
+ad_banner:
+  intent_match: [product_query, smeta_request]
+  must_mention:
+    - "Размер баннера (м × м)"
+    - "Материал (баннерная ткань / самоклейка / композит)"
+    - "Цена производства + монтаж (если применимо)"
+    - "Срок изготовления"
+
+ad_misc:
+  intent_match: [product_query, smeta_request, consultation]
+  must_mention:
+    - "Тип изделия (штендер / табличка / стенд)"
+    - "Материал и габариты"
+    - "Цена"
+    - "Срок изготовления"
+
+print_visitka:
+  intent_match: [product_query, smeta_request]
+  must_mention:
+    - "Тираж (точное количество)"
+    - "Плотность бумаги (250/300/350 г/м²) + покрытие (ламинация/УФ-лак)"
+    - "Цена за 1000 шт + итоговая цена тиража"
+    - "Срок изготовления"
+
+print_flyer:
+  intent_match: [product_query, smeta_request]
+  must_mention:
+    - "Тираж + формат (А4/А5/А6/евро)"
+    - "Тип фальцовки если буклет (Z/гармошка/2-fold/4-fold)"
+    - "Бумага (плотность + тип: мелованная/офсетная/дизайнерская)"
+    - "Цена за тираж + per unit"
+    - "Срок изготовления"
+  collision_warning:
+    - "Различать буклет (многостраничный) vs листовку (1-2 страницы)"
+
+print_misc:
+  intent_match: [product_query, smeta_request]
+  must_mention:
+    - "Тип продукта (меню / каталог / брошюра / стенд / папка)"
+    - "Количество страниц + переплёт"
+    - "Тираж + бумага"
+    - "Цена"
+    - "Срок изготовления"
+
+merch:
+  intent_match: [product_query, smeta_request, bundle_query]
+  must_mention:
+    - "Тип сувенирки (футболка/кружка/бейсболка/ручка/флешка/пакет)"
+    - "Метод брендирования (шелкография/сублимация/вышивка/гравировка)"
+    - "Тираж + цена за единицу + итого"
+    - "Срок изготовления"
+
+stickers:
+  intent_match: [product_query, smeta_request]
+  must_mention:
+    - "Тип материала (винил/самоклейка/прозрачная/металлизированная)"
+    - "Размер + способ резки (контурная/прямая)"
+    - "Тираж + цена за тираж"
+    - "Срок изготовления"
+
+consultation:
+  intent_match: [consultation, category_clarify]
+  must_mention:
+    - "Какие услуги делаем (перечисление направлений)"
+    - "1 ключевое преимущество (свой цех / 15 лет / гарантия 12 мес)"
+    - "1 уточняющий вопрос (тип, размер, материал)"
+  forbidden:
+    - "Конкретные цены без параметров (рано для pricing)"
+
+objections:
+  intent_match: [objection_arguments, consultation]
+  must_mention:
+    - "Конкретный argumentation strategy (value over price / ROI / гарантия)"
+    - "Подкрепляющие данные (число сделок / средний чек / срок гарантии)"
+    - "Пример similar deal (deal #XXXX) где аналогичное возражение было закрыто"
+
+portfolio_examples:
+  intent_match: [historical_request, consultation]
+  must_mention:
+    - "Конкретные сделки с deal_id и Bitrix ссылками"
+    - "Кратко: год, направление, итоговая цена"
+    - "Closing вопрос для уточнения параметров"
+  forbidden:
+    - "Выдуманные deal_id"
+    - "Числа без deal_id или 'медиана N сделок'"
+
+# === MANAGER TOPICS ===
+
+objection_handling:
+  intent_match: [objection_arguments, describe]
+  must_mention:
+    - "Argument strategy с конкретными цифрами (X% маржинальность, Y лет гарантия)"
+    - "Список похожих сделок (deal_id) где manager закрыл это возражение"
+    - "Manager script фраза (готовая к использованию)"
+  forbidden:
+    - "Generic sales advice без deal_id ссылок"
+
+smeta_assist:
+  intent_match: [smeta_request, bundle_query]
+  must_mention:
+    - "Spec уровень (high-spec / low-spec / medium)"
+    - "Конкретные deal_items с product_name + qty + unit_price + total"
+    - "Источник цен (deal #XXXX или пакет / каталог)"
+    - "Estimated_price = сумма deal_items"
+    - "Lead_time"
+
+historical_links:
+  intent_match: [historical_request]
+  must_mention:
+    - "2-3 конкретные сделки с deal_id (Bitrix URL)"
+    - "Для каждой: год, направление, состав, итоговая цена"
+    - "Если данных нет — честно сказать 'в базе не нашёл прямых аналогов', НЕ выдумывать"
+
+upsell:
+  intent_match: [bundle_query, smeta_request, describe]
+  must_mention:
+    - "Конкретные upsell-опции (название + цена за единицу)"
+    - "Ожидаемый uplift в чеке (+X% к базовой смете)"
+    - "Similar deals где upsell сработал (deal_id)"
+
+discovery:
+  intent_match: [discovery_assist, describe]
+  must_mention:
+    - "Список уточняющих вопросов (3-5 пунктов) что клиент должен ответить"
+    - "Какие данные критически нужны (тираж, материал, deadline, бюджет)"
+  forbidden:
+    - "Прайс или КП пока параметры не уточнены"
+
+signage_specs:
+  intent_match: [product_query, smeta_request, describe]
+  must_mention:
+    - "Технология (объёмные буквы / короб / неон / LED)"
+    - "Конкретные параметры (высота, материалы, тип подсветки)"
+    - "Similar deals с deal_id"
+    - "Цена и срок"
+
+vocabulary:
+  intent_match: [describe, consultation]
+  must_mention:
+    - "Чёткое определение термина (брендмауэр vs объёмные буквы и т.п.)"
+    - "Где какая технология применяется"
+    - "Примеры из реальных сделок (deal_id)"
+
+directions:
+  intent_match: [consultation, describe]
+  must_mention:
+    - "Краткое описание направления (Цех/Печать/Дизайн/РИК/Мерч/Сольвент)"
+    - "Какие услуги входят"
+    - "Типичные ценовые диапазоны"
+
+pricing_justify:
+  intent_match: [objection_arguments, describe]
+  must_mention:
+    - "ROI / окупаемость / результат для клиента — конкретные цифры"
+    - "Подкрепление через case study (deal_id где это сработало)"
+    - "Сравнение TCO vs альтернативы (опционально)"
+
+logistics:
+  intent_match: [consultation, describe]
+  must_mention:
+    - "Варианты доставки/монтажа (свои/курьер/самовывоз)"
+    - "Сроки + ценовой ориентир"
+    - "Зона покрытия (Махачкала / Дагестан / РФ)"
+
+project_timeline:
+  intent_match: [describe, consultation]
+  must_mention:
+    - "Этапы проекта (бриф → дизайн → производство → монтаж)"
+    - "Длительности каждого этапа"
+    - "Зависимости и риски срыва дедлайна"
+
+service_bundling:
+  intent_match: [bundle_query, smeta_request]
+  must_mention:
+    - "Конкретный комплект услуг с product_names"
+    - "Цена под ключ"
+    - "Что входит/не входит"
+    - "Похожие bundles из реальных сделок (deal_id)"

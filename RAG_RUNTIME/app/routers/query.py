@@ -84,6 +84,261 @@ def _get_few_shot_block() -> str:
     return _load()
 
 
+# P22.B.2: Topic-specific schemas injection. Loads RAG_RUNTIME/configs/topic_schemas.yaml
+# и инжектит must_mention checklist в structured_query prompt. Цель — заставить LLM
+# извлекать конкретные required fields (price, deal_id, lead_time) для каждой темы,
+# вместо generic «обычно от X до Y».
+
+# Topic keyword detection: more-specific topics first; design_logo intentionally
+# placed AFTER merch/print so compound queries like "мерч с логотипом" resolve to
+# merch (the actual subject). Russian morphology: include both stem AND genitive
+# plural insertions ("визитк" doesn't substring-match "визиток"; "наклеек" needed).
+_TOPIC_KEYWORDS = [
+    # (topic, [keywords]) — порядок важен: специфичные перед общими
+    ("design_brand", ["брендбук", "брендинг", "фирменн стил", "фирстил", "айдентик"]),
+    ("ad_signboard", ["вывеск", "вывесок", "объёмн букв", "объемн букв", "лайтбокс",
+                      "световой короб", "неон", "брендмауэр", "фасадн", "крышн"]),
+    ("ad_banner", ["баннер", "перетяжк", "сольвент"]),
+    ("print_visitka", ["визитк", "визиток"]),
+    ("print_flyer", ["листовк", "листовок", "флаер", "буклет"]),
+    ("merch", ["мерч", "футболк", "кружк", "бейсболк", "флешк", "сувенирк",
+               "пакет с логотип", "ежедневник", "блокнот"]),
+    ("stickers", ["наклейк", "наклеек", "стикер", "плёнк", "пленк"]),
+    ("ad_misc", ["штендер", "табличк", "стенд"]),
+    ("print_misc", ["каталог", "меню", "брошюр", "папк фирменн"]),
+    ("design_logo", ["логотип", " лого ", " лого,", " лого."]),
+]
+
+# Intent → fallback topic, используется когда нет keyword match
+_INTENT_TO_TOPIC_FALLBACK = {
+    # Client intents
+    "consultation": "consultation",
+    "category_clarify": "consultation",
+    "historical_request": "portfolio_examples",
+    "objection_arguments": "objections",
+    # Manager intents
+    "smeta_request": "smeta_assist",
+    "bundle_query": "service_bundling",
+    "discovery_assist": "discovery",
+    "describe": "vocabulary",
+}
+
+
+# P22.B.3: CRAG-style grounding verification regex patterns.
+# Price detection: 3-7 digit number (optional space/dot/comma thousand sep) + ₽/р.
+_PRICE_RE = re.compile(r"(\d{1,3}(?:[  .,]\d{3})+|\d{3,7})\s*(?:₽|руб|р\.?\b)", re.IGNORECASE)
+# Deal/offer ID mentions: «сделка #12345», «КП #12345», «deal 12345»
+_DEAL_REF_RE = re.compile(
+    r"(?:сделк[аиуе]?|кп|deal|оффер|предложени[еия])\s*#?\s*(\d{4,6})", re.IGNORECASE
+)
+# Bare hash refs: «#62122»
+_BARE_HASH_RE = re.compile(r"#(\d{4,6})")
+
+
+def _extract_prices(text: str) -> set[int]:
+    """Extract integer ruble prices from text (handles space-separated thousands)."""
+    prices: set[int] = set()
+    if not text:
+        return prices
+    for m in _PRICE_RE.finditer(text):
+        raw = m.group(1)
+        cleaned = re.sub(r"[^\d]", "", raw)
+        if cleaned:
+            try:
+                v = int(cleaned)
+                if v >= 100:  # ignore digits like «1 рубль/2 рубля» grammar mentions
+                    prices.add(v)
+            except ValueError:
+                pass
+    return prices
+
+
+def _extract_deal_ids(text: str) -> set[str]:
+    """Extract deal/offer IDs from summary text."""
+    ids: set[str] = set()
+    if not text:
+        return ids
+    for m in _DEAL_REF_RE.finditer(text):
+        ids.add(m.group(1))
+    for m in _BARE_HASH_RE.finditer(text):
+        ids.add(m.group(1))
+    return ids
+
+
+def _collect_ref_prices(refs: list[dict]) -> set[int]:
+    """Collect all prices from retrieved refs (payload fields + searchable_text)."""
+    prices: set[int] = set()
+    if not refs:
+        return prices
+    _PRICE_FIELDS = (
+        "median_price", "price", "unit_price", "total", "median_total",
+        "estimated_price", "price_value", "deal_amount", "total_amount",
+        "amount",
+    )
+    for r in refs:
+        payload = r.get("payload", {}) or {}
+        for k in _PRICE_FIELDS:
+            v = payload.get(k)
+            if isinstance(v, (int, float)) and v >= 100:
+                prices.add(int(round(v)))
+        text = (payload.get("searchable_text") or "")[:4000]
+        for p in _extract_prices(text):
+            prices.add(p)
+    return prices
+
+
+def _collect_ref_deal_ids(refs: list[dict]) -> set[str]:
+    """Collect all deal/offer IDs from refs payload."""
+    ids: set[str] = set()
+    if not refs:
+        return ids
+    _ID_FIELDS = ("deal_id", "offer_id", "id", "kp_id", "source_deal_id")
+    for r in refs:
+        payload = r.get("payload", {}) or {}
+        for k in _ID_FIELDS:
+            v = payload.get(k)
+            if v not in (None, "", 0):
+                ids.add(str(v))
+        text = (payload.get("searchable_text") or "")[:4000]
+        for d in _extract_deal_ids(text):
+            ids.add(d)
+    return ids
+
+
+def _verify_grounding(summary: str, refs: list[dict]) -> dict:
+    """P22.B.3: CRAG-style grounding verification.
+
+    Checks if numeric values (prices, deal_ids) mentioned in LLM summary actually
+    appear in retrieved refs payload. Returns grounding_score (0..1) and lists
+    of ungrounded mentions for log diagnostics.
+
+    Soft check — log warnings only, no hard fail (production safety).
+    Price match has ±5% tolerance to allow legitimate rounding.
+    """
+    summary_prices = _extract_prices(summary or "")
+    summary_deals = _extract_deal_ids(summary or "")
+    if not summary_prices and not summary_deals:
+        return {"score": 1.0, "n_prices": 0, "n_deals": 0,
+                "missing_prices": [], "missing_deals": []}
+
+    ref_prices = _collect_ref_prices(refs or [])
+    ref_deals = _collect_ref_deal_ids(refs or [])
+
+    def _price_close(p: int, ref_set: set[int]) -> bool:
+        for rp in ref_set:
+            if rp > 0 and abs(p - rp) / max(rp, 1) <= 0.05:
+                return True
+        return False
+
+    grounded_prices = {p for p in summary_prices if _price_close(p, ref_prices)}
+    grounded_deals = {d for d in summary_deals if d in ref_deals}
+    missing_prices = sorted(summary_prices - grounded_prices)
+    missing_deals = sorted(summary_deals - grounded_deals)
+
+    total = len(summary_prices) + len(summary_deals)
+    grounded = len(grounded_prices) + len(grounded_deals)
+    score = round(grounded / total, 3) if total else 1.0
+
+    return {
+        "score": score,
+        "n_prices": len(summary_prices),
+        "n_deals": len(summary_deals),
+        "missing_prices": missing_prices,
+        "missing_deals": missing_deals,
+    }
+
+
+def _detect_topic(query: str, intent: str | None) -> str | None:
+    """P22.B.2: detect topic for schema lookup from query keywords + intent fallback.
+
+    Returns topic name (key in topic_schemas.yaml) или None если не удалось определить.
+    """
+    q = (query or "").lower()
+    for topic, keywords in _TOPIC_KEYWORDS:
+        for kw in keywords:
+            if kw in q:
+                return topic
+    # Keyword miss → intent fallback
+    if intent:
+        return _INTENT_TO_TOPIC_FALLBACK.get(intent)
+    return None
+
+
+def _get_topic_schema_block(query: str, intent: str | None) -> str:
+    """P22.B.2: build schema instruction from topic_schemas.yaml for current query.
+
+    Returns formatted block (ТЕМАТИЧЕСКАЯ СХЕМА... must_mention checklist) or empty
+    string if no topic matched / schema not configured.
+    """
+    import yaml
+    from functools import lru_cache
+
+    @lru_cache(maxsize=1)
+    def _load():
+        from pathlib import Path
+        p = Path(__file__).parent.parent.parent / "configs" / "topic_schemas.yaml"
+        if p.exists():
+            try:
+                with open(p, encoding="utf-8") as f:
+                    return yaml.safe_load(f) or {}
+            except Exception:
+                return {}
+        return {}
+
+    schemas = _load()
+    if not schemas:
+        return ""
+
+    topic = _detect_topic(query, intent)
+    if not topic or topic not in schemas:
+        return ""
+
+    schema = schemas[topic]
+    # Verify intent matches schema's intent_match list (if defined)
+    intent_match = schema.get("intent_match") or []
+    if intent and intent_match and intent not in intent_match:
+        # Keyword topic mismatch the intent — try intent's fallback topic
+        # (e.g. query has "вывеска" but intent=discovery_assist → use "discovery" topic).
+        fb = _INTENT_TO_TOPIC_FALLBACK.get(intent)
+        if fb and fb in schemas:
+            fb_schema = schemas[fb]
+            fb_match = fb_schema.get("intent_match") or []
+            if not fb_match or intent in fb_match:
+                topic, schema = fb, fb_schema
+            else:
+                return ""
+        else:
+            return ""
+
+    must = schema.get("must_mention") or []
+    forbidden = schema.get("forbidden") or []
+    collision = schema.get("collision_warning") or []
+
+    if not must:
+        return ""
+
+    lines = [
+        f"ТЕМАТИЧЕСКАЯ СХЕМА (topic: {topic}):",
+        "ОБЯЗАТЕЛЬНО упомяни в summary:",
+    ]
+    for item in must:
+        lines.append(f"  - {item}")
+    if forbidden:
+        lines.append("ИЗБЕГАЙ в summary:")
+        for item in forbidden:
+            lines.append(f"  - {item}")
+    if collision:
+        lines.append("ВНИМАНИЕ (частые ошибки на этой теме):")
+        for item in collision:
+            lines.append(f"  - {item}")
+    lines.append(
+        "Для КАЖДОЙ упомянутой цены укажи источник: "
+        "«deal #XXXXX» / «пакет [имя]» / «медиана N сделок» / «расчёт цеха». "
+        "НЕ используй «обычно», «примерно», «в среднем» без конкретной привязки."
+    )
+    return "\n".join(lines)
+
+
 # P17.alt: intent-based model routing. v14 measure showed deepseek-reasoner
 # helps reasoning-intensive intents (+4-7pp on signage_specs, logistics, design_logo,
 # objection_handling) but HURTS simple/direct intents (-9 to -20pp on stickers,
@@ -2178,6 +2433,20 @@ async def query_structured(req: QueryRequest, request: Request,
                 intent_instruction = (intent_instruction + "\n\n" + _fs).strip() \
                     if intent_instruction else _fs
 
+        # P22.B.2: inject topic-specific schema (must_mention checklist) into
+        # intent_instruction. Schema picked by query keywords → topic, with intent
+        # fallback. Forces LLM to extract concrete fields (price + deal_id + lead_time)
+        # rather than vague generic answers.
+        _intent_for_schema = intent_result.intent if intent_result else None
+        _schema_block = _get_topic_schema_block(req.query, _intent_for_schema)
+        if _schema_block:
+            intent_instruction = (intent_instruction + "\n\n" + _schema_block).strip() \
+                if intent_instruction else _schema_block
+            logger.info("Topic schema injected",
+                        topic=_detect_topic(req.query, _intent_for_schema),
+                        intent=_intent_for_schema,
+                        query=req.query[:80])
+
         # --- Decompose query: detect complex multi-component requests ---
         decomp = decompose(req.query)
         parametric_breakdown_schema: ParametricBreakdown | None = None
@@ -2671,6 +2940,26 @@ async def query_structured(req: QueryRequest, request: Request,
         reasoning = raw_json.get("reasoning", "")
         llm_flags = raw_json.get("flags", []) if isinstance(raw_json.get("flags"), list) else []
         llm_risks = raw_json.get("risks", []) if isinstance(raw_json.get("risks"), list) else []
+
+        # P22.B.3: CRAG-style grounding verification. Soft check — logs only,
+        # no hard fail. Score reused as faithfulness proxy для RAGAS.
+        try:
+            _grd = _verify_grounding(summary, reranked)
+            if _grd["score"] < 0.7 and (_grd["n_prices"] + _grd["n_deals"]) > 0:
+                logger.warning("Low grounding score",
+                               score=_grd["score"],
+                               n_prices=_grd["n_prices"],
+                               n_deals=_grd["n_deals"],
+                               missing_prices=_grd["missing_prices"][:5],
+                               missing_deals=_grd["missing_deals"][:5],
+                               query=req.query[:80])
+            else:
+                logger.info("Grounding verified",
+                            score=_grd["score"],
+                            n_prices=_grd["n_prices"],
+                            n_deals=_grd["n_deals"])
+        except Exception as _e_grd:
+            logger.debug("Grounding verification skipped", error=str(_e_grd))
 
         if decomp.is_complex and estimate is not None:
             # Complex path: compute under-key totals from pricing resolver
